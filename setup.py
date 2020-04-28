@@ -16,7 +16,6 @@ setup(
         "webviz_config_plugins": [
             "ERTParameterDistribution = ertviz.plugins:ERTParameterDistribution",
             "ERTTimeSeries = ertviz.plugins:ERTTimeSeries",
-
         ]
     },
     install_requires=["webviz-config>=0.0.40",],

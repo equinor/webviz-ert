@@ -8,14 +8,17 @@ from webviz_config import WebvizPluginABC
 
 from .._data_input.common_requests import get_data, get_ensembles, api_request
 
+
 def convertdate(dstring):
     return datetime.strptime(dstring, "%Y-%m-%d %H:%M:%S")
+
 
 def get_axis(data_url):
     indexes = requests.get(data_url).text.split(",")
     if indexes and ":" in indexes[0]:
         return list(map(convertdate, indexes))
     return list(map(int, indexes))
+
 
 def get_realizations_data(realizations, x_axis):
     realizations_data = list()
@@ -132,9 +135,7 @@ class ERTTimeSeries(WebvizPluginABC):
 
         @app.callback(
             Output(self.uuid("responses-graphic"), "figure"),
-            [
-                Input(self.uuid("response-selector"), "value"),
-            ],
+            [Input(self.uuid("response-selector"), "value"),],
         )
         def _update_graph(yaxis_column_name):
             response = api_request(yaxis_column_name)
