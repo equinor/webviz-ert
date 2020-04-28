@@ -1,1 +1,2 @@
 from ._ert_parameter_distribution import ERTParameterDistribution
+from ._ert_time_series import ERTTimeSeries

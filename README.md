@@ -31,13 +31,7 @@ pip install -e .
 popd
 
 # Install this ertviz repository
-pip install --upgrade webviz-config
-git clone git@github.com:equinor/ertviz
-pushd ertviz
-pip install -e .
-popd
-
-export no_proxy="localhost,127.0.0.1"
+pip install --upgrade webviz-config git+https://github.com/equinor/ertviz
 ```
 
 Before starting `ertviz` plugins, you will currently also need to manually first start the ERT API server with some existing data:
