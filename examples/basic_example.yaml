@@ -1,9 +1,16 @@
-title: Test of some custom containers
+title: Test of ERTViz plugins
 
 pages:
 
  - title: Front page
    content:
-    - This is a `webviz` instance created from a configuration file.   
+    - This is a `webviz` instance created from a configuration file.
+    - Simple test of some ERTViz plugins.
+
+ - title: Simulation time series
+   content:
+    - ERTTimeSeries:
+
+ - title: Parameter distribution
+   content:
     - ERTParameterDistribution:
-      
