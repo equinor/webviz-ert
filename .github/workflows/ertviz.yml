@@ -1,0 +1,59 @@
+name: ertviz
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  release:
+    types:
+      - published
+  schedule:
+    # Run CI daily and check that tests are working with latest dependencies
+    - cron:  '0 0 * * *'
+
+jobs:
+
+  ertviz:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.6', '3.7', '3.8']
+
+    steps:
+      - name: 📖 Checkout commit locally
+        uses: actions/checkout@v2
+
+      - name: 🐍 Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: 📦 Install ertviz with dependencies
+        run: |
+          pip install --upgrade pip
+          pip install .
+
+          git clone git@github.com:equinor/ert.git
+          pushd ert
+          git fetch origin ertviz
+          git checkout ertviz
+          pip install .
+          popd
+
+      - name: 📦 Install test dependencies
+        run: |
+          pip install .[tests]
+          pip install dash[testing]
+          wget https://chromedriver.storage.googleapis.com/$(wget https://chromedriver.storage.googleapis.com/LATEST_RELEASE -q -O -)/chromedriver_linux64.zip
+          unzip chromedriver_linux64.zip
+  
+      - name: 🧾 List all installed packages
+        run: pip freeze
+
+      - name: 🕵️ Check code style & linting
+        run: |
+          black --check ertviz setup.py
+          pylint ertviz setup.py
