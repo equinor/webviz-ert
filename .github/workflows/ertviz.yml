@@ -36,13 +36,6 @@ jobs:
           pip install --upgrade pip
           pip install .
 
-          git clone git@github.com:equinor/ert.git
-          pushd ert
-          git fetch origin ertviz
-          git checkout ertviz
-          pip install .
-          popd
-
       - name: 📦 Install test dependencies
         run: |
           pip install .[tests]
