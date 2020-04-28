@@ -14,8 +14,7 @@ setup(
     packages=find_packages(exclude=["tests"]),
     entry_points={
         "webviz_config_plugins": [
-            "SomeCustomPlugin = ertviz.plugins:SomeCustomPlugin",
-            "SomeOtherCustomPlugin = ertviz.plugins:SomeOtherCustomPlugin",
+            "ERTParameterDistribution = ertviz.plugins:ERTParameterDistribution",
         ]
     },
     install_requires=["webviz-config>=0.0.40",],
