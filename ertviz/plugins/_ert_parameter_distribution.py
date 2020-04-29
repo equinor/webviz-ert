@@ -75,15 +75,18 @@ def next_value(current_value, options):
     return current_value
 
 
-def get_parameter_data(realizations, parameter):
+def get_parameter_data(ensemble_schema, parameter):
     realization_names = list()
     realization_parameters = list()
-    for realization in realizations:
-        realization_schema = api_request(realization["ref_url"])
-        for param in realization_schema["parameters"]:
-            if param["name"] == parameter:
-                realization_names.append(realization["name"])
-                realization_parameters.extend(get_data(param["data_url"]))
+
+    for parameter_dict in ensemble_schema["parameters"]:
+        if parameter == parameter_dict["key"]:
+            ref_url = parameter_dict["ref_url"]
+
+    for realization in api_request(ref_url)["parameter_realizations"]:
+        realization_names.append(realization["name"])
+        realization_parameters.extend(get_data(realization["data_url"]))
+
     return (realization_names, realization_parameters)
 
 
@@ -132,9 +135,7 @@ class ERTParameterDistribution(WebvizPluginABC):
 
             for ensemble in self.ensembles:
                 ensemble_schema = api_request(ensemble["ref_url"])
-                (realizations, params) = get_parameter_data(
-                    ensemble_schema["realizations"], parameter
-                )
+                (realizations, params) = get_parameter_data(ensemble_schema, parameter)
                 if realizations:
                     iterations.append(ensemble_schema["name"])
                     values.append(params)
