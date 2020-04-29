@@ -4,11 +4,12 @@ import requests
 
 os.environ["NO_PROXY"] = "localhost,127.0.0.1"
 
+
 def get_data(data_url):
     print(f"Getting data from {data_url}...", end="")
     data = list(map(float, requests.get(data_url).text.split(",")))
     print(" done!")
-    return data 
+    return data
 
 
 def get_ensembles():

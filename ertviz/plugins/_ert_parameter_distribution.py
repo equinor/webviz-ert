@@ -135,9 +135,7 @@ class ERTParameterDistribution(WebvizPluginABC):
 
             for ensemble in self.ensembles:
                 ensemble_schema = api_request(ensemble["ref_url"])
-                (realizations, params) = get_parameter_data(
-                    ensemble_schema, parameter
-                )
+                (realizations, params) = get_parameter_data(ensemble_schema, parameter)
                 if realizations:
                     iterations.append(ensemble_schema["name"])
                     values.append(params)
