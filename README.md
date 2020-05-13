@@ -22,20 +22,18 @@ source /prog/res/komodo/testing-py3/enable
 python -m venv ertviz_venv --system-site-packages
 source ertviz_venv/bin/activate
 
-# Install the ert API feature branch
-git clone git@github.com:equinor/ert.git
-pushd ert
-git fetch origin ertviz
-git checkout ertviz
-pip install -e .
-popd
+# Install the ert master branch
+pip install --upgrade git+https://github.com/equinor/ert
 
 # Install this ertviz repository
-pip install --upgrade webviz-config git+https://github.com/equinor/ertviz
+pip install --upgrade webviz-config
+git clone https://github.com/equinor/ertviz
+pushd ertviz
+pip install -e .
+popd
 ```
-
 Before starting `ertviz` plugins, you will currently also need to manually first start the ERT API server with some existing data:
 ```
-cd ./ert/test-data/local/snake_oil
+cd ./ertviz/testdata/snake_oil
 ert api
 ```
