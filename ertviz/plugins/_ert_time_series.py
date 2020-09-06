@@ -135,7 +135,9 @@ class ERTTimeSeries(WebvizPluginABC):
 
         @app.callback(
             Output(self.uuid("responses-graphic"), "figure"),
-            [Input(self.uuid("response-selector"), "value"),],
+            [
+                Input(self.uuid("response-selector"), "value"),
+            ],
         )
         def _update_graph(yaxis_column_name):
             response = api_request(yaxis_column_name)
@@ -148,8 +150,12 @@ class ERTTimeSeries(WebvizPluginABC):
             return {
                 "data": plot_lines,
                 "layout": dict(
-                    xaxis={"title": "Index",},
-                    yaxis={"title": "Unit TODO",},
+                    xaxis={
+                        "title": "Index",
+                    },
+                    yaxis={
+                        "title": "Unit TODO",
+                    },
                     margin={"l": 40, "b": 40, "t": 10, "r": 0},
                     hovermode="closest",
                 ),

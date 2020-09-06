@@ -144,8 +144,13 @@ class ERTParameterDistribution(WebvizPluginABC):
 
         @app.callback(
             Output("parameter-selector", "value"),
-            [Input("prev-btn", "n_clicks"), Input("next-btn", "n_clicks"),],
-            [State("parameter-selector", "value"),],
+            [
+                Input("prev-btn", "n_clicks"),
+                Input("next-btn", "n_clicks"),
+            ],
+            [
+                State("parameter-selector", "value"),
+            ],
         )
         def _set_parameter_from_btn(_prev_click, _next_click, parameter):
             ctx = dash.callback_context.triggered
