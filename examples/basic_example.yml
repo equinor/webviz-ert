@@ -1,0 +1,7 @@
+title: ERTVIZ
+
+pages:
+
+ - title: Front page
+   content:
+    - This is a `webviz` instance created from a configuration file.
