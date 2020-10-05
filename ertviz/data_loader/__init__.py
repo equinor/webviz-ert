@@ -1,7 +1,6 @@
 import os
 import requests
 
-
 os.environ["NO_PROXY"] = "localhost,127.0.0.1"
 
 data_cache = {}
