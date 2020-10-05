@@ -7,6 +7,8 @@ class DataContent:
         return self._content
 
 
+test_base_url = "http://127.0.0.1:5000"
+
 ensembles_response = {
     "http://127.0.0.1:5000/ensembles": {
         "ensembles": [
@@ -155,4 +157,20 @@ ensembles_response = {
             },
         ],
     },
+    "http://127.0.0.1:5000/ensembles/1/responses/SNAKE_OIL_GPR_DIFF": {
+        "alldata_url": "http://127.0.0.1:5000/ensembles/1/responses/SNAKE_OIL_GPR_DIFF/data",
+        "axis": {"data_url": "http://127.0.0.1:5000/data/283"},
+        "ensemble_id": "1",
+        "name": "SNAKE_OIL_GPR_DIFF",
+        "realizations": [
+            {
+                "data_url": "http://127.0.0.1:5000/data/284",
+                "name": 0,
+                "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/0",
+                "summarized_misfits": {},
+                "univariate_misfits": {},
+            }
+        ],
+    },
+    "http://127.0.0.1:5000/data/283": "0,1,2,3,4,5,6,7,8,9",
 }

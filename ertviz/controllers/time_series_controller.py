@@ -1,7 +1,10 @@
 from datetime import datetime
 from dash.dependencies import Input, Output
-from ertviz.data_loader import get_ensemble, get_data, get_schema
+from ertviz.data_loader import RequestHandler, DataLoader
 from ertviz.models.time_series_model import EnsemblePlotModel, PlotModel
+
+request_handler = RequestHandler(base_url="http://127.0.0.1:5000")
+data_loader = DataLoader(request_handler=request_handler)
 
 
 def _convertdate(dstring):
@@ -9,7 +12,7 @@ def _convertdate(dstring):
 
 
 def _get_axis(data_url):
-    indexes = get_data(data_url)
+    indexes = data_loader.get_data(data_url)
     if indexes and ":" in indexes[0]:
         return list(map(_convertdate, indexes))
     return list(map(int, indexes))
@@ -18,7 +21,7 @@ def _get_axis(data_url):
 def _get_realizations_data(realizations, x_axis):
     realizations_data = list()
     for realization in realizations:
-        data = get_data(realization["data_url"])
+        data = data_loader.get_data(realization["data_url"])
         plot = PlotModel(
             x_axis=x_axis,
             y_axis=data,
@@ -33,8 +36,8 @@ def _get_realizations_data(realizations, x_axis):
 
 
 def _get_observation_data(observation, x_axis):
-    data = get_data(observation["values"]["data_url"])
-    stds = get_data(observation["std"]["data_url"])
+    data = data_loader.get_data(observation["values"]["data_url"])
+    stds = data_loader.get_data(observation["std"]["data_url"])
     x_axis_indexes = _get_axis(observation["data_indexes"]["data_url"])
     x_axis = [x_axis[i] for i in x_axis_indexes]
     observation_data = PlotModel(
@@ -73,7 +76,7 @@ def timeseries_controller(parent, app):
     )
     def _set_response_options(pathname):
         ensemble_id = pathname.strip("/")
-        ensemble_schema = get_ensemble(ensemble_id)
+        ensemble_schema = data_loader.get_ensemble(ensemble_id)
         if "responses" in ensemble_schema:
             return [
                 {"label": response["name"], "value": response["ref_url"]}
@@ -113,7 +116,7 @@ def timeseries_controller(parent, app):
                 ),
             ).repr
 
-        response = get_schema(value)
+        response = data_loader.get_schema(value)
         x_axis = _get_axis(response["axis"]["data_url"])
         realizations = _get_realizations_data(response["realizations"], x_axis)
         observations = []
