@@ -1,0 +1,21 @@
+title: Test of ERTViz plugins
+
+pages:
+
+ - title: Front page
+   content:
+    - Ensemble Oveview
+    - EnsembleOverview:
+
+ - title: Ensemble Viewer
+   content:
+    - Ensemble
+    - Ensemble:
+
+#  - title: Simulation time series
+#    content:
+#     - ERTTimeSeries:
+
+#  - title: Parameter distribution
+#    content:
+#     - ERTParameterDistribution:
