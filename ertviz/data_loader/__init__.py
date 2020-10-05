@@ -5,11 +5,12 @@ import requests
 os.environ["NO_PROXY"] = "localhost,127.0.0.1"
 
 data_cache = {}
+REQUEST_HANDLER = requests
 
 
 def get_data(data_url):
     print(f"Getting data from {data_url}...", end="")
-    data = requests.get(data_url).text.split(",")
+    data = REQUEST_HANDLER.get(data_url).text.split(",")
     print(" done!")
     return data
 
@@ -27,6 +28,6 @@ def get_ensemble(ensemble_id):
 
 def get_schema(api_url):
     print(f"Getting json from {api_url}...", end="")
-    json = requests.get(api_url).json()
+    json = REQUEST_HANDLER.get(api_url).json()
     print(" done!")
     return json
