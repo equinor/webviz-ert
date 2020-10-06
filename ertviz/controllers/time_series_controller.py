@@ -1,29 +1,17 @@
-from datetime import datetime
 from dash.dependencies import Input, Output
-from ertviz.data_loader import get_ensemble, get_data, get_schema, get_numeric_data
+from ertviz.data_loader import get_ensemble
+from ertviz.ert_client import get_response
 from ertviz.models.time_series_model import EnsemblePlotModel, PlotModel
-
-
-def _convertdate(dstring):
-    return datetime.strptime(dstring, "%Y-%m-%d %H:%M:%S")
-
-
-def _get_axis(data_url):
-    indexes = get_data(data_url)
-    if indexes and ":" in indexes[0]:
-        return list(map(_convertdate, indexes))
-    return list(map(int, indexes))
 
 
 def _get_realizations_data(realizations, x_axis):
     realizations_data = list()
     for realization in realizations:
-        data = get_data(realization["data_url"])
         plot = PlotModel(
             x_axis=x_axis,
-            y_axis=data,
-            text="Realization {}".format(realization["name"]),
-            name="Realization {}".format(realization["name"]),
+            y_axis=realization.data,
+            text="Realization {}".format(realization.name),
+            name="Realization {}".format(realization.name),
             mode="line",
             line=dict(color="royalblue"),
             marker=None,
@@ -33,9 +21,9 @@ def _get_realizations_data(realizations, x_axis):
 
 
 def _get_observation_data(observation, x_axis):
-    data = get_numeric_data(observation["values"]["data_url"])
-    stds = get_numeric_data(observation["std"]["data_url"])
-    x_axis_indexes = _get_axis(observation["data_indexes"]["data_url"])
+    data = observation.values
+    stds = observation.std
+    x_axis_indexes = observation.data_indexes_as_axis
     x_axis = [x_axis[i] for i in x_axis_indexes]
     observation_data = PlotModel(
         x_axis=x_axis,
@@ -113,14 +101,15 @@ def timeseries_controller(parent, app):
                 ),
             ).repr
 
-        response = get_schema(value)
-        x_axis = _get_axis(response["axis"]["data_url"])
-        realizations = _get_realizations_data(response["realizations"], x_axis)
+        response = get_response(value)
+
+        x_axis = response.axis
+        realizations = _get_realizations_data(response.realizations, x_axis)
         observations = []
 
-        for obs in response.get("observations", []):
-            observations += _get_observation_data(obs["data"], x_axis)
-        print(len(observations))
+        for obs in response.observations:
+            observations += _get_observation_data(obs, x_axis)
+
         ensemble_plot = EnsemblePlotModel(
             realizations,
             observations,

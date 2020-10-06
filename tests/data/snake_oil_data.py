@@ -155,4 +155,53 @@ ensembles_response = {
             },
         ],
     },
+    "http://127.0.0.1:5000/ensembles/1/responses/SNAKE_OIL_GPR_DIFF": {
+        "alldata_url": "http://127.0.0.1:5000/ensembles/1/responses/SNAKE_OIL_GPR_DIFF/data",
+        "axis": {"data_url": "http://127.0.0.1:5000/data/283"},
+        "ensemble_id": "1",
+        "name": "SNAKE_OIL_GPR_DIFF",
+        "realizations": [
+            {
+                "data_url": "http://127.0.0.1:5000/data/284",
+                "name": 0,
+                "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/0",
+                "summarized_misfits": {},
+                "univariate_misfits": {},
+            }
+        ],
+    },
+    "http://127.0.0.1:5000/ensembles/1/responses/FOPR": {
+        "alldata_url": "http://127.0.0.1:5000/ensembles/1/responses/FOPR/data",
+        "axis": {"data_url": "http://127.0.0.1:5000/data/725"},
+        "ensemble_id": "1",
+        "name": "FOPR",
+        "observations": [
+            {
+                "data": {
+                    "data_indexes": {"data_url": "http://127.0.0.1:5000/data/2"},
+                    "key_indexes": {"data_url": "http://127.0.0.1:5000/data/1"},
+                    "std": {"data_url": "http://127.0.0.1:5000/data/4"},
+                    "values": {"data_url": "http://127.0.0.1:5000/data/3"},
+                },
+                "name": "FOPR",
+            }
+        ],
+        "realizations": [
+            {
+                "data_url": "http://127.0.0.1:5000/data/726",
+                "name": 0,
+                "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/0",
+                "summarized_misfits": {"FOPR": 946.263115564503},
+                "univariate_misfits": {
+                    "FOPR": [
+                        {"obs_index": 0, "sign": True, "value": 1.3776484533744848},
+                        {"obs_index": 1, "sign": True, "value": 1.384794184010784},
+                        {"obs_index": 2, "sign": True, "value": 1.3966335691013885},
+                    ]
+                },
+            }
+        ],
+    },
+    "http://127.0.0.1:5000/data/725": "0,1,2,3,4,5,6,7,8,9",
+    "http://127.0.0.1:5000/data/283": "0,1,2,3,4,5,6,7,8,9",
 }
