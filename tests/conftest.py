@@ -1,5 +1,6 @@
 import pytest
 from tests.data.snake_oil_data import ensembles_response
+from requests import HTTPError
 
 
 def mocked_requests_get(*args, **kwargs):
@@ -11,8 +12,15 @@ def mocked_requests_get(*args, **kwargs):
         def json(self):
             return self.data
 
+        @property
         def text(self):
             return self.data
+
+        def raise_for_status(self):
+            if self.status_code == 400:
+                raise HTTPError(
+                    "Mocked requests raised HTTPError 400 due to missing data in test-data set!"
+                )
 
     if args[0] in ensembles_response:
         return MockResponse(ensembles_response[args[0]], 200)

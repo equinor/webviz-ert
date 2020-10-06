@@ -1,5 +1,7 @@
 import os
 import requests
+from datetime import datetime
+import logging
 
 os.environ["NO_PROXY"] = "localhost,127.0.0.1"
 
@@ -7,10 +9,12 @@ data_cache = {}
 
 
 def get_data(data_url):
-    print(f"Getting data from {data_url}...", end="")
-    data = requests.get(data_url).text.split(",")
-    print(" done!")
-    return data
+    logging.info(f"Getting data from {data_url}...", end="")
+    http_response = requests.get(data_url)
+    http_response.raise_for_status()
+
+    logging.info(" done!")
+    return http_response.text.split(",")
 
 
 def get_numeric_data(data_url):
@@ -30,7 +34,9 @@ def get_ensemble(ensemble_id):
 
 
 def get_schema(api_url):
-    print(f"Getting json from {api_url}...", end="")
-    json = requests.get(api_url).json()
-    print(" done!")
-    return json
+    logging.info(f"Getting json from {api_url}...", end="")
+    http_response = requests.get(api_url)
+    http_response.raise_for_status()
+
+    logging.info(" done!")
+    return http_response.json()
