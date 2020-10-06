@@ -1,5 +1,6 @@
 import requests
 import logging
+from datetime import datetime
 
 
 class DataLoader:
@@ -29,6 +30,21 @@ class DataLoader:
         json = self._request_handler.get(api_url, json=True)
         logging.info("Done!")
         return json
+
+    def get_axis(self, url):
+        schema = self.get_schema(url)
+        if "axis" not in schema:
+            logging.warning("No axis defined in data from url {}".format(url))
+            return []
+        data_url = schema["axis"]["data_url"]
+
+        indexes = self.get_data(data_url)
+        if indexes and ":" in indexes[0]:
+            return list(map(self._convertdate, indexes))
+        return list(map(int, indexes))
+
+    def _convertdate(self, dstring):
+        return datetime.strptime(dstring, "%Y-%m-%d %H:%M:%S")
 
 
 class RequestHandler:

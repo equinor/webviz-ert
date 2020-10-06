@@ -7,17 +7,6 @@ request_handler = RequestHandler(base_url="http://127.0.0.1:5000")
 data_loader = DataLoader(request_handler=request_handler)
 
 
-def _convertdate(dstring):
-    return datetime.strptime(dstring, "%Y-%m-%d %H:%M:%S")
-
-
-def _get_axis(data_url):
-    indexes = data_loader.get_data(data_url)
-    if indexes and ":" in indexes[0]:
-        return list(map(_convertdate, indexes))
-    return list(map(int, indexes))
-
-
 def _get_realizations_data(realizations, x_axis):
     realizations_data = list()
     for realization in realizations:
@@ -38,7 +27,7 @@ def _get_realizations_data(realizations, x_axis):
 def _get_observation_data(observation, x_axis):
     data = data_loader.get_data(observation["values"]["data_url"])
     stds = data_loader.get_data(observation["std"]["data_url"])
-    x_axis_indexes = _get_axis(observation["data_indexes"]["data_url"])
+    x_axis_indexes = data_loader.get_axis(observation["data_indexes"]["data_url"])
     x_axis = [x_axis[i] for i in x_axis_indexes]
     observation_data = PlotModel(
         x_axis=x_axis,
@@ -117,7 +106,7 @@ def timeseries_controller(parent, app):
             ).repr
 
         response = data_loader.get_schema(value)
-        x_axis = _get_axis(response["axis"]["data_url"])
+        x_axis = data_loader.get_axis(response["axis"]["data_url"])
         realizations = _get_realizations_data(response["realizations"], x_axis)
         observations = []
         if "observation" in response:
