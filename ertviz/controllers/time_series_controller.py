@@ -1,6 +1,6 @@
 from datetime import datetime
 from dash.dependencies import Input, Output
-from ertviz.data_loader import get_ensemble, get_data, get_schema
+from ertviz.data_loader import get_ensemble, get_data, get_schema, get_numeric_data
 from ertviz.models.time_series_model import EnsemblePlotModel, PlotModel
 
 
@@ -33,8 +33,8 @@ def _get_realizations_data(realizations, x_axis):
 
 
 def _get_observation_data(observation, x_axis):
-    data = get_data(observation["values"]["data_url"])
-    stds = get_data(observation["std"]["data_url"])
+    data = get_numeric_data(observation["values"]["data_url"])
+    stds = get_numeric_data(observation["std"]["data_url"])
     x_axis_indexes = _get_axis(observation["data_indexes"]["data_url"])
     x_axis = [x_axis[i] for i in x_axis_indexes]
     observation_data = PlotModel(
@@ -64,7 +64,7 @@ def _get_observation_data(observation, x_axis):
         line=dict(color="red", dash="dash"),
         marker=None,
     )
-    return observation_data + lower_std_data + upper_std_data
+    return [observation_data, lower_std_data, upper_std_data]
 
 
 def timeseries_controller(parent, app):
@@ -117,10 +117,10 @@ def timeseries_controller(parent, app):
         x_axis = _get_axis(response["axis"]["data_url"])
         realizations = _get_realizations_data(response["realizations"], x_axis)
         observations = []
-        if "observation" in response:
-            observations = _get_observation_data(
-                response["observation"]["data"], x_axis
-            )
+
+        for obs in response.get("observations", []):
+            observations += _get_observation_data(obs["data"], x_axis)
+        print(len(observations))
         ensemble_plot = EnsemblePlotModel(
             realizations,
             observations,

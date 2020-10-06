@@ -13,6 +13,11 @@ def get_data(data_url):
     return data
 
 
+def get_numeric_data(data_url):
+    data = get_data(data_url)
+    return [eval(d) for d in data]
+
+
 def get_ensembles():
     server_url = "http://127.0.0.1:5000"
     data_cache["ensembles"] = get_schema(f"{server_url}/ensembles")["ensembles"]

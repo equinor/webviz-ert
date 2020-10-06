@@ -10,14 +10,19 @@ class PlotModel:
 
     @property
     def repr(self):
-        return dict(
+        repr_dict = dict(
             x=self._x_axis,
             y=self._y_axis,
             text=self._text,
             name=self._name,
             mode=self._mode,
-            line=self._line,
         )
+        if self._line:
+            repr_dict["line"] = self._line
+        if self._marker:
+            repr_dict["marker"] = self._marker
+
+        return repr_dict
 
 
 class EnsemblePlotModel:
