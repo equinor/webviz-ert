@@ -24,6 +24,9 @@ class EnsembleOverview(WebvizPluginABC):
     def ensemble_view(self, index, ensemble_dict):
         return html.Div(
             children=[
-                dcc.Link(ensemble_dict["name"], href="/{}".format(index)),
+                dcc.Link(
+                    ensemble_dict["name"],
+                    href="/ensemble-viewer/?ensemble_id={}".format(index),
+                ),
             ]
         )

@@ -14,3 +14,5 @@ def indexes_to_axis(indexes):
 from .observation import Observation
 from .realization import Realization
 from .response import Response
+from .plot_model import PlotModel, EnsemblePlotModel
+from .parameter_model import ParameterRealizationModel, PriorModel, ParametersModel

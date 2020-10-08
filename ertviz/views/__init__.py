@@ -1,8 +1,9 @@
 import dash_html_components as html
 import dash_core_components as dcc
+from .paremeter_view import parameter_view
 
 
-def timeseries_view(parent):
+def response_view(parent):
     return [
         html.Div(
             [
@@ -18,23 +19,4 @@ def timeseries_view(parent):
             ]
         ),
         dcc.Graph(id=parent.uuid("responses-graphic")),
-    ]
-
-
-def parameter_view(parent):
-    return [
-        html.Div(
-            [
-                html.Div(
-                    [
-                        html.H5("Parameter"),
-                        dcc.Dropdown(id=parent.uuid("parameter-selector")),
-                    ],
-                    style={
-                        "width": "48%",
-                    },
-                ),
-            ]
-        ),
-        dcc.Graph(id=parent.uuid("paremeter-graphic")),
     ]
