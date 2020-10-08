@@ -1,7 +1,8 @@
 from dash.dependencies import Input, Output
 from ertviz.data_loader import get_ensemble
 from ertviz.ert_client import get_response
-from ertviz.models.time_series_model import EnsemblePlotModel, PlotModel
+from ertviz.models import EnsemblePlotModel, PlotModel
+from ertviz.controllers import parse_url_query
 
 
 def _get_realizations_data(realizations, x_axis):
@@ -55,13 +56,17 @@ def _get_observation_data(observation, x_axis):
     return [observation_data, lower_std_data, upper_std_data]
 
 
-def timeseries_controller(parent, app):
+def response_controller(parent, app):
     @app.callback(
-        Output(parent.uuid("response-selector"), "options"), [Input("url", "pathname")]
+        Output(parent.uuid("response-selector"), "options"), [Input("url", "search")]
     )
-    def _set_response_options(pathname):
-        ensemble_id = pathname.strip("/")
+    def _set_response_options(query):
+        queries = parse_url_query(query)
+        if not "ensemble_id" in queries:
+            return []
+        ensemble_id = queries["ensemble_id"]
         ensemble_schema = get_ensemble(ensemble_id)
+
         if "responses" in ensemble_schema:
             return [
                 {"label": response["name"], "value": response["ref_url"]}

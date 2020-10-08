@@ -1,8 +1,8 @@
 import dash_html_components as html
 from webviz_config import WebvizPluginABC
 
-from ertviz.views import timeseries_view
-from ertviz.controllers import timeseries_controller
+from ertviz.views import response_view, parameter_view
+from ertviz.controllers import response_controller, parameter_controller
 
 
 class Ensemble(WebvizPluginABC):
@@ -13,7 +13,20 @@ class Ensemble(WebvizPluginABC):
 
     @property
     def layout(self):
-        return html.Div(id="ensemble-content", children=timeseries_view(parent=self))
+        return html.Div(
+            [
+                html.Div(
+                    id="ensemble-content",
+                    children=response_view(parent=self) + parameter_view(parent=self),
+                ),
+                html.Div(
+                    [
+                        html.Pre(id="selected-data"),
+                    ]
+                ),
+            ]
+        )
 
     def set_callbacks(self, app):
-        timeseries_controller(self, app)
+        response_controller(self, app)
+        parameter_controller(self, app)
