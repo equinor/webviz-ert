@@ -1,14 +1,21 @@
 import dash_html_components as html
+import dash_core_components as dcc
 from webviz_config import WebvizPluginABC
 
 from ertviz.views import response_view, parameter_view
-from ertviz.controllers import response_controller, parameter_controller
+from ertviz.controllers import (
+    response_controller,
+    parameter_controller,
+    link_and_brush_controller,
+)
 
 
 class Ensemble(WebvizPluginABC):
     def __init__(self, app):
         super().__init__()
         self.id = "Ensemble"
+        self.ensemble_plot = None
+        self.parameter_plot = None
         self.set_callbacks(app)
 
     @property
@@ -21,7 +28,7 @@ class Ensemble(WebvizPluginABC):
                 ),
                 html.Div(
                     [
-                        html.Pre(id="selected-data"),
+                        dcc.Store(id=self.uuid("selection-store")),
                     ]
                 ),
             ]
@@ -30,3 +37,4 @@ class Ensemble(WebvizPluginABC):
     def set_callbacks(self, app):
         response_controller(self, app)
         parameter_controller(self, app)
+        link_and_brush_controller(self, app)

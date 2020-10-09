@@ -1,4 +1,6 @@
-from dash.dependencies import Input, Output
+import dash
+from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
 from ertviz.data_loader import get_ensemble
 from ertviz.ert_client import get_response
 from ertviz.models import EnsemblePlotModel, PlotModel
@@ -11,8 +13,8 @@ def _get_realizations_data(realizations, x_axis):
         plot = PlotModel(
             x_axis=x_axis,
             y_axis=realization.data,
-            text="Realization {}".format(realization.name),
-            name="Realization {}".format(realization.name),
+            text=realization.name,
+            name=realization.name,
             mode="line",
             line=dict(color="royalblue"),
             marker=None,
@@ -56,6 +58,34 @@ def _get_observation_data(observation, x_axis):
     return [observation_data, lower_std_data, upper_std_data]
 
 
+def _create_response_model(url):
+    response = get_response(url)
+
+    x_axis = response.axis
+    realizations = _get_realizations_data(response.realizations, x_axis)
+    observations = []
+
+    for obs in response.observations:
+        observations += _get_observation_data(obs, x_axis)
+
+    ensemble_plot = EnsemblePlotModel(
+        realizations,
+        observations,
+        dict(
+            xaxis={
+                "title": "Index",
+            },
+            yaxis={
+                "title": "Unit TODO",
+            },
+            margin={"l": 40, "b": 40, "t": 10, "r": 0},
+            hovermode="closest",
+            uirevision=True,
+        ),
+    )
+    return ensemble_plot
+
+
 def response_controller(parent, app):
     @app.callback(
         Output(parent.uuid("response-selector"), "options"), [Input("url", "search")]
@@ -84,49 +114,30 @@ def response_controller(parent, app):
         return ""
 
     @app.callback(
-        Output(parent.uuid("responses-graphic"), "figure"),
+        Output(
+            {"id": parent.uuid("response-graphic"), "type": parent.uuid("graph")},
+            "figure",
+        ),
         [
             Input(parent.uuid("response-selector"), "value"),
+            Input(parent.uuid("selection-store"), "data"),
         ],
     )
-    def _update_graph(value):
-        if value is None or value == "":
-            return EnsemblePlotModel(
-                [],
-                [],
-                dict(
-                    xaxis={
-                        "title": "Index",
-                    },
-                    yaxis={
-                        "title": "Unit TODO",
-                    },
-                    margin={"l": 40, "b": 40, "t": 10, "r": 0},
-                    hovermode="closest",
-                ),
-            ).repr
+    def _update_graph(response_url, selected_realizations):
 
-        response = get_response(value)
+        if response_url in [None, ""] and parent.ensemble_plot is None:
+            raise PreventUpdate
+        ctx = dash.callback_context
 
-        x_axis = response.axis
-        realizations = _get_realizations_data(response.realizations, x_axis)
-        observations = []
+        if not ctx.triggered:
+            raise PreventUpdate
+        else:
+            select_update = ctx.triggered[0]["prop_id"].split(".")[0] == parent.uuid(
+                "selection-store"
+            )
 
-        for obs in response.observations:
-            observations += _get_observation_data(obs, x_axis)
-
-        ensemble_plot = EnsemblePlotModel(
-            realizations,
-            observations,
-            dict(
-                xaxis={
-                    "title": "Index",
-                },
-                yaxis={
-                    "title": "Unit TODO",
-                },
-                margin={"l": 40, "b": 40, "t": 10, "r": 0},
-                hovermode="closest",
-            ),
-        )
-        return ensemble_plot.repr
+        if select_update:
+            parent.ensemble_plot.selection = selected_realizations
+        else:
+            parent.ensemble_plot = _create_response_model(response_url)
+        return parent.ensemble_plot.repr
