@@ -56,9 +56,11 @@ def parameter_view(parent):
                         _make_buttons(parent.uuid("prev-btn"), parent.uuid("next-btn")),
                     ],
                 ),
-                wsc.PriorPosteriorDistribution(
-                    parent.uuid("parameter-graph"),
-                    data={"iterations": [[]], "values": [[]], "labels": []},
+                dcc.Graph(
+                    id={
+                        "id": parent.uuid("parameter-scatter"),
+                        "type": parent.uuid("graph"),
+                    }
                 ),
             ],
         )

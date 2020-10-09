@@ -28,7 +28,10 @@ def next_value(current_value, options):
 
 def parameter_controller(parent, app):
     @app.callback(
-        Output(parent.uuid("parameter-selector"), "options"), [Input("url", "search")]
+        Output(parent.uuid("parameter-selector"), "options"),
+        [
+            Input("url", "search"),
+        ],
     )
     def update_parameter_options(search):
         queries = parse_url_query(search)
@@ -43,36 +46,38 @@ def parameter_controller(parent, app):
         return options
 
     @app.callback(
-        Output(parent.uuid("parameter-graph"), "data"),
-        [Input(parent.uuid("parameter-selector"), "value")],
+        Output(
+            {"id": parent.uuid("parameter-scatter"), "type": parent.uuid("graph")},
+            "figure",
+        ),
+        [
+            Input(parent.uuid("parameter-selector"), "value"),
+            Input(parent.uuid("selection-store"), "data"),
+        ],
     )
-    def _set_parameter(parameter):
-        iterations = []
-        values = []
-        labels = []
+    def _update_scatter_plot(parameter, selection):
+        if not parameter in parent.parameter_models:
+            raise PreventUpdate
+
         param = parent.parameter_models[parameter]
-        iterations.append("name")
-        values.append(param.realization_values)
-        labels.append([f"Realization {real}" for real in param.realization_names])
-        data = {"iterations": iterations, "values": values, "labels": labels}
-        return data
+        param.update_selection(selection)
+        parent.parameter_plot = param
+        return param.repr
 
     @app.callback(
         Output(parent.uuid("parameter-selector"), "value"),
         [
             Input(parent.uuid("prev-btn"), "n_clicks"),
             Input(parent.uuid("next-btn"), "n_clicks"),
+            Input(parent.uuid("parameter-selector"), "options"),
         ],
         [
             State(parent.uuid("parameter-selector"), "value"),
-            State(parent.uuid("parameter-selector"), "options"),
         ],
     )
-    def _set_parameter_from_btn(_prev_click, _next_click, parameter, parameter_options):
+    def _set_parameter_from_btn(_prev_click, _next_click, parameter_options, parameter):
 
         ctx = dash.callback_context.triggered
-        if not ctx:
-            raise PreventUpdate
 
         callback = ctx[0]["prop_id"]
         if callback == f"{parent.uuid('prev-btn')}.n_clicks":
@@ -83,4 +88,8 @@ def parameter_controller(parent, app):
             parameter = next_value(
                 parameter, [option["value"] for option in parameter_options]
             )
+        elif parameter_options:
+            parameter = parameter_options[0]["value"]
+        else:
+            raise PreventUpdate
         return parameter

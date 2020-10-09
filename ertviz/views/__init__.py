@@ -18,5 +18,7 @@ def response_view(parent):
                 ),
             ]
         ),
-        dcc.Graph(id=parent.uuid("responses-graphic")),
+        dcc.Graph(
+            id={"id": parent.uuid("response-graphic"), "type": parent.uuid("graph")}
+        ),
     ]

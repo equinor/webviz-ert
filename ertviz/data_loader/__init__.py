@@ -11,7 +11,7 @@ data_cache = {}
 
 
 def get_data(data_url):
-    logging.info(f"Getting data from {data_url}...", end="")
+    logging.info(f"Getting data from {data_url}...")
     http_response = requests.get(data_url)
     http_response.raise_for_status()
 
@@ -40,7 +40,7 @@ def get_ensemble(ensemble_id):
 
 
 def get_schema(api_url):
-    logging.info(f"Getting json from {api_url}...", end="")
+    logging.info(f"Getting json from {api_url}...")
     http_response = requests.get(api_url)
     http_response.raise_for_status()
 
@@ -48,6 +48,8 @@ def get_schema(api_url):
     return http_response.json()
 
 
+# import is here to prevent circular loader, should be fixed when deciding on "lazy-load"
+# model or fully populated model
 from ertviz.models.parameter_model import (
     PriorModel,
     ParameterRealizationModel,
