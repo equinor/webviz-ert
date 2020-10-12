@@ -34,9 +34,9 @@ def get_ensembles():
     return data_cache["ensembles"]
 
 
-def get_ensemble(ensemble_id):
+def get_ensemble_url(ensemble_id):
     url = get_ensembles()[eval(ensemble_id)]["ref_url"]
-    return get_schema(url)
+    return url
 
 
 def get_schema(api_url):
@@ -46,42 +46,3 @@ def get_schema(api_url):
 
     logging.info(" done!")
     return http_response.json()
-
-
-# import is here to prevent circular loader, should be fixed when deciding on "lazy-load"
-# model or fully populated model
-from ertviz.models.parameter_model import (
-    PriorModel,
-    ParameterRealizationModel,
-    ParametersModel,
-)
-
-
-def get_parameters(ensemble_id):
-    ens = get_ensemble(ensemble_id)
-    parameters = {}
-    for param in ens.get("parameters", []):
-        group = param["group"]
-        key = param["key"]
-        prior = None
-        if param["prior"]:
-            prior = PriorModel(
-                param["prior"]["function"],
-                param["prior"]["parameter_names"],
-                param["prior"]["parameter_values"],
-            )
-
-        realizations_schema = get_schema(param["ref_url"])
-        realizations_data_df = get_csv_data(realizations_schema["alldata_url"])
-        realizations = [
-            ParameterRealizationModel(schema["name"], values[1]["value"])
-            for schema, values in zip(
-                realizations_schema["parameter_realizations"],
-                realizations_data_df.iterrows(),
-            )
-        ]
-        parameters[key] = ParametersModel(
-            group=group, key=key, prior=prior, realizations=realizations
-        )
-
-    return parameters

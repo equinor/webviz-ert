@@ -16,3 +16,4 @@ from .realization import Realization
 from .response import Response
 from .plot_model import PlotModel, EnsemblePlotModel
 from .parameter_model import ParameterRealizationModel, PriorModel, ParametersModel
+from .ensemble_model import EnsembleModel
