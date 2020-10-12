@@ -2,7 +2,7 @@ import re
 import dash
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
-from ertviz.data_loader import get_parameters
+
 from ertviz.controllers import parse_url_query
 
 
@@ -34,6 +34,7 @@ def parameter_controller(parent, app):
         ],
     )
     def update_parameter_options(search):
+        return []
         queries = parse_url_query(search)
         if not "ensemble_id" in queries:
             return []

@@ -1,9 +1,9 @@
 import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
-from ertviz.data_loader import get_ensemble
+from ertviz.data_loader import get_ensemble_url
 from ertviz.ert_client import get_response
-from ertviz.models import EnsemblePlotModel, PlotModel
+from ertviz.models import EnsemblePlotModel, PlotModel, EnsembleModel
 from ertviz.controllers import parse_url_query
 
 
@@ -15,9 +15,9 @@ def _get_realizations_data(realizations, x_axis):
             y_axis=realization.data,
             text=realization.name,
             name=realization.name,
-            mode="line",
             line=dict(color="royalblue"),
-            marker=None,
+            mode="lines+markers",
+            marker=dict(color="royalblue", size=1),
         )
         realizations_data.append(plot)
     return realizations_data
@@ -58,8 +58,7 @@ def _get_observation_data(observation, x_axis):
     return [observation_data, lower_std_data, upper_std_data]
 
 
-def _create_response_model(url):
-    response = get_response(url)
+def _create_response_model(response):
 
     x_axis = response.axis
     realizations = _get_realizations_data(response.realizations, x_axis)
@@ -95,14 +94,13 @@ def response_controller(parent, app):
         if not "ensemble_id" in queries:
             return []
         ensemble_id = queries["ensemble_id"]
-        ensemble_schema = get_ensemble(ensemble_id)
+        ensemble = parent.ensembles.get(ensemble_id, EnsembleModel(ref_url=get_ensemble_url(ensemble_id)))
+        parent.ensembles[ensemble_id] = ensemble
+        return [
+            {"label": response, "value": {"response":response, "ensemble_id":ensemble_id}}
+            for response in ensemble.responses
+        ]
 
-        if "responses" in ensemble_schema:
-            return [
-                {"label": response["name"], "value": response["ref_url"]}
-                for response in ensemble_schema["responses"]
-            ]
-        return []
 
     @app.callback(
         Output(parent.uuid("response-selector"), "value"),
@@ -123,9 +121,9 @@ def response_controller(parent, app):
             Input(parent.uuid("selection-store"), "data"),
         ],
     )
-    def _update_graph(response_url, selected_realizations):
+    def _update_graph(value, selected_realizations):
 
-        if response_url in [None, ""] and parent.ensemble_plot is None:
+        if value["response"] in [None, ""] and parent.ensemble_plot is None:
             raise PreventUpdate
         ctx = dash.callback_context
 
@@ -139,5 +137,8 @@ def response_controller(parent, app):
         if select_update:
             parent.ensemble_plot.selection = selected_realizations
         else:
-            parent.ensemble_plot = _create_response_model(response_url)
+            ensemble_id = value["ensemble_id"]
+            ensemble = parent.ensembles.get(ensemble_id, None)
+            parent.ensemble_plot = _create_response_model(ensemble.responses[value["response"]])
+
         return parent.ensemble_plot.repr

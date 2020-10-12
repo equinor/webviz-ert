@@ -16,7 +16,9 @@ class Ensemble(WebvizPluginABC):
         self.id = "Ensemble"
         self.ensemble_plot = None
         self.parameter_plot = None
+        self.parameter_models = {}
         self.set_callbacks(app)
+        self.ensembles = {}
 
     @property
     def layout(self):
