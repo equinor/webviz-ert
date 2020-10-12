@@ -4,10 +4,23 @@ from datetime import datetime
 import logging
 import pandas
 
+from ertviz.ertapi.ensemble import Ensembles
+from ertviz.ertapi.client.request_handler import RequestHandler
+
 
 os.environ["NO_PROXY"] = "localhost,127.0.0.1"
 
 data_cache = {}
+
+all_ensembles = None
+
+
+def get_ensembles():
+    global all_ensembles
+    if all_ensembles is None:
+        url = {"ref_url": "http://127.0.0.1:5000/ensembles"}
+        all_ensembles = Ensembles(request_handler=RequestHandler(), metadata_dict=url)
+    return all_ensembles
 
 
 def get_data(data_url):
@@ -24,19 +37,19 @@ def get_numeric_data(data_url):
     return [eval(d) for d in data]
 
 
-def get_csv_data(data_url):
-    return pandas.read_csv(data_url, names=["value"])
+# def get_csv_data(data_url):
+#     return pandas.read_csv(data_url, names=["value"])
 
 
-def get_ensembles():
-    server_url = "http://127.0.0.1:5000"
-    data_cache["ensembles"] = get_schema(f"{server_url}/ensembles")["ensembles"]
-    return data_cache["ensembles"]
+# def get_ensembles():
+#     server_url = "http://127.0.0.1:5000"
+#     data_cache["ensembles"] = get_schema(f"{server_url}/ensembles")["ensembles"]
+#     return data_cache["ensembles"]
 
 
-def get_ensemble(ensemble_id):
-    url = get_ensembles()[eval(ensemble_id)]["ref_url"]
-    return get_schema(url)
+# def get_ensemble(ensemble_id):
+#     url = get_ensembles()[eval(ensemble_id)]["ref_url"]
+#     return get_schema(url)
 
 
 def get_schema(api_url):

@@ -1,8 +1,10 @@
 import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
-from ertviz.data_loader import get_ensemble
-from ertviz.ert_client import get_response
+
+from ertviz.data_loader import get_ensembles
+
+# from ertviz.ert_client import get_response
 from ertviz.models import EnsemblePlotModel, PlotModel
 from ertviz.controllers import parse_url_query
 
@@ -72,12 +74,8 @@ def _create_response_model(url):
         realizations,
         observations,
         dict(
-            xaxis={
-                "title": "Index",
-            },
-            yaxis={
-                "title": "Unit TODO",
-            },
+            xaxis={"title": "Index"},
+            yaxis={"title": "Unit TODO"},
             margin={"l": 40, "b": 40, "t": 10, "r": 0},
             hovermode="closest",
             uirevision=True,
@@ -95,14 +93,16 @@ def response_controller(parent, app):
         if not "ensemble_id" in queries:
             return []
         ensemble_id = queries["ensemble_id"]
-        ensemble_schema = get_ensemble(ensemble_id)
+        names = get_ensembles()[eval(ensemble_id)].responses.name
+        return [{"label": name, "value": name} for name in names]
+        # ensemble_schema = get_ensemble(ensemble_id)
 
-        if "responses" in ensemble_schema:
-            return [
-                {"label": response["name"], "value": response["ref_url"]}
-                for response in ensemble_schema["responses"]
-            ]
-        return []
+        # if "responses" in ensemble_schema:
+        #     return [
+        #         {"label": response["name"], "value": response["ref_url"]}
+        #         for response in ensemble_schema["responses"]
+        #     ]
+        # return []
 
     @app.callback(
         Output(parent.uuid("response-selector"), "value"),
