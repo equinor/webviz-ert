@@ -2,8 +2,9 @@ import re
 import dash
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
-from ertviz.data_loader import get_parameters
+import plotly.express as px
 from ertviz.controllers import parse_url_query
+from ertviz.data_loader import get_ensembles
 
 
 def _prev_value(current_value, options):
@@ -28,22 +29,17 @@ def next_value(current_value, options):
 
 def parameter_controller(parent, app):
     @app.callback(
-        Output(parent.uuid("parameter-selector"), "options"),
-        [
-            Input("url", "search"),
-        ],
+        Output(parent.uuid("parameter-selector"), "options"), [Input("url", "search")]
     )
     def update_parameter_options(search):
         queries = parse_url_query(search)
         if not "ensemble_id" in queries:
             return []
         ensemble_id = queries["ensemble_id"]
-        parent.parameter_models = get_parameters(ensemble_id)
-        options = [
-            {"label": parameter_key, "value": parameter_key}
-            for parameter_key in parent.parameter_models
+        return [
+            {"label": parameter_key, "value": (ensemble_id, parameter_key)}
+            for parameter_key in get_ensembles(ensemble_id).parameters.key
         ]
-        return options
 
     @app.callback(
         Output(
@@ -55,14 +51,20 @@ def parameter_controller(parent, app):
             Input(parent.uuid("selection-store"), "data"),
         ],
     )
-    def _update_scatter_plot(parameter, selection):
-        if not parameter in parent.parameter_models:
+    def _update_scatter_plot(parameter_idx, selection):
+        ens_id, param_key = parameter_idx
+
+        if not param_key in get_ensembles(ens_id).parameters.key:
             raise PreventUpdate
 
-        param = parent.parameter_models[parameter]
-        param.update_selection(selection)
-        parent.parameter_plot = param
-        return param.repr
+        data_frame = get_ensembles(ens_id).parameters[param_key].data
+        if selection is not None:
+            data_frame = data_frame.loc[selection]
+        fig = px.histogram(data_frame, marginal="rug")
+        fig.update_layout(clickmode="event+select")
+
+        fig.update_layout(uirevision=True)
+        return fig
 
     @app.callback(
         Output(parent.uuid("parameter-selector"), "value"),
@@ -71,9 +73,7 @@ def parameter_controller(parent, app):
             Input(parent.uuid("next-btn"), "n_clicks"),
             Input(parent.uuid("parameter-selector"), "options"),
         ],
-        [
-            State(parent.uuid("parameter-selector"), "value"),
-        ],
+        [State(parent.uuid("parameter-selector"), "value")],
     )
     def _set_parameter_from_btn(_prev_click, _next_click, parameter_options, parameter):
 

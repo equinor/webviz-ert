@@ -8,14 +8,30 @@ class ParametersDict:
         self._field = field
         self._parent = parent
         self._key = key
+        self._index = -1
 
-    def __getitem__(self, idx):
-        GenClass = {
+    def __iter__(self):
+        return self
+
+    def _get_gen_class(self):
+        return {
             "parameters": ertviz.ertapi.ensemble.Parameter,
             "observations": ertviz.ertapi.ensemble.Observation,
             "realizations": ertviz.ertapi.ensemble.Realization,
             "responses": ertviz.ertapi.ensemble.Response,
+            "parameter_realizations": ertviz.ertapi.ensemble.ParameterRealization,
         }[self._field]
+
+    def __next__(self):
+        nodes = [node for node in self._parent.metadata[self._field]]
+        self._index += 1
+        if self._index < len(nodes):
+            GenClass = self._get_gen_class()
+            return GenClass(self._parent._request_handler, nodes[self._index])
+        raise StopIteration
+
+    def __getitem__(self, idx):
+        GenClass = self._get_gen_class()
         for node in self._parent.metadata[self._field]:
             if idx == node[self._key]:
                 return GenClass(self._parent._request_handler, node)
@@ -101,10 +117,7 @@ class RequestData:
         _data = self._request_handler.request(ref_url)
         if _data is not None:
             _data = _data.content.decode()
-            return pd.DataFrame([_data.split(",")]).astype(float)
+            return [eval(d) for d in _data.split(",")]
 
     def req_alldata(self, ref_url):
-        _data = self._request_handler.request(ref_url)
-        if _data is not None:
-            _data = _data.content.decode()
-            return pd.DataFrame([x.split(",") for x in _data.split("\n")]).astype(float)
+        return pd.read_csv(ref_url, names=["value"])
