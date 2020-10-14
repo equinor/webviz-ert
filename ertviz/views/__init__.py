@@ -10,12 +10,10 @@ def response_view(parent):
                 html.Div(
                     [
                         html.H5("Response"),
-                        dcc.Dropdown(id=parent.uuid("response-selector")),
+                        dcc.Dropdown(value="All", id=parent.uuid("response-selector")),
                     ],
-                    style={
-                        "width": "48%",
-                    },
-                ),
+                    style={"width": "48%"},
+                )
             ]
         ),
         dcc.Graph(

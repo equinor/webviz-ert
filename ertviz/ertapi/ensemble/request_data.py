@@ -9,12 +9,7 @@ class ParametersDict:
         self._parent = parent
         self._key = key
         self._index = -1
-
-    def __iter__(self):
-        return self
-
-    def _get_gen_class(self):
-        return {
+        self._GenClass = {
             "parameters": ertviz.ertapi.ensemble.Parameter,
             "observations": ertviz.ertapi.ensemble.Observation,
             "realizations": ertviz.ertapi.ensemble.Realization,
@@ -22,19 +17,20 @@ class ParametersDict:
             "parameter_realizations": ertviz.ertapi.ensemble.ParameterRealization,
         }[self._field]
 
+    def __iter__(self):
+        return self
+
     def __next__(self):
         nodes = [node for node in self._parent.metadata[self._field]]
         self._index += 1
         if self._index < len(nodes):
-            GenClass = self._get_gen_class()
-            return GenClass(self._parent._request_handler, nodes[self._index])
+            return self._GenClass(self._parent._request_handler, nodes[self._index])
         raise StopIteration
 
     def __getitem__(self, idx):
-        GenClass = self._get_gen_class()
         for node in self._parent.metadata[self._field]:
             if idx == node[self._key]:
-                return GenClass(self._parent._request_handler, node)
+                return self._GenClass(self._parent._request_handler, node)
         return None
 
     def __getattr__(self, attr):

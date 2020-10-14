@@ -157,10 +157,6 @@ def response_controller(parent, app):
         ],
     )
     def _update_graph(response_idx, selected_realizations, plot_type):
-
-        # if response_url in [None, ""] and parent.ensemble_plot is None:
-        #     raise PreventUpdate
-        print(plot_type)
         if response_idx in [None, ""]:
             raise PreventUpdate
         ctx = dash.callback_context
@@ -175,7 +171,6 @@ def response_controller(parent, app):
         if select_update:
             parent.ensemble_plot.selection = selected_realizations
         else:
-            print(response_idx)
             ens_id, res_id = response_idx
             parent.ensemble_plot = _create_response_model(
                 get_ensembles(ens_id).responses[res_id], plot_type

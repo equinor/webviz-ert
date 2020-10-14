@@ -21,7 +21,6 @@ class Parameter(RequestData):
 
     @property
     def parameter_realizations(self):
-        # self.get_node_fields("parameter_realizations", key=["name"])
         return ParametersDict("parameter_realizations", "name", self)
 
     @property
