@@ -6,6 +6,9 @@ from ertviz.data_loader import get_ensembles
 from ertviz.models import EnsemblePlotModel, PlotModel
 from ertviz.controllers import parse_url_query
 
+obs_color = "rgb(180, 180, 180)"
+real_color = "rgb(40, 141, 181)"
+
 
 def _get_realizations_data(response, x_axis):
     realizations_data = list()
@@ -16,11 +19,46 @@ def _get_realizations_data(response, x_axis):
             text=realization.name,
             name=realization.name,
             mode="line",
-            line=dict(color="royalblue"),
+            line=dict(color=real_color),
             marker=None,
         )
         realizations_data.append(plot)
     return realizations_data
+
+
+def _get_realizations_statistics_data(response, x_axis):
+    data = response.data
+    _std = data.std(axis=0)
+    _mean = data.mean(axis=0)
+    mean_data = PlotModel(
+        x_axis=x_axis,
+        y_axis=_mean,
+        text="Mean",
+        name="Mean",
+        mode="line",
+        line=dict(color=real_color, dash="dash"),
+        marker=None,
+    )
+    lower_std_data = PlotModel(
+        x_axis=x_axis,
+        y_axis=_mean - _std,
+        text="Realizations std lower",
+        name="Realizations std lower",
+        mode="line",
+        line=dict(color=real_color, dash="dash"),
+        marker=None,
+    )
+    upper_std_data = PlotModel(
+        x_axis=x_axis,
+        y_axis=_mean + _std,
+        text="Realizations std upper",
+        name="Realizations std upper",
+        mode="line",
+        line=dict(color=real_color, dash="dash"),
+        marker=None,
+    )
+
+    return [mean_data, lower_std_data, upper_std_data]
 
 
 def _get_observation_data(observation, x_axis):
@@ -35,7 +73,7 @@ def _get_observation_data(observation, x_axis):
         name="Observations",
         mode="markers",
         line=None,
-        marker=dict(color="red", size=10),
+        marker=dict(color=obs_color, size=10),
     )
     lower_std_data = PlotModel(
         x_axis=x_axis,
@@ -43,7 +81,7 @@ def _get_observation_data(observation, x_axis):
         text="Observations std lower",
         name="Observations std lower",
         mode="line",
-        line=dict(color="red", dash="dash"),
+        line=dict(color=obs_color, dash="dash"),
         marker=None,
     )
     upper_std_data = PlotModel(
@@ -52,15 +90,18 @@ def _get_observation_data(observation, x_axis):
         text="Observations std upper",
         name="Observations std upper",
         mode="line",
-        line=dict(color="red", dash="dash"),
+        line=dict(color=obs_color, dash="dash"),
         marker=None,
     )
     return [observation_data, lower_std_data, upper_std_data]
 
 
-def _create_response_model(response):
+def _create_response_model(response, plot_type):
     x_axis = response.axis.data
-    realizations = _get_realizations_data(response, x_axis)
+    if plot_type == "Statistics":
+        realizations = _get_realizations_statistics_data(response, x_axis)
+    else:
+        realizations = _get_realizations_data(response, x_axis)
     observations = []
 
     for obs in response.observations:
@@ -99,9 +140,10 @@ def response_controller(parent, app):
         [Input(parent.uuid("response-selector"), "options")],
     )
     def _set_responses_value(available_options):
+        print(available_options)
         if available_options:
             return available_options[0]["value"]
-        return ""
+        return None
 
     @app.callback(
         Output(
@@ -111,12 +153,16 @@ def response_controller(parent, app):
         [
             Input(parent.uuid("response-selector"), "value"),
             Input(parent.uuid("selection-store"), "data"),
+            Input(parent.uuid("plot-type"), "value"),
         ],
     )
-    def _update_graph(response_idx, selected_realizations):
+    def _update_graph(response_idx, selected_realizations, plot_type):
 
         # if response_url in [None, ""] and parent.ensemble_plot is None:
         #     raise PreventUpdate
+        print(plot_type)
+        if response_idx in [None, ""]:
+            raise PreventUpdate
         ctx = dash.callback_context
 
         if not ctx.triggered:
@@ -129,8 +175,9 @@ def response_controller(parent, app):
         if select_update:
             parent.ensemble_plot.selection = selected_realizations
         else:
+            print(response_idx)
             ens_id, res_id = response_idx
             parent.ensemble_plot = _create_response_model(
-                get_ensembles(ens_id).responses[res_id]
+                get_ensembles(ens_id).responses[res_id], plot_type
             )
         return parent.ensemble_plot.repr

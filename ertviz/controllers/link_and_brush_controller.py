@@ -15,6 +15,9 @@ def _parse_response_selection(selectedData, ensemble_plot):
 
 def _parse_parameter_selection(selectedData, parameter_plot):
     if selectedData:
+        import pdb
+
+        pdb.set_trace()
         plot_idxs = set([p["pointNumber"] for p in selectedData["points"]])
         real_idxs = [
             parameter_plot.plot_ids[p]

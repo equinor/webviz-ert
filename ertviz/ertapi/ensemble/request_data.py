@@ -120,4 +120,4 @@ class RequestData:
             return [eval(d) for d in _data.split(",")]
 
     def req_alldata(self, ref_url):
-        return pd.read_csv(ref_url, names=["value"])
+        return pd.read_csv(ref_url)
