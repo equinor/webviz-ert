@@ -28,7 +28,8 @@ def _get_realizations_data(response, x_axis):
 
 def _get_realizations_statistics_data(response, x_axis):
     data = response.data
-    _std = data.std(axis=0)
+    p10 = data.quantile(0.1, axis=0)
+    p90 = data.quantile(0.9, axis=0)
     _mean = data.mean(axis=0)
     mean_data = PlotModel(
         x_axis=x_axis,
@@ -41,18 +42,18 @@ def _get_realizations_statistics_data(response, x_axis):
     )
     lower_std_data = PlotModel(
         x_axis=x_axis,
-        y_axis=_mean - _std,
-        text="Realizations std lower",
-        name="Realizations std lower",
+        y_axis=p10,
+        text="p10 quantile",
+        name="p10 quantile",
         mode="line",
         line=dict(color=real_color, dash="dash"),
         marker=None,
     )
     upper_std_data = PlotModel(
         x_axis=x_axis,
-        y_axis=_mean + _std,
-        text="Realizations std upper",
-        name="Realizations std upper",
+        y_axis=p90,
+        text="p90 quantile",
+        name="p90 quantile",
         mode="line",
         line=dict(color=real_color, dash="dash"),
         marker=None,
