@@ -14,19 +14,20 @@ class EnsembleOverview(WebvizPluginABC):
             [
                 html.Div(
                     [
-                        self.ensemble_view(index, ensemble)
+                        self.ensemble_view(ensemble)
                         for index, ensemble in enumerate(get_ensembles())
                     ]
                 )
             ]
         )
 
-    def ensemble_view(self, index, ensemble_dict):
+    def ensemble_view(self, ensemble_dict):
+        ensemble_id = ensemble_dict["ref_url"].split("/")[-1]
         return html.Div(
             children=[
                 dcc.Link(
                     ensemble_dict["name"],
-                    href="/ensemble-viewer/?ensemble_id={}".format(index),
+                    href="/ensemble-viewer/?ensemble_id={}".format(ensemble_id),
                 ),
             ]
         )

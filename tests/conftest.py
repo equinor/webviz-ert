@@ -19,7 +19,8 @@ def mocked_requests_get(*args, **kwargs):
         def raise_for_status(self):
             if self.status_code == 400:
                 raise HTTPError(
-                    "Mocked requests raised HTTPError 400 due to missing data in test-data set!"
+                    "Mocked requests raised HTTPError 400 due to missing data in test-data set!\n"\
+                    f"{args[0]}"
                 )
 
     if args[0] in ensembles_response:
