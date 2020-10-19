@@ -1,11 +1,12 @@
 import re
 import dash
+import json
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 
 from ertviz.controllers import parse_url_query
-
-
+from ertviz.models import EnsembleModel
+from ertviz.data_loader import get_ensemble_url
 def _prev_value(current_value, options):
     try:
         index = options.index(current_value)
@@ -34,12 +35,16 @@ def parameter_controller(parent, app):
         ],
     )
     def update_parameter_options(search):
-        return []
         queries = parse_url_query(search)
         if not "ensemble_id" in queries:
             return []
         ensemble_id = queries["ensemble_id"]
-        parent.parameter_models = get_parameters(ensemble_id)
+        ensemble = parent.ensembles.get(
+            ensemble_id, EnsembleModel(ref_url=get_ensemble_url(ensemble_id))
+        )
+        parent.ensembles[ensemble_id] = ensemble
+
+        parent.parameter_models = ensemble.parameters
         options = [
             {"label": parameter_key, "value": parameter_key}
             for parameter_key in parent.parameter_models

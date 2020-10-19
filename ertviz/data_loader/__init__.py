@@ -35,7 +35,8 @@ def get_ensembles():
 
 
 def get_ensemble_url(ensemble_id):
-    url = get_ensembles()[eval(ensemble_id)]["ref_url"]
+    server_url = "http://127.0.0.1:5000"
+    url = f"{server_url}/ensembles/{ensemble_id}"
     return url
 
 

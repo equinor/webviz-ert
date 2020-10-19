@@ -15,7 +15,12 @@ def _parse_response_selection(selectedData, ensemble_plot):
 
 def _parse_parameter_selection(selectedData, parameter_plot):
     if selectedData:
-        plot_idxs = set([p["pointNumber"] for p in selectedData["points"]])
+        if "pointNumbers" in selectedData["points"][0]:
+            plot_idxs = []
+            for selection in selectedData["points"]:
+                plot_idxs += selection["pointNumbers"]
+        else:
+            plot_idxs = set([p["pointNumber"] for p in selectedData["points"]])
         real_idxs = [
             parameter_plot.plot_ids[p]
             for p in plot_idxs
