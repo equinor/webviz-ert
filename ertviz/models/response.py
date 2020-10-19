@@ -1,3 +1,4 @@
+import pandas as pd
 from ertviz.data_loader import get_data, get_schema
 from ertviz.models import Realization, Observation, indexes_to_axis
 
@@ -30,7 +31,10 @@ class Response:
     @property
     def data(self):
         if self._data is None:
-            self._data = get_data(self._data_url)
+            self._data = pd.read_csv(self._data_url, header=None).T
+            self._data.columns = [
+                realization.name for realization in self._realizations
+            ]
         return self._data
 
     @property

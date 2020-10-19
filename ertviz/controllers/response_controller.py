@@ -1,4 +1,6 @@
 import dash
+import json
+import pandas as pd
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from ertviz.data_loader import get_ensemble_url
@@ -7,7 +9,23 @@ from ertviz.models import EnsemblePlotModel, PlotModel, EnsembleModel
 from ertviz.controllers import parse_url_query
 
 
-def _get_realizations_data(realizations, x_axis):
+obs_color = "rgb(180, 180, 180)"
+real_color = "rgb(40, 141, 181)"
+
+
+def _get_realizations_df(response, selection=None):
+    if selection is not None:
+        return pd.DataFrame(
+            data={
+                realization.name: realization.data
+                for realization in response.realizations
+                if realization.name in selection
+            }
+        ).astype("float64")
+    return response.data.astype("float64")
+
+
+def _get_realizations_plots(realizations, x_axis):
     realizations_data = list()
     for realization in realizations:
         plot = PlotModel(
@@ -21,6 +39,42 @@ def _get_realizations_data(realizations, x_axis):
         )
         realizations_data.append(plot)
     return realizations_data
+
+
+def _get_realizations_statistics_plots(df_response, x_axis):
+    data = df_response
+    p10 = data.quantile(0.1, axis=1)
+    p90 = data.quantile(0.9, axis=1)
+    _mean = data.mean(axis=1)
+    mean_data = PlotModel(
+        x_axis=x_axis,
+        y_axis=_mean,
+        text="Mean",
+        name="Mean",
+        mode="line",
+        line=dict(color=real_color, dash="dash"),
+        marker=None,
+    )
+    lower_std_data = PlotModel(
+        x_axis=x_axis,
+        y_axis=p10,
+        text="p10 quantile",
+        name="p10 quantile",
+        mode="line",
+        line=dict(color=real_color, dash="dash"),
+        marker=None,
+    )
+    upper_std_data = PlotModel(
+        x_axis=x_axis,
+        y_axis=p90,
+        text="p90 quantile",
+        name="p90 quantile",
+        mode="line",
+        line=dict(color=real_color, dash="dash"),
+        marker=None,
+    )
+
+    return [mean_data, lower_std_data, upper_std_data]
 
 
 def _get_observation_data(observation, x_axis):
@@ -58,10 +112,15 @@ def _get_observation_data(observation, x_axis):
     return [observation_data, lower_std_data, upper_std_data]
 
 
-def _create_response_model(response):
+def _create_response_model(response, plot_type):
 
     x_axis = response.axis
-    realizations = _get_realizations_data(response.realizations, x_axis)
+    if plot_type == "Statistics":
+        realizations = _get_realizations_statistics_plots(
+            _get_realizations_df(response), x_axis
+        )
+    else:
+        realizations = _get_realizations_plots(response.realizations, x_axis)
     observations = []
 
     for obs in response.observations:
@@ -71,12 +130,8 @@ def _create_response_model(response):
         realizations,
         observations,
         dict(
-            xaxis={
-                "title": "Index",
-            },
-            yaxis={
-                "title": "Unit TODO",
-            },
+            xaxis={"title": "Index"},
+            yaxis={"title": "Unit TODO"},
             margin={"l": 40, "b": 40, "t": 10, "r": 0},
             hovermode="closest",
             uirevision=True,
@@ -94,13 +149,19 @@ def response_controller(parent, app):
         if not "ensemble_id" in queries:
             return []
         ensemble_id = queries["ensemble_id"]
-        ensemble = parent.ensembles.get(ensemble_id, EnsembleModel(ref_url=get_ensemble_url(ensemble_id)))
+        ensemble = parent.ensembles.get(
+            ensemble_id, EnsembleModel(ref_url=get_ensemble_url(ensemble_id))
+        )
         parent.ensembles[ensemble_id] = ensemble
         return [
-            {"label": response, "value": {"response":response, "ensemble_id":ensemble_id}}
+            {
+                "label": response,
+                # Dash does only allow string/string pairs for dropdowns
+                # using json to encode more values
+                "value": json.dumps({"response": response, "ensemble_id": ensemble_id}),
+            }
             for response in ensemble.responses
         ]
-
 
     @app.callback(
         Output(parent.uuid("response-selector"), "value"),
@@ -119,10 +180,11 @@ def response_controller(parent, app):
         [
             Input(parent.uuid("response-selector"), "value"),
             Input(parent.uuid("selection-store"), "data"),
+            Input(parent.uuid("plot-type"), "value"),
         ],
     )
-    def _update_graph(value, selected_realizations):
-
+    def _update_graph(value, selected_realizations, plot_type):
+        value = json.loads(value)
         if value["response"] in [None, ""] and parent.ensemble_plot is None:
             raise PreventUpdate
         ctx = dash.callback_context
@@ -139,6 +201,8 @@ def response_controller(parent, app):
         else:
             ensemble_id = value["ensemble_id"]
             ensemble = parent.ensembles.get(ensemble_id, None)
-            parent.ensemble_plot = _create_response_model(ensemble.responses[value["response"]])
+            parent.ensemble_plot = _create_response_model(
+                ensemble.responses[value["response"]], plot_type
+            )
 
         return parent.ensemble_plot.repr
