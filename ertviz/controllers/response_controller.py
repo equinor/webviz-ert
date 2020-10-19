@@ -1,4 +1,5 @@
 import dash
+import json
 import pandas as pd
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -24,7 +25,7 @@ def _get_realizations_df(response, selection=None):
     return response.data.astype("float64")
 
 
-def _get_realizations_data(realizations, x_axis):
+def _get_realizations_plots(realizations, x_axis):
     realizations_data = list()
     for realization in realizations:
         plot = PlotModel(
@@ -40,7 +41,7 @@ def _get_realizations_data(realizations, x_axis):
     return realizations_data
 
 
-def _get_realizations_statistics_data(df_response, x_axis):
+def _get_realizations_statistics_plots(df_response, x_axis):
     data = df_response
     p10 = data.quantile(0.1, axis=1)
     p90 = data.quantile(0.9, axis=1)
@@ -115,11 +116,11 @@ def _create_response_model(response, plot_type):
 
     x_axis = response.axis
     if plot_type == "Statistics":
-        realizations = _get_realizations_statistics_data(
+        realizations = _get_realizations_statistics_plots(
             _get_realizations_df(response), x_axis
         )
     else:
-        realizations = _get_realizations_data(response.realizations, x_axis)
+        realizations = _get_realizations_plots(response.realizations, x_axis)
     observations = []
 
     for obs in response.observations:
@@ -155,7 +156,9 @@ def response_controller(parent, app):
         return [
             {
                 "label": response,
-                "value": {"response": response, "ensemble_id": ensemble_id},
+                # Dash does only allow string/string pairs for dropdowns
+                # using json to encode more values
+                "value": json.dumps({"response": response, "ensemble_id": ensemble_id}),
             }
             for response in ensemble.responses
         ]
@@ -181,7 +184,7 @@ def response_controller(parent, app):
         ],
     )
     def _update_graph(value, selected_realizations, plot_type):
-
+        value = json.loads(value)
         if value["response"] in [None, ""] and parent.ensemble_plot is None:
             raise PreventUpdate
         ctx = dash.callback_context
