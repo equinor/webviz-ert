@@ -10,4 +10,3 @@ def test_ensemble_model(mock_get):
     assert ens_model.children[0]._name == "default_smoother_update"
     assert ens_model._name == "default"
     assert len(ens_model.responses) == 1
-    print(EnsembleModel)
