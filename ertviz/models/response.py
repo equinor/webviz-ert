@@ -30,12 +30,25 @@ class Response:
 
     @property
     def data(self):
-        if self._data is None:
+        if self._data is None and self._realizations is not None:
             self._data = pd.read_csv(self._data_url, header=None).T
             self._data.columns = [
                 realization.name for realization in self._realizations
             ]
         return self._data
+
+    def data_df(self, selection=None):
+        if selection is not None:
+            data = {
+                realization.name: realization.data
+                for realization in self.realizations
+                if realization.name in selection
+            }
+        else:
+            data = {
+                realization.name: realization.data for realization in self.realizations
+            }
+        return pd.DataFrame(data=data).astype("float64")
 
     @property
     def realizations(self):

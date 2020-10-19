@@ -13,26 +13,14 @@ obs_color = "rgb(180, 180, 180)"
 real_color = "rgb(40, 141, 181)"
 
 
-def _get_realizations_df(response, selection=None):
-    if selection is not None:
-        return pd.DataFrame(
-            data={
-                realization.name: realization.data
-                for realization in response.realizations
-                if realization.name in selection
-            }
-        ).astype("float64")
-    return response.data.astype("float64")
-
-
-def _get_realizations_plots(realizations, x_axis):
+def _get_realizations_plots(realizations_df, x_axis):
     realizations_data = list()
-    for realization in realizations:
+    for realization in realizations_df:
         plot = PlotModel(
             x_axis=x_axis,
-            y_axis=realization.data,
-            text=realization.name,
-            name=realization.name,
+            y_axis=realizations_df[realization].values,
+            text=realization,
+            name=realization,
             line=dict(color="royalblue"),
             mode="lines+markers",
             marker=dict(color="royalblue", size=1),
@@ -117,10 +105,12 @@ def _create_response_model(response, plot_type, selected_realizations):
     x_axis = response.axis
     if plot_type == "Statistics":
         realizations = _get_realizations_statistics_plots(
-            _get_realizations_df(response, selected_realizations), x_axis
+            response.data_df(selected_realizations), x_axis
         )
     else:
-        realizations = _get_realizations_plots(response.realizations, x_axis)
+        realizations = _get_realizations_plots(
+            response.data_df(selected_realizations), x_axis
+        )
     observations = []
 
     for obs in response.observations:
