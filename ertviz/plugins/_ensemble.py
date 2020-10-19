@@ -20,19 +20,30 @@ class Ensemble(WebvizPluginABC):
         self.set_callbacks(app)
         self.ensembles = {}
 
+    def graph_type_div(self, name="graph_type", keys=[]):
+        return html.Div(
+            children=[
+                html.Label("Select Graph Type"),
+                dcc.RadioItems(
+                    options=[{"label": key, "value": key} for key in keys],
+                    value=keys[0],
+                    id=self.uuid("plot-type"),
+                ),
+            ]
+        )
+
     @property
     def layout(self):
         return html.Div(
             [
+                self.graph_type_div(
+                    name="graph_type", keys=["Function plot", "Statistics"]
+                ),
                 html.Div(
                     id="ensemble-content",
                     children=response_view(parent=self) + parameter_view(parent=self),
                 ),
-                html.Div(
-                    [
-                        dcc.Store(id=self.uuid("selection-store")),
-                    ]
-                ),
+                html.Div([dcc.Store(id=self.uuid("selection-store"))]),
             ]
         )
 
