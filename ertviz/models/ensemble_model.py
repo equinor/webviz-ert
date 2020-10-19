@@ -2,6 +2,7 @@ from ertviz.data_loader import get_data, get_schema, get_csv_data
 from ertviz.models import Response
 
 from ertviz.models.parameter_model import (
+
     PriorModel,
     ParameterRealizationModel,
     ParametersModel,
@@ -60,4 +61,4 @@ class EnsembleModel:
     def parent(self):
         if hasattr(self, "_cached_parent"):
             return self._cached_parent
-        self._cached_parent = EnsembleModel(ref_url=parent["ref_url"])
+        self._cached_parent = EnsembleModel(ref_url=self.parent["ref_url"])
