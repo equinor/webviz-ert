@@ -184,8 +184,10 @@ def response_controller(parent, app):
         ],
     )
     def _update_graph(value, selected_realizations, plot_type):
-        value = json.loads(value)
-        if value["response"] in [None, ""] and parent.ensemble_plot is None:
+
+        if value is not None and value is not "":
+            value = json.loads(value)
+        if value in [None, ""] and parent.ensemble_plot is None:
             raise PreventUpdate
         ctx = dash.callback_context
 
@@ -196,8 +198,7 @@ def response_controller(parent, app):
                 "selection-store"
             )
 
-        def _update_plot():
-            ensemble_id = value["ensemble_id"]
+        def _update_plot(ensemble_id):
             ensemble = parent.ensembles.get(ensemble_id, None)
             parent.ensemble_plot = _create_response_model(
                 ensemble.responses[value["response"]],
@@ -207,9 +208,8 @@ def response_controller(parent, app):
 
         if select_update:
             parent.ensemble_plot.selection = selected_realizations
-            if plot_type == "Statistics":
-                _update_plot()
         else:
-            _update_plot()
+            ensemble_id = value["ensemble_id"]
+            _update_plot(ensemble_id)
 
         return parent.ensemble_plot.repr
