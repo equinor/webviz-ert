@@ -112,12 +112,12 @@ def _get_observation_data(observation, x_axis):
     return [observation_data, lower_std_data, upper_std_data]
 
 
-def _create_response_model(response, plot_type):
+def _create_response_model(response, plot_type, selected_realizations):
 
     x_axis = response.axis
     if plot_type == "Statistics":
         realizations = _get_realizations_statistics_plots(
-            _get_realizations_df(response), x_axis
+            _get_realizations_df(response, selected_realizations), x_axis
         )
     else:
         realizations = _get_realizations_plots(response.realizations, x_axis)
@@ -196,13 +196,20 @@ def response_controller(parent, app):
                 "selection-store"
             )
 
-        if select_update:
-            parent.ensemble_plot.selection = selected_realizations
-        else:
+        def _update_plot():
             ensemble_id = value["ensemble_id"]
             ensemble = parent.ensembles.get(ensemble_id, None)
             parent.ensemble_plot = _create_response_model(
-                ensemble.responses[value["response"]], plot_type
+                ensemble.responses[value["response"]],
+                plot_type,
+                selected_realizations,
             )
+
+        if select_update:
+            parent.ensemble_plot.selection = selected_realizations
+            if plot_type == "Statistics":
+                _update_plot()
+        else:
+            _update_plot()
 
         return parent.ensemble_plot.repr
