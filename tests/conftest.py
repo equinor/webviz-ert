@@ -1,6 +1,15 @@
 import pytest
+import pandas as pd
 from tests.data.snake_oil_data import ensembles_response
 from requests import HTTPError
+
+
+def mocked_read_csv(*args, **kwargs):
+    data_url = args[0]
+    data = ensembles_response[data_url]
+    if "header" in kwargs:
+        return pd.DataFrame(data=list(data), columns=kwargs["header"])
+    return pd.DataFrame(data=list(data), columns=["value"])
 
 
 def mocked_requests_get(*args, **kwargs):
@@ -19,7 +28,7 @@ def mocked_requests_get(*args, **kwargs):
         def raise_for_status(self):
             if self.status_code == 400:
                 raise HTTPError(
-                    "Mocked requests raised HTTPError 400 due to missing data in test-data set!\n"\
+                    "Mocked requests raised HTTPError 400 due to missing data in test-data set!\n"
                     f"{args[0]}"
                 )
 

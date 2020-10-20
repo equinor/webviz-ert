@@ -88,8 +88,7 @@ ensembles_response = {
         "time_created": "2020-04-29T09:36:26",
     },
     "http://127.0.0.1:5000/ensembles/2": {
-        "children": [
-        ],
+        "children": [],
         "name": "default_smoother_update",
         "parameters": [
             {
@@ -173,9 +172,9 @@ ensembles_response = {
         },
         "ref_url": "http://127.0.0.1:5000/ensembles/1/parameters/1",
     },
-    "http://127.0.0.1:5000/ensembles/1/parameters/1/data": DataContent(
-        "0.50, 0.38, 0.35"
-    ),
+    # "http://127.0.0.1:5000/ensembles/1/parameters/1/data": DataContent(
+    #     "0.50, 0.38, 0.35"
+    # ),
     "http://127.0.0.1:5000/ensembles/1/realizations/0": {
         "name": 0,
         "parameters": [
@@ -256,4 +255,5 @@ ensembles_response = {
     },
     "http://127.0.0.1:5000/data/725": "0,1,2,3,4,5,6,7,8,9",
     "http://127.0.0.1:5000/data/283": "0,1,2,3,4,5,6,7,8,9",
+    "http://127.0.0.1:5000/ensembles/1/parameters/1/data": "0.1",
 }
