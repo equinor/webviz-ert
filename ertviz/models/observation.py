@@ -1,3 +1,4 @@
+import pandas as pd
 from ertviz.data_loader import get_data, get_numeric_data
 from ertviz.models import indexes_to_axis
 
@@ -19,6 +20,15 @@ class Observation:
             self._std = None
             self._values_url = data["values"]["data_url"]
             self._values = None
+
+    def data_df(self):
+        return pd.DataFrame(
+            data={
+                "values": self.values,
+                "std": self.std,
+                "x_axis": self.data_indexes_as_axis,
+            }
+        )
 
     @property
     def data_indexes(self):
