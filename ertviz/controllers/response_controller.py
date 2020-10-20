@@ -65,11 +65,10 @@ def _get_realizations_statistics_plots(df_response, x_axis):
     return [mean_data, lower_std_data, upper_std_data]
 
 
-def _get_observation_data(observation, x_axis):
-    data = observation.values
-    stds = observation.std
-    x_axis_indexes = observation.data_indexes_as_axis
-    x_axis = [x_axis[i] for i in x_axis_indexes]
+def _get_observation_plots(observation_df, x_axis):
+    data = observation_df["values"]
+    stds = observation_df["std"]
+    x_axis = [x_axis[i] for i in observation_df["x_axis"]]
     observation_data = PlotModel(
         x_axis=x_axis,
         y_axis=data,
@@ -114,7 +113,7 @@ def _create_response_model(response, plot_type, selected_realizations):
     observations = []
 
     for obs in response.observations:
-        observations += _get_observation_data(obs, x_axis)
+        observations += _get_observation_plots(obs.data_df(), x_axis)
 
     ensemble_plot = EnsemblePlotModel(
         realizations,
