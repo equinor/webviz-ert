@@ -2,7 +2,6 @@ from ertviz.data_loader import get_data, get_schema, get_csv_data
 from ertviz.models import Response
 
 from ertviz.models.parameter_model import (
-
     PriorModel,
     ParameterRealizationModel,
     ParametersModel,
@@ -37,15 +36,16 @@ def get_parameter_models(parameters_schema):
 
     return parameters
 
+
 class EnsembleModel:
     def __init__(self, ref_url):
         schema = get_schema(api_url=ref_url)
         self._name = schema["name"]
-        self._id = ref_url # ref_url
+        self._id = ref_url  # ref_url
         self._children = schema["children"]
         self._parent = schema["parent"]
         self.responses = {
-            resp_schema["name"] : Response(resp_schema["ref_url"])
+            resp_schema["name"]: Response(resp_schema["ref_url"])
             for resp_schema in schema["responses"]
         }
         self.parameters = get_parameter_models(schema["parameters"])
@@ -54,7 +54,9 @@ class EnsembleModel:
     def children(self):
         if hasattr(self, "_cached_children"):
             return self._cached_children
-        self._cached_children = [EnsembleModel(ref_url=child["ref_url"]) for child in self._children]
+        self._cached_children = [
+            EnsembleModel(ref_url=child["ref_url"]) for child in self._children
+        ]
         return self._cached_children
 
     @property

@@ -7,6 +7,8 @@ from dash.dependencies import Input, Output, State
 from ertviz.controllers import parse_url_query
 from ertviz.models import EnsembleModel
 from ertviz.data_loader import get_ensemble_url
+
+
 def _prev_value(current_value, options):
     try:
         index = options.index(current_value)

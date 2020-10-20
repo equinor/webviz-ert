@@ -59,12 +59,6 @@ class EnsemblePlotModel:
             for real in self._realization_plots:
                 real.selected = True
 
-        # return dict(
-        #     data=[rel.repr for rel in self._realization_plots]
-        #     + [obs.repr for obs in self._observations],
-        #     layout=self._layout,
-        # )
-        # data=[rel.repr for rel in self._realization_plots]+ [obs.repr for obs in self._observations],
         fig = go.Figure(layout=self._layout)
         for rel in self._realization_plots:
             fig.add_trace(rel.repr)
