@@ -26,7 +26,7 @@ class Observation:
             data={
                 "values": self.values,
                 "std": self.std,
-                "x_axis": self.data_indexes_as_axis,
+                "x_axis": indexes_to_axis(self.key_indexes),
             }
         )
 

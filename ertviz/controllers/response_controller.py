@@ -39,7 +39,7 @@ def _get_realizations_statistics_plots(df_response, x_axis):
         y_axis=_mean,
         text="Mean",
         name="Mean",
-        mode="line",
+        mode="lines",
         line=dict(color=real_color, dash="dash"),
         marker=None,
     )
@@ -48,7 +48,7 @@ def _get_realizations_statistics_plots(df_response, x_axis):
         y_axis=p10,
         text="p10 quantile",
         name="p10 quantile",
-        mode="line",
+        mode="lines",
         line=dict(color=real_color, dash="dash"),
         marker=None,
     )
@@ -57,18 +57,18 @@ def _get_realizations_statistics_plots(df_response, x_axis):
         y_axis=p90,
         text="p90 quantile",
         name="p90 quantile",
-        mode="line",
+        mode="lines",
         line=dict(color=real_color, dash="dash"),
         marker=None,
     )
-
     return [mean_data, lower_std_data, upper_std_data]
 
 
 def _get_observation_plots(observation_df, x_axis):
     data = observation_df["values"]
     stds = observation_df["std"]
-    x_axis = [x_axis[i] for i in observation_df["x_axis"]]
+    x_axis = observation_df["x_axis"]
+
     observation_data = PlotModel(
         x_axis=x_axis,
         y_axis=data,
@@ -83,7 +83,7 @@ def _get_observation_plots(observation_df, x_axis):
         y_axis=[d - std for d, std in zip(data, stds)],
         text="Observations std lower",
         name="Observations std lower",
-        mode="line",
+        mode="lines",
         line=dict(color="red", dash="dash"),
         marker=None,
     )
@@ -92,7 +92,7 @@ def _get_observation_plots(observation_df, x_axis):
         y_axis=[d + std for d, std in zip(data, stds)],
         text="Observations std upper",
         name="Observations std upper",
-        mode="line",
+        mode="lines",
         line=dict(color="red", dash="dash"),
         marker=None,
     )

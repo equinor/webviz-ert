@@ -1,3 +1,6 @@
+import plotly.graph_objects as go
+
+
 class PlotModel:
     def __init__(self, x_axis, y_axis, text, name, mode, line, marker):
         self._x_axis = x_axis
@@ -26,7 +29,7 @@ class PlotModel:
             repr_dict["visible"] = True
         else:
             repr_dict["visible"] = "legendonly"
-        return repr_dict
+        return go.Scattergl(repr_dict)
 
     @property
     def name(self):
@@ -56,11 +59,18 @@ class EnsemblePlotModel:
             for real in self._realization_plots:
                 real.selected = True
 
-        return dict(
-            data=[rel.repr for rel in self._realization_plots]
-            + [obs.repr for obs in self._observations],
-            layout=self._layout,
-        )
+        # return dict(
+        #     data=[rel.repr for rel in self._realization_plots]
+        #     + [obs.repr for obs in self._observations],
+        #     layout=self._layout,
+        # )
+        # data=[rel.repr for rel in self._realization_plots]+ [obs.repr for obs in self._observations],
+        fig = go.Figure(layout=self._layout)
+        for rel in self._realization_plots:
+            fig.add_trace(rel.repr)
+        for obs in self._observations:
+            fig.add_trace(obs.repr)
+        return fig
 
     @property
     def plot_ids(self):
