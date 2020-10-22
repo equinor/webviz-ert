@@ -45,7 +45,7 @@ class PlotModel:
             return self._name
 
 
-class EnsemblePlotModel:
+class ResponsePlotModel:
     def __init__(self, realization_plots, observations, layout):
         self._realization_plots = realization_plots
         self._observations = observations
