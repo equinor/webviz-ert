@@ -3,8 +3,8 @@ import numpy as np
 from ertviz.controllers.response_controller import (
     _get_observation_plots,
     _get_realizations_plots,
+    _get_realizations_statistics_plots,
 )
-from ertviz.controllers.response_controller import _get_realizations_statistics_plots
 
 
 def test_observation_plot_representation():

@@ -5,7 +5,7 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from ertviz.data_loader import get_ensemble_url
 from ertviz.ert_client import get_response
-from ertviz.models import EnsemblePlotModel, PlotModel, EnsembleModel
+from ertviz.models import ResponsePlotModel, PlotModel, EnsembleModel
 from ertviz.controllers import parse_url_query
 
 
@@ -86,7 +86,7 @@ def _get_observation_plots(observation_df, x_axis):
     return [observation_data]
 
 
-def _create_response_model(response, plot_type, selected_realizations):
+def _create_response_plot(response, plot_type, selected_realizations):
 
     x_axis = response.axis
     if plot_type == "Statistics":
@@ -102,7 +102,7 @@ def _create_response_model(response, plot_type, selected_realizations):
     for obs in response.observations:
         observations += _get_observation_plots(obs.data_df(), x_axis)
 
-    ensemble_plot = EnsemblePlotModel(
+    ensemble_plot = ResponsePlotModel(
         realizations,
         observations,
         dict(
@@ -176,7 +176,7 @@ def response_controller(parent, app):
 
         def _update_plot(ensemble_id):
             ensemble = parent.ensembles.get(ensemble_id, None)
-            parent.ensemble_plot = _create_response_model(
+            parent.ensemble_plot = _create_response_plot(
                 ensemble.responses[value["response"]],
                 plot_type,
                 selected_realizations,
