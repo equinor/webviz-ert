@@ -2,7 +2,7 @@ import plotly.graph_objects as go
 
 
 class PlotModel:
-    def __init__(self, x_axis, y_axis, text, name, mode, line, marker):
+    def __init__(self, x_axis, y_axis, text, name, mode, line, marker, error_y=None):
         self._x_axis = x_axis
         self._y_axis = y_axis
         self._text = text
@@ -10,6 +10,7 @@ class PlotModel:
         self._mode = mode
         self._line = line
         self._marker = marker
+        self._error_y = error_y
         self.selected = True
 
     @property
@@ -20,6 +21,7 @@ class PlotModel:
             text=self.display_name,
             name=self.display_name,
             mode=self._mode,
+            error_y=self._error_y,
         )
         if self._line:
             repr_dict["line"] = self._line

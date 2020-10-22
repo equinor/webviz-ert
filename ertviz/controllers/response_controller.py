@@ -9,7 +9,7 @@ from ertviz.models import EnsemblePlotModel, PlotModel, EnsembleModel
 from ertviz.controllers import parse_url_query
 
 
-obs_color = "rgb(180, 180, 180)"
+obs_color = "rgb(176, 28, 52)"
 real_color = "rgb(40, 141, 181)"
 
 
@@ -21,9 +21,9 @@ def _get_realizations_plots(realizations_df, x_axis):
             y_axis=realizations_df[realization].values,
             text=realization,
             name=realization,
-            line=dict(color="royalblue"),
+            line=dict(color=real_color),
             mode="lines+markers",
-            marker=dict(color="royalblue", size=1),
+            marker=dict(color=real_color, size=1),
         )
         realizations_data.append(plot)
     return realizations_data
@@ -76,27 +76,14 @@ def _get_observation_plots(observation_df, x_axis):
         name="Observations",
         mode="markers",
         line=None,
-        marker=dict(color="red", size=10),
+        marker=dict(color=obs_color, size=10),
+        error_y=dict(
+            type="data",  # value of error bar given in data coordinates
+            array=stds.values,
+            visible=True,
+        ),
     )
-    lower_std_data = PlotModel(
-        x_axis=x_axis,
-        y_axis=[d - std for d, std in zip(data, stds)],
-        text="Observations std lower",
-        name="Observations std lower",
-        mode="lines",
-        line=dict(color="red", dash="dash"),
-        marker=None,
-    )
-    upper_std_data = PlotModel(
-        x_axis=x_axis,
-        y_axis=[d + std for d, std in zip(data, stds)],
-        text="Observations std upper",
-        name="Observations std upper",
-        mode="lines",
-        line=dict(color="red", dash="dash"),
-        marker=None,
-    )
-    return [observation_data, lower_std_data, upper_std_data]
+    return [observation_data]
 
 
 def _create_response_model(response, plot_type, selected_realizations):
