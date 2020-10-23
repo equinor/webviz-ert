@@ -42,6 +42,19 @@ def _make_buttons(prev_id, next_id):
     )
 
 
+def _make_checkboxes(hist_check_id):
+    return html.Div(
+        dcc.Checklist(
+            id=hist_check_id,
+            options=[
+                {"label": "histogram", "value": "hist"},
+                {"label": "kde", "value": "kde"},
+            ],
+            value=["hist", "kde"],
+        )
+    )
+
+
 def parameter_view(parent):
     return [
         html.Div(
@@ -56,6 +69,7 @@ def parameter_view(parent):
                         _make_buttons(parent.uuid("prev-btn"), parent.uuid("next-btn")),
                     ],
                 ),
+                _make_checkboxes(parent.uuid("hist-check")),
                 dcc.Graph(
                     id={
                         "id": parent.uuid("parameter-scatter"),

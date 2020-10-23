@@ -1,5 +1,8 @@
 import pandas
+import math
 import plotly.express as px
+import plotly.figure_factory as ff
+from ertviz.data_loader import get_schema, get_csv_data
 
 
 class PriorModel:
@@ -17,11 +20,29 @@ class ParameterRealizationModel:
 
 
 class ParametersModel:
-    def __init__(self, group, key, prior, realizations):
-        self.group = group
-        self.key = key
-        self.priors = prior
-        self._realizations = realizations
+    def __init__(self, **kwargs):
+        self.group = kwargs["group"]
+        self.key = kwargs["key"]
+        self.priors = kwargs["prior"]
+        self._schema_url = kwargs["schema_url"]
+        self._realizations = kwargs.get("realizations")
+        self.set_plot_param(hist=kwargs.get("hist", True), kde=kwargs.get("kde", True))
+
+    def set_plot_param(self, hist=True, kde=True):
+        self._hist_enabled = hist
+        self._kde_enabled = kde
+
+    def update_realizations(self):
+        if self._realizations is None:
+            realizations_schema = get_schema(self._schema_url)
+            realizations_data_df = get_csv_data(realizations_schema["alldata_url"])
+            self._realizations = [
+                ParameterRealizationModel(schema["name"], values[1]["value"])
+                for schema, values in zip(
+                    realizations_schema["parameter_realizations"],
+                    realizations_data_df.iterrows(),
+                )
+            ]
 
     def update_selection(self, selection):
         if selection:
@@ -57,7 +78,17 @@ class ParametersModel:
 
     @property
     def repr(self):
-        fig = px.histogram(self.data_frame, marginal="rug")
+        bin_count = int(math.ceil(math.sqrt(len(self.data_frame.index))))
+        bin_size = float(
+            (self.data_frame.max().values - self.data_frame.min().values) / bin_count
+        )
+        fig = ff.create_distplot(
+            [self.realization_values],
+            [self.key],
+            show_hist=self._hist_enabled,
+            show_curve=self._kde_enabled,
+            bin_size=bin_size,
+        )
         fig.update_layout(clickmode="event+select")
 
         fig.update_layout(uirevision=True)

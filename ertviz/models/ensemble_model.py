@@ -20,20 +20,9 @@ def get_parameter_models(parameters_schema):
                 param["prior"]["parameter_names"],
                 param["prior"]["parameter_values"],
             )
-
-        realizations_schema = get_schema(param["ref_url"])
-        realizations_data_df = get_csv_data(realizations_schema["alldata_url"])
-        realizations = [
-            ParameterRealizationModel(schema["name"], values[1]["value"])
-            for schema, values in zip(
-                realizations_schema["parameter_realizations"],
-                realizations_data_df.iterrows(),
-            )
-        ]
         parameters[key] = ParametersModel(
-            group=group, key=key, prior=prior, realizations=realizations
+            group=group, key=key, prior=prior, schema_url=param["ref_url"]
         )
-
     return parameters
 
 
