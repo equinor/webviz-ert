@@ -61,14 +61,19 @@ def parameter_controller(parent, app):
         [
             Input(parent.uuid("parameter-selector"), "value"),
             Input(parent.uuid("selection-store"), "data"),
+            Input(parent.uuid("hist-check"), "value"),
         ],
     )
-    def _update_scatter_plot(parameter, selection):
+    def _update_scatter_plot(parameter, selection, hist_check_values):
         if not parameter in parent.parameter_models:
             raise PreventUpdate
 
         param = parent.parameter_models[parameter]
+        param.update_realizations()
         param.update_selection(selection)
+        param.set_plot_param(
+            hist="hist" in hist_check_values, kde="kde" in hist_check_values
+        )
         parent.parameter_plot = param
         return param.repr
 
