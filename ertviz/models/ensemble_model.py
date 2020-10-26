@@ -45,7 +45,9 @@ class EnsembleModel:
         self._children = schema["children"]
         self._parent = schema["parent"]
         self.responses = {
-            resp_schema["name"]: Response(resp_schema["ref_url"])
+            resp_schema["name"]: Response(
+                name=resp_schema["name"], ref_url=resp_schema["ref_url"]
+            )
             for resp_schema in schema["responses"]
         }
         self.parameters = get_parameter_models(schema["parameters"])
