@@ -2,15 +2,15 @@ import plotly.graph_objects as go
 
 
 class PlotModel:
-    def __init__(self, x_axis, y_axis, text, name, mode, line, marker, error_y=None):
-        self._x_axis = x_axis
-        self._y_axis = y_axis
-        self._text = text
-        self._name = name
-        self._mode = mode
-        self._line = line
-        self._marker = marker
-        self._error_y = error_y
+    def __init__(self, **kwargs):
+        self._x_axis = kwargs["x_axis"]
+        self._y_axis = kwargs["y_axis"]
+        self._text = kwargs["text"]
+        self._name = kwargs["name"]
+        self._mode = kwargs["mode"]
+        self._line = kwargs["line"]
+        self._marker = kwargs["marker"]
+        self._error_y = kwargs.get("error_y")
         self.selected = True
 
     @property
