@@ -4,7 +4,6 @@ import pandas as pd
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from ertviz.data_loader import get_ensemble_url
-from ertviz.ert_client import get_response
 from ertviz.models import ResponsePlotModel, PlotModel, EnsembleModel
 from ertviz.controllers import parse_url_query
 
