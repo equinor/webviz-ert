@@ -53,16 +53,6 @@ ensembles_response = {
                 },
                 "ref_url": "http://127.0.0.1:5000/ensembles/1/parameters/1",
             },
-            # {
-            #     "group": "SNAKE_OIL_PARAM",
-            #     "key": "BPR_555_PERSISTENCE",
-            #     "prior": {
-            #         "function": "UNIFORM",
-            #         "parameter_names": ["MIN", "MAX"],
-            #         "parameter_values": [0.1, 0.5],
-            #     },
-            #     "ref_url": "http://127.0.0.1:5000/ensembles/1/parameters/2",
-            # },
         ],
         "parent": {},
         "realizations": [
@@ -76,14 +66,6 @@ ensembles_response = {
                 "name": "SNAKE_OIL_GPR_DIFF",
                 "ref_url": "http://127.0.0.1:5000/ensembles/1/responses/SNAKE_OIL_GPR_DIFF",
             },
-            # {
-            #     "name": "SNAKE_OIL_OPR_DIFF",
-            #     "ref_url": "http://127.0.0.1:5000/ensembles/1/responses/SNAKE_OIL_OPR_DIFF",
-            # },
-            # {
-            #     "name": "SNAKE_OIL_WPR_DIFF",
-            #     "ref_url": "http://127.0.0.1:5000/ensembles/1/responses/SNAKE_OIL_WPR_DIFF",
-            # },
         ],
         "time_created": "2020-04-29T09:36:26",
     },
@@ -101,16 +83,6 @@ ensembles_response = {
                 },
                 "ref_url": "http://127.0.0.1:5000/ensembles/1/parameters/1",
             },
-            # {
-            #     "group": "SNAKE_OIL_PARAM",
-            #     "key": "BPR_555_PERSISTENCE",
-            #     "prior": {
-            #         "function": "UNIFORM",
-            #         "parameter_names": ["MIN", "MAX"],
-            #         "parameter_values": [0.1, 0.5],
-            #     },
-            #     "ref_url": "http://127.0.0.1:5000/ensembles/1/parameters/2",
-            # },
         ],
         "parent": {
             "name": "default",
@@ -127,14 +99,6 @@ ensembles_response = {
                 "name": "SNAKE_OIL_GPR_DIFF",
                 "ref_url": "http://127.0.0.1:5000/ensembles/1/responses/SNAKE_OIL_GPR_DIFF",
             },
-            # {
-            #     "name": "SNAKE_OIL_OPR_DIFF",
-            #     "ref_url": "http://127.0.0.1:5000/ensembles/1/responses/SNAKE_OIL_OPR_DIFF",
-            # },
-            # {
-            #     "name": "SNAKE_OIL_WPR_DIFF",
-            #     "ref_url": "http://127.0.0.1:5000/ensembles/1/responses/SNAKE_OIL_WPR_DIFF",
-            # },
         ],
         "time_created": "2020-04-29T10:36:26",
     },
@@ -172,9 +136,6 @@ ensembles_response = {
         },
         "ref_url": "http://127.0.0.1:5000/ensembles/1/parameters/1",
     },
-    # "http://127.0.0.1:5000/ensembles/1/parameters/1/data": DataContent(
-    #     "0.50, 0.38, 0.35"
-    # ),
     "http://127.0.0.1:5000/ensembles/1/realizations/0": {
         "name": 0,
         "parameters": [
