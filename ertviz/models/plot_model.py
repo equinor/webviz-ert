@@ -39,7 +39,7 @@ class PlotModel:
 
     @property
     def display_name(self):
-        if type(self._name) is int:
+        if isinstance(self._name, int):
             return f"Realization {self._name}"
         else:
             return self._name
