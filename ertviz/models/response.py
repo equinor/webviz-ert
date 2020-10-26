@@ -4,25 +4,28 @@ from ertviz.models import Realization, Observation, indexes_to_axis
 
 
 class Response:
-    def __init__(self, ref_url):
-        schema = get_schema(api_url=ref_url)
-        self.name = schema["name"]
-        self.ensemble_id = schema["ensemble_id"]
-        self._axis_url = schema["axis"]["data_url"]
+    def __init__(self, name, ref_url):
+        self._schema = None  # get_schema(api_url=ref_url)
+        self._ref_url = ref_url
+        self.name = name
         self._axis = None
-        self._data_url = schema["alldata_url"]
         self._data = None
         self._realizations = []
         self._observations = []
-        if "realizations" in schema:
-            self._realizations_schema = schema["realizations"]
-            self._realizations = None
-        if "observations" in schema:
-            self._observations_schema = schema["observations"]
-            self._observations = None
+        self._realizations = None
+        self._observations = None
+
+    @property
+    def ensemble_id(self):
+        if not self._schema:
+            self._schema = get_schema(api_url=self._ref_url)
+        return self._schema["ensemble_id"]
 
     @property
     def axis(self):
+        if not self._schema:
+            self._schema = get_schema(api_url=self._ref_url)
+        self._axis_url = self._schema["axis"]["data_url"]
         if self._axis is None:
             indexes = get_data(self._axis_url)
             self._axis = indexes_to_axis(indexes)
@@ -30,6 +33,9 @@ class Response:
 
     @property
     def data(self):
+        if not self._schema:
+            self._schema = get_schema(api_url=self._ref_url)
+        self._data_url = self._schema["alldata_url"]
         if self._data is None and self._realizations is not None:
             self._data = pd.read_csv(self._data_url, header=None).T
             self._data.columns = [
@@ -52,6 +58,11 @@ class Response:
 
     @property
     def realizations(self):
+        if not self._schema:
+            self._schema = get_schema(api_url=self._ref_url)
+        if "realizations" in self._schema:
+            self._realizations_schema = self._schema["realizations"]
+
         if self._realizations is None:
             self._realizations = []
             for realization_schema in self._realizations_schema:
@@ -62,9 +73,14 @@ class Response:
 
     @property
     def observations(self):
-        if self._observations is None:
+        if not self._schema:
+            self._schema = get_schema(api_url=self._ref_url)
+        if not "observations" in self._schema:
+            return []
+        _observations_schema = self._schema["observations"]
+        if self._observations is None and _observations_schema is not None:
             self._observations = []
-            for observation_schema in self._observations_schema:
+            for observation_schema in _observations_schema:
                 self._observations.append(
                     Observation(observation_schema=observation_schema)
                 )
