@@ -15,16 +15,18 @@ class Response:
         self._realizations = None
         self._observations = None
 
-    @property
-    def ensemble_id(self):
+    def _update_schema(self):
         if not self._schema:
             self._schema = get_schema(api_url=self._ref_url)
+
+    @property
+    def ensemble_id(self):
+        self._update_schema()
         return self._schema["ensemble_id"]
 
     @property
     def axis(self):
-        if not self._schema:
-            self._schema = get_schema(api_url=self._ref_url)
+        self._update_schema()
         self._axis_url = self._schema["axis"]["data_url"]
         if self._axis is None:
             indexes = get_data(self._axis_url)
@@ -33,8 +35,7 @@ class Response:
 
     @property
     def data(self):
-        if not self._schema:
-            self._schema = get_schema(api_url=self._ref_url)
+        self._update_schema()
         self._data_url = self._schema["alldata_url"]
         if self._data is None and self._realizations is not None:
             self._data = pd.read_csv(self._data_url, header=None).T
@@ -58,8 +59,7 @@ class Response:
 
     @property
     def realizations(self):
-        if not self._schema:
-            self._schema = get_schema(api_url=self._ref_url)
+        self._update_schema()
         if "realizations" in self._schema:
             self._realizations_schema = self._schema["realizations"]
 
@@ -73,8 +73,7 @@ class Response:
 
     @property
     def observations(self):
-        if not self._schema:
-            self._schema = get_schema(api_url=self._ref_url)
+        self._update_schema()
         if not "observations" in self._schema:
             return []
         _observations_schema = self._schema["observations"]
