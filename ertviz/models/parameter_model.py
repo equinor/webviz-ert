@@ -27,21 +27,29 @@ class ParametersModel:
         self._schema_url = kwargs["schema_url"]
         self._realizations = kwargs.get("realizations")
         self.set_plot_param(hist=kwargs.get("hist", True), kde=kwargs.get("kde", True))
+        self._data_df = None
 
     def set_plot_param(self, hist=True, kde=True):
         self._hist_enabled = hist
         self._kde_enabled = kde
 
-    def update_realizations(self):
-        if self._realizations is None:
+    def data_df(self):
+        if self._data_df is None:
             realizations_schema = get_schema(self._schema_url)
-            realizations_data_df = get_csv_data(realizations_schema["alldata_url"])
+            self._data_df = get_csv_data(realizations_schema["alldata_url"]).T
+            self._data_df.columns = [
+                schema["name"]
+                for schema in realizations_schema["parameter_realizations"]
+            ]
+        return self._data_df
+
+    def update_realizations(self, data_df=None):
+        if data_df is None:
+            data_df = self.data_df()
+        if self._realizations is None:
             self._realizations = [
-                ParameterRealizationModel(schema["name"], values[1]["value"])
-                for schema, values in zip(
-                    realizations_schema["parameter_realizations"],
-                    realizations_data_df.iterrows(),
-                )
+                ParameterRealizationModel(col, data_df[col].values[0])
+                for col in data_df
             ]
 
     def update_selection(self, selection):
