@@ -1,10 +1,15 @@
 import pandas as pd
 import numpy as np
+from unittest import mock
+from tests.conftest import mocked_get_info, mocked_requests_get
 from ertviz.controllers.response_controller import (
     _get_observation_plots,
     _get_realizations_plots,
     _get_realizations_statistics_plots,
 )
+from ertviz.controllers.ensemble_selector_controller import _construct_graph
+from ertviz.data_loader import get_ensembles
+from ertviz.models import EnsembleModel
 
 
 def test_observation_plot_representation():
@@ -53,3 +58,24 @@ def test_realizations_statistics_plot_representation():
     np.testing.assert_equal(plots[0].repr.y, np.mean(data, axis=1))
     np.testing.assert_equal(plots[1].repr.y, np.quantile(data, 0.1, axis=1))
     np.testing.assert_equal(plots[2].repr.y, np.quantile(data, 0.9, axis=1))
+
+
+@mock.patch("ertviz.data_loader.requests.get", side_effect=mocked_requests_get)
+@mock.patch("ertviz.data_loader.get_info", side_effect=mocked_get_info)
+def test_ensemble_selector_graph_constructor(mock_request, mock_get_info):
+    ensemble_dict = get_ensembles()
+    ensemble_models = {
+        schema["ref_url"]: EnsembleModel(schema["ref_url"]) for schema in ensemble_dict
+    }
+    graph_data = _construct_graph(ensemble_models)
+    parent_ensemble_node = {
+        "data": {"id": "http://127.0.0.1:5000/ensembles/1", "label": "default"}
+    }
+    parent_child_edge = {
+        "data": {
+            "source": "http://127.0.0.1:5000/ensembles/1",
+            "target": "http://127.0.0.1:5000/ensembles/2",
+        }
+    }
+    assert parent_ensemble_node in graph_data
+    assert parent_child_edge in graph_data
