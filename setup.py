@@ -16,12 +16,14 @@ setup(
         "webviz_config_plugins": [
             "EnsembleOverview = ertviz.plugins:EnsembleOverview",
             "Ensemble = ertviz.plugins:Ensemble",
+            "EnsembleComparison = ertviz.plugins:EnsembleComparison",
         ]
     },
     install_requires=[
         "requests",
         "webviz-config>=0.0.40",
         "webviz-subsurface-components",
+        "dash-cytoscape",
     ],
     tests_require=TESTS_REQUIRE,
     extras_require={"tests": TESTS_REQUIRE},
