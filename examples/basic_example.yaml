@@ -12,6 +12,11 @@ pages:
     - Ensemble
     - Ensemble:
 
+ - title: Comparison Viewer
+   content:
+    - EnsembleComparison
+    - EnsembleComparison:
+
 #  - title: Simulation time series
 #    content:
 #     - ERTTimeSeries:
