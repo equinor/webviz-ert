@@ -28,18 +28,19 @@ def get_parameter_models(parameters_schema):
 
 class EnsembleModel:
     def __init__(self, ref_url):
-        schema = get_schema(api_url=ref_url)
-        self._name = schema["name"]
-        self._id = ref_url  # ref_url
-        self._children = schema["children"]
-        self._parent = schema["parent"]
+        self._schema = get_schema(api_url=ref_url)
+        self._name = self._schema["name"]
+        self._id = ref_url
+        self._children = self._schema["children"]
+        self._parent = self._schema["parent"]
         self.responses = {
             resp_schema["name"]: Response(
                 name=resp_schema["name"], ref_url=resp_schema["ref_url"]
             )
-            for resp_schema in schema["responses"]
+            for resp_schema in self._schema["responses"]
         }
-        self.parameters = get_parameter_models(schema["parameters"])
+        self._parameters = None
+        self.style = {}
 
     @property
     def children(self):
@@ -52,6 +53,20 @@ class EnsembleModel:
 
     @property
     def parent(self):
+        if not self._parent:
+            return None
         if hasattr(self, "_cached_parent"):
             return self._cached_parent
-        self._cached_parent = EnsembleModel(ref_url=self.parent["ref_url"])
+
+        self._cached_parent = EnsembleModel(ref_url=self._parent["ref_url"])
+        return self._cached_parent
+
+    @property
+    def parameters(self):
+        if self._parameters is None:
+            self._parameters = get_parameter_models(self._schema["parameters"])
+        return self._parameters
+
+    @property
+    def id(self):
+        return self._id
