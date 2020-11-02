@@ -1,7 +1,13 @@
+import sys
 import pytest
 import pandas as pd
 from tests.data.snake_oil_data import ensembles_response
 from requests import HTTPError
+from unittest.mock import Mock, MagicMock
+
+
+def mocked_get_info():
+    return {"baseurl": "http://127.0.0.1:5000", "auth": ""}
 
 
 def mocked_read_csv(*args, **kwargs):
@@ -35,3 +41,11 @@ def mocked_requests_get(*args, **kwargs):
     if args[0] in ensembles_response:
         return MockResponse(ensembles_response[args[0]], 200)
     return MockResponse({}, 400)
+
+
+def mocked_get_url():
+    return "http://127.0.0.1:5000"
+
+
+def mocked_get_auth():
+    return ""
