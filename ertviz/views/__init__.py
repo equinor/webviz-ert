@@ -8,6 +8,16 @@ def response_view(parent):
         html.Div(
             [
                 html.Div(
+                    children=[
+                        html.Label("Select Graph Type"),
+                        dcc.RadioItems(
+                            options=["Function plot", "Statistics"],
+                            value="Function plot",
+                            id=parent.uuid("plot-type"),
+                        ),
+                    ]
+                ),
+                html.Div(
                     [
                         html.H5("Response"),
                         dcc.Dropdown(id=parent.uuid("response-selector")),
