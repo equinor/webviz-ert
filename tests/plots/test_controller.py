@@ -88,7 +88,7 @@ def test_histogram_plot_representation():
     data_df.index.name = "key_name"
 
     plot = HistogramPlotModel(data_df, hist=True, kde=False)
-    plot.selection = [range(5)]
+    plot.selection = range(5)
     plot = plot.repr
     np.testing.assert_equal(plot.data[0].x, data.flatten()[:5])
     assert plot.data[0].histnorm == "probability density"
