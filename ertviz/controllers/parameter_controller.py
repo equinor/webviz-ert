@@ -1,7 +1,4 @@
-import re
-from tests import data
 import dash
-import json
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 
