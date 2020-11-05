@@ -1,4 +1,6 @@
 import plotly.graph_objects as go
+import plotly.figure_factory as ff
+import math
 
 
 class PlotModel:
@@ -71,3 +73,40 @@ class ResponsePlotModel:
     @property
     def plot_ids(self):
         return {idx: rel.name for idx, rel in enumerate(self._realization_plots)}
+
+
+class HistogramPlotModel:
+    def __init__(self, data_df, hist=True, kde=True):
+        self._hist_enabled = hist
+        self._kde_enabled = kde
+        self._data_df = data_df
+        self.selection = []
+
+    @property
+    def data_df(self):
+        if self.selection:
+            return self._data_df[self.selection]
+        return self._data_df
+
+    @property
+    def plot_ids(self):
+        return {plot_idx: real.name for plot_idx, real in enumerate(self._data_df)}
+
+    @property
+    def repr(self):
+        bin_count = int(math.ceil(math.sqrt(len(self.data_df.values.flatten()))))
+        bin_size = float(
+            (self.data_df.max(axis=1).values - self.data_df.min(axis=1).values)
+            / bin_count
+        )
+        fig = ff.create_distplot(
+            [list(self.data_df.values.flatten())],
+            [self.data_df.index.name],
+            show_hist=self._hist_enabled,
+            show_curve=self._kde_enabled,
+            bin_size=bin_size,
+        )
+        fig.update_layout(clickmode="event+select")
+
+        fig.update_layout(uirevision=True)
+        return fig

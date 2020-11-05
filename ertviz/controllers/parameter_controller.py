@@ -1,11 +1,12 @@
 import re
+from tests import data
 import dash
 import json
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 
 from ertviz.controllers import parse_url_query
-from ertviz.models import EnsembleModel
+from ertviz.models import EnsembleModel, HistogramPlotModel
 from ertviz.data_loader import get_ensemble_url
 
 
@@ -69,13 +70,13 @@ def parameter_controller(parent, app):
             raise PreventUpdate
 
         param = parent.parameter_models[parameter]
-        param.update_realizations()
-        param.update_selection(selection)
-        param.set_plot_param(
-            hist="hist" in hist_check_values, kde="kde" in hist_check_values
+        parent.parameter_plot = HistogramPlotModel(
+            param.data_df(),
+            hist="hist" in hist_check_values,
+            kde="kde" in hist_check_values,
         )
-        parent.parameter_plot = param
-        return param.repr
+        parent.parameter_plot.selection = selection
+        return parent.parameter_plot.repr
 
     @app.callback(
         Output(parent.uuid("parameter-selector"), "value"),
