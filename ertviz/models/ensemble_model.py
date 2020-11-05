@@ -3,7 +3,6 @@ from ertviz.models import Response
 
 from ertviz.models.parameter_model import (
     PriorModel,
-    ParameterRealizationModel,
     ParametersModel,
 )
 

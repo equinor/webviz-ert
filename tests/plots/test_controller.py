@@ -10,7 +10,7 @@ from ertviz.controllers.response_controller import (
 from ertviz.controllers.ensemble_selector_controller import _construct_graph
 from ertviz.data_loader import get_ensembles
 from ertviz.models import EnsembleModel
-from ertviz.models import ParametersModel
+from ertviz.models import HistogramPlotModel
 
 
 def test_observation_plot_representation():
@@ -82,15 +82,14 @@ def test_ensemble_selector_graph_constructor(mock_request, mock_get_info):
     assert parent_child_edge in graph_data
 
 
-def test_parameter_realizations_plot_representation():
+def test_histogram_plot_representation():
     data = np.random.rand(20).reshape(-1, 20)
     data_df = pd.DataFrame(data=data, index=range(1), columns=range(20))
+    data_df.index.name = "key_name"
 
-    param = ParametersModel(group="group", key="key", prior=None, schema_url=None)
-    param.update_realizations(data_df)
-    param.set_plot_param(hist=True, kde=False)
-
-    plot = param.repr
-    np.testing.assert_equal(plot.data[0].x, data.flatten())
+    plot = HistogramPlotModel(data_df, hist=True, kde=False)
+    plot.selection = [range(5)]
+    plot = plot.repr
+    np.testing.assert_equal(plot.data[0].x, data.flatten()[:5])
     assert plot.data[0].histnorm == "probability density"
     assert plot.data[0].autobinx == False
