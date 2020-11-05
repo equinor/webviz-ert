@@ -12,7 +12,10 @@ def response_view(parent):
                     children=[
                         html.Label("Select Graph Type"),
                         dcc.RadioItems(
-                            options=["Function plot", "Statistics"],
+                            options=[
+                                {"label": key, "value": key}
+                                for key in ["Function plot", "Statistics"]
+                            ],
                             value="Function plot",
                             id=parent.uuid("plot-type"),
                         ),
