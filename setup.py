@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 TESTS_REQUIRE = ["selenium~=3.141", "pylint", "mock", "black", "bandit"]
 
 setup(
-    name="ertviz",
+    name="webviz-ert",
     description="Webviz plugins for ERT",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
