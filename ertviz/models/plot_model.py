@@ -75,6 +75,52 @@ class ResponsePlotModel:
         return {idx: rel.name for idx, rel in enumerate(self._realization_plots)}
 
 
+class MultiHistogramPlotModel:
+    def __init__(self, data_df_dict, hist=True, kde=True):
+        self._hist_enabled = hist
+        self._kde_enabled = kde
+        self._data_df_dict = data_df_dict
+        self.selection = []
+
+    @property
+    def data_df(self):
+        if self.selection:
+            return [
+                {response_name: self._data_df_dict[response_name][self.selection]}
+                for response_name in self._data_df_dict
+            ]
+        return self._data_df_dict
+
+    @property
+    def plot_ids(self):
+        df = self._data_df_dict.values()[0]
+        return {plot_idx: real.name for plot_idx, real in enumerate(df)}
+
+    @property
+    def repr(self):
+        data = [
+            list(self._data_df_dict[response_name].values.flatten())
+            for response_name in self._data_df_dict
+        ]
+        names = [response_name for response_name in self._data_df_dict]
+        bin_count = int(math.ceil(math.sqrt(len(data[0]))))
+        _max = max(map(max, data))
+        _min = min(map(min, data))
+        bin_size = float((_max - _min) / bin_count)
+
+        fig = ff.create_distplot(
+            data,
+            names,
+            show_hist=self._hist_enabled,
+            show_curve=self._kde_enabled,
+            bin_size=bin_size,
+        )
+        fig.update_layout(clickmode="event+select")
+
+        fig.update_layout(uirevision=True)
+        return fig
+
+
 class HistogramPlotModel:
     def __init__(self, data_df, hist=True, kde=True):
         self._hist_enabled = hist
