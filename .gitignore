@@ -130,5 +130,6 @@ dmypy.json
 
 #IDE's
 .vscode
+.idea
 
 /ertviz/__version__.py
