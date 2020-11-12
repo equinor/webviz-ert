@@ -1,9 +1,14 @@
-import sys
-import pytest
 import pandas as pd
-from tests.data.snake_oil_data import ensembles_response
 from requests import HTTPError
-from unittest.mock import Mock, MagicMock
+
+from tests.data.snake_oil_data import ensembles_response
+from selenium.webdriver.chrome.options import Options
+
+
+def pytest_setup_options():
+    options = Options()
+    options.add_argument("--headless")
+    return options
 
 
 def mocked_get_info():
