@@ -5,37 +5,21 @@ from dash.exceptions import PreventUpdate
 import dash_core_components as dcc
 from webviz_config import WebvizPluginABC
 import webviz_subsurface_components as wsc
-
-
-def _set_grid_layout(columns):
-    return {
-        "display": "grid",
-        "alignContent": "space-around",
-        "justifyContent": "space-between",
-        "gridTemplateColumns": f"{columns}",
-    }
+import ertviz.assets as assets
 
 
 def _make_buttons(prev_id, next_id):
     return html.Div(
-        style=_set_grid_layout("1fr 1fr"),
+        className="ert-parameter-navigator",
         children=[
             html.Button(
                 id=prev_id,
-                style={
-                    "fontSize": "2rem",
-                    "paddingLeft": "5px",
-                    "paddingRight": "5px",
-                },
+                className="ert-button",
                 children="⬅",
             ),
             html.Button(
                 id=next_id,
-                style={
-                    "fontSize": "2rem",
-                    "paddingLeft": "5px",
-                    "paddingRight": "5px",
-                },
+                className="ert-button",
                 children="➡",
             ),
         ],
@@ -59,9 +43,9 @@ def parameter_view(parent):
     return [
         html.Div(
             children=[
-                html.Span("Parameter distribution:", style={"font-weight": "bold"}),
+                html.H5("Parameter distribution:"),
                 html.Div(
-                    style=_set_grid_layout("8fr 1fr 2fr"),
+                    className="ert-parameter-viewer ert-dropdown",
                     children=[
                         dcc.Dropdown(
                             id=parent.uuid("parameter-selector"),

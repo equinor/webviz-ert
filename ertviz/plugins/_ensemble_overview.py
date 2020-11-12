@@ -1,7 +1,7 @@
 import dash_html_components as html
+import dash_core_components as dcc
 from webviz_config import WebvizPluginABC
 from ertviz.data_loader import get_ensembles
-import dash_core_components as dcc
 
 
 class EnsembleOverview(WebvizPluginABC):

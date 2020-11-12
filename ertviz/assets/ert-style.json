@@ -1,0 +1,61 @@
+{
+    "ensemble-selector": {
+        "stylesheet": [
+            {
+                "selector" : "edge",
+                "style": {
+                    "line-color" : "rgba(128,128,128,0.5)"
+                }
+            },
+            {
+                "selector" : "node",
+                "style": {
+                    "label": "data(label)"
+                }
+            },
+            {
+                "selector": "node:selected",
+                "style": {
+                    "label": "data(label)",
+                    "background-color": "data(color)"
+                }
+            }
+        ],
+        "color_wheel": [
+            "rgba(56,108,176,0.8)",
+            "rgba(127,201,127,0.8)",
+            "rgba(253,192,134,0.8)",
+            "rgba(240,2,127,0.8)",
+            "rgba(191,91,23,0.8)"
+        ]
+    },
+    "response-plot":{
+        "observation": {
+            "mode" : "markers",
+            "color" : "rgb(176, 28, 52)",
+            "line": null,
+            "marker" : {
+                "color": "rgb(176, 28, 52)",
+                "size" : 10
+            }
+        },
+        "response" : {
+            "mode" : "markers+lines",
+            "line": {
+                "color" : "rgba(56,108,176,0.8)"
+            },
+            "marker" : {
+                "color" : "rgba(56,108,176,0.8)",
+                "size" : 1
+            }
+        },
+        "statistics" : {
+            "mode" : "lines",
+            "line": {
+                "color" : "rgba(56,108,176,0.8)",
+                "dash" : "dash"
+            },
+            "marker" : null
+        }
+    }
+}

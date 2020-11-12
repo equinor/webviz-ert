@@ -20,10 +20,11 @@ setup(
         ]
     },
     install_requires=[
+        "dash-cytoscape",
         "requests",
         "webviz-config>=0.0.40",
+        "webviz-config-equinor",
         "webviz-subsurface-components",
-        "dash-cytoscape",
     ],
     tests_require=TESTS_REQUIRE,
     extras_require={"tests": TESTS_REQUIRE},
