@@ -12,12 +12,17 @@ setup(
     long_description_content_type="text/markdown",
     author="Equinor",
     packages=find_packages(exclude=["tests"]),
+    package_data={"ertviz.assets": ["*"]},
+    include_package_data=True,
     entry_points={
         "webviz_config_plugins": [
             "EnsembleOverview = ertviz.plugins:EnsembleOverview",
             "Ensemble = ertviz.plugins:Ensemble",
             "EnsembleComparison = ertviz.plugins:EnsembleComparison",
-        ]
+        ],
+        "ert": [
+            "ertviz = ertviz.ert_hooks",
+        ],
     },
     install_requires=[
         "dash-cytoscape",
