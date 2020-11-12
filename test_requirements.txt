@@ -3,3 +3,5 @@ pytest-mock
 pylint
 black
 scipy
+dash[testing]
+selenium
