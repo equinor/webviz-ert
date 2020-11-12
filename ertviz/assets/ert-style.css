@@ -1,0 +1,28 @@
+.ert-button {
+    font-size: 2rem;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.ert-dropdown {
+    width: 48%;
+}
+
+.ert-parameter-navigator {
+    display: grid;
+    align-content: space-around;
+    justify-content: space-between;
+    grid-template-columns: 1fr 1fr;
+}
+
+.ert-parameter-viewer {
+    display: grid;
+    align-content: space-around;
+    justify-content: space-between;
+    grid-template-columns: 8fr 1fr 2fr;
+}
+
+.ert-ensemble-selector {
+    width: 70%;
+    height: 200px;
+}

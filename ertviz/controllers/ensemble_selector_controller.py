@@ -5,6 +5,7 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from ertviz.data_loader import get_ensembles
 from ertviz.models import EnsembleModel
+import ertviz.assets as assets
 
 
 def _construct_graph(ensembles):
@@ -91,13 +92,7 @@ def ensemble_selector_controller(parent, app):
         ],
     )
     def update_ensemble_selection(selected_nodes):
-        color_wheel = [
-            "rgba(56,108,176,0.8)",
-            "rgba(127,201,127,0.8)",
-            "rgba(253,192,134,0.8)",
-            "rgba(240,2,127,0.8)",
-            "rgba(191,91,23,0.8)",
-        ]
+        color_wheel = assets.ERTSTYLE["ensemble-selector"]["color_wheel"]
         if selected_nodes is None:
             raise PreventUpdate
         data = {

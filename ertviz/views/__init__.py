@@ -9,8 +9,15 @@ def response_view(parent):
         html.Div(
             [
                 html.Div(
+                    className="ert-dropdown",
                     children=[
-                        html.Label("Select Graph Type"),
+                        html.H5("Response"),
+                        dcc.Dropdown(id=parent.uuid("response-selector")),
+                    ],
+                ),
+                html.Div(
+                    children=[
+                        html.Label("Select Graph Type:"),
                         dcc.RadioItems(
                             options=[
                                 {"label": key, "value": key}
@@ -20,15 +27,6 @@ def response_view(parent):
                             id=parent.uuid("plot-type"),
                         ),
                     ]
-                ),
-                html.Div(
-                    [
-                        html.H5("Response"),
-                        dcc.Dropdown(id=parent.uuid("response-selector")),
-                    ],
-                    style={
-                        "width": "48%",
-                    },
                 ),
             ]
         ),

@@ -7,13 +7,12 @@ from dash.exceptions import PreventUpdate
 from ertviz.data_loader import get_ensemble_url
 from ertviz.models import ResponsePlotModel, PlotModel, EnsembleModel
 from ertviz.controllers import parse_url_query
-
-
-obs_color = "rgb(176, 28, 52)"
-real_color = "rgb(40, 141, 181)"
+import ertviz.assets as assets
 
 
 def _get_realizations_plots(realizations_df, x_axis, color):
+    style = assets.ERTSTYLE["response-plot"]["response"].copy()
+    style.update({"line": {"color": color}})
     realizations_data = list()
     for realization in realizations_df:
         plot = PlotModel(
@@ -21,9 +20,7 @@ def _get_realizations_plots(realizations_df, x_axis, color):
             y_axis=realizations_df[realization].values,
             text=realization,
             name=realization,
-            line=dict(color=color),
-            mode="lines+markers",
-            marker=dict(color=color, size=1),
+            **style
         )
         realizations_data.append(plot)
     return realizations_data
@@ -34,32 +31,16 @@ def _get_realizations_statistics_plots(df_response, x_axis, color):
     p10 = data.quantile(0.1, axis=1)
     p90 = data.quantile(0.9, axis=1)
     _mean = data.mean(axis=1)
+    style = assets.ERTSTYLE["response-plot"]["statistics"].copy()
+    style.update({"line": {"color": color}})
     mean_data = PlotModel(
-        x_axis=x_axis,
-        y_axis=_mean,
-        text="Mean",
-        name="Mean",
-        mode="lines",
-        line=dict(color=color, dash="dash"),
-        marker=None,
+        x_axis=x_axis, y_axis=_mean, text="Mean", name="Mean", **style
     )
     lower_std_data = PlotModel(
-        x_axis=x_axis,
-        y_axis=p10,
-        text="p10 quantile",
-        name="p10 quantile",
-        mode="lines",
-        line=dict(color=color, dash="dash"),
-        marker=None,
+        x_axis=x_axis, y_axis=p10, text="p10 quantile", name="p10 quantile", **style
     )
     upper_std_data = PlotModel(
-        x_axis=x_axis,
-        y_axis=p90,
-        text="p90 quantile",
-        name="p90 quantile",
-        mode="lines",
-        line=dict(color=color, dash="dash"),
-        marker=None,
+        x_axis=x_axis, y_axis=p90, text="p90 quantile", name="p90 quantile", **style
     )
     return [mean_data, lower_std_data, upper_std_data]
 
@@ -74,14 +55,12 @@ def _get_observation_plots(observation_df, x_axis):
         y_axis=data,
         text="Observations",
         name="Observations",
-        mode="markers",
-        line=None,
-        marker=dict(color=obs_color, size=10),
         error_y=dict(
             type="data",  # value of error bar given in data coordinates
             array=stds.values,
             visible=True,
         ),
+        **assets.ERTSTYLE["response-plot"]["observation"]
     )
     return [observation_data]
 
@@ -108,7 +87,6 @@ def _create_response_plot(response, plot_type, selected_realizations, color):
         dict(
             xaxis={"title": "Index"},
             yaxis={"title": "Unit TODO"},
-            margin={"l": 40, "b": 40, "t": 10, "r": 0},
             hovermode="closest",
             uirevision=True,
         ),
