@@ -111,7 +111,6 @@ class MultiHistogramPlotModel:
         _max = max(map(max, data))
         _min = min(map(min, data))
         bin_size = float((_max - _min) / bin_count)
-        print(colors)
         fig = ff.create_distplot(
             data,
             names,

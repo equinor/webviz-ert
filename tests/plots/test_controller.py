@@ -10,7 +10,8 @@ from ertviz.controllers.response_controller import (
 from ertviz.controllers.ensemble_selector_controller import _construct_graph
 from ertviz.data_loader import get_ensembles
 from ertviz.models import EnsembleModel
-from ertviz.models import HistogramPlotModel
+from ertviz.models import HistogramPlotModel, MultiHistogramPlotModel
+import ertviz.assets as assets
 
 
 def test_observation_plot_representation():
@@ -93,3 +94,29 @@ def test_histogram_plot_representation():
     np.testing.assert_equal(plot.data[0].x, data.flatten()[:5])
     assert plot.data[0].histnorm == "probability density"
     assert plot.data[0].autobinx == False
+
+
+def test_multi_histogram_plot_representation():
+    data_dict = {}
+    colors_dict = {}
+
+    keys = "KEY_NAME"
+    ensemble_names = ["default", "update_1", "update_2"]
+    colors = assets.ERTSTYLE["ensemble-selector"]["color_wheel"]
+    for ensemble_name, color in zip(ensemble_names, colors[: len(ensemble_names)]):
+        data = np.random.rand(20).reshape(-1, 20)
+        data_df = pd.DataFrame(data=data, index=range(1), columns=range(20))
+        data_df.index.name = "KEY_NAME"
+        data_dict[ensemble_name] = data_df
+        colors_dict[ensemble_name] = color
+
+    plot = MultiHistogramPlotModel(data_dict, colors_dict, hist=True, kde=False)
+    plot = plot.repr
+    for idx, ensemble_name in enumerate(ensemble_names):
+        np.testing.assert_equal(
+            plot.data[idx].x, data_dict[ensemble_name].values.flatten()
+        )
+        assert plot.data[idx].histnorm == "probability density"
+        assert plot.data[idx].autobinx == False
+        assert plot.data[idx].marker.color == colors_dict[ensemble_name]
+        assert plot.data[idx].name == ensemble_name
