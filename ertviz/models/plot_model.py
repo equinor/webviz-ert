@@ -76,11 +76,12 @@ class ResponsePlotModel:
 
 
 class MultiHistogramPlotModel:
-    def __init__(self, data_df_dict, hist=True, kde=True):
+    def __init__(self, data_df_dict, colors, hist=True, kde=True):
         self._hist_enabled = hist
         self._kde_enabled = kde
         self._data_df_dict = data_df_dict
         self.selection = []
+        self._colors = colors
 
     @property
     def data_df(self):
@@ -98,22 +99,26 @@ class MultiHistogramPlotModel:
 
     @property
     def repr(self):
-        data = [
-            list(self._data_df_dict[response_name].values.flatten())
-            for response_name in self._data_df_dict
-        ]
-        names = [response_name for response_name in self._data_df_dict]
+        colors = []
+        data = []
+        names = []
+        for response_name in self._data_df_dict:
+            data.append(list(self._data_df_dict[response_name].values.flatten()))
+            colors.append(self._colors[response_name])
+            names.append(response_name)
+
         bin_count = int(math.ceil(math.sqrt(len(data[0]))))
         _max = max(map(max, data))
         _min = min(map(min, data))
         bin_size = float((_max - _min) / bin_count)
-
+        print(colors)
         fig = ff.create_distplot(
             data,
             names,
             show_hist=self._hist_enabled,
             show_curve=self._kde_enabled,
             bin_size=bin_size,
+            colors=colors,
         )
         fig.update_layout(clickmode="event+select")
 

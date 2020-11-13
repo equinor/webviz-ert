@@ -63,14 +63,17 @@ def multi_parameter_controller(parent, app):
         if not selected_ensembles:
             raise PreventUpdate
         data = {}
-        for ensemble_id in selected_ensembles:
+        colors = {}
+        for ensemble_id, color in selected_ensembles.items():
             if parameter in parent.parameter_models[ensemble_id]:
                 data[parent.ensembles[ensemble_id]._name] = parent.parameter_models[
                     ensemble_id
                 ][parameter].data_df()
+                colors[parent.ensembles[ensemble_id]._name] = color["color"]
 
         parent.parameter_plot = MultiHistogramPlotModel(
             data,
+            colors=colors,
             hist="hist" in hist_check_values,
             kde="kde" in hist_check_values,
         )
