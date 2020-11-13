@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/equinor/webviz-ert.svg?branch=master)](https://travis-ci.com/equinor/webviz-ert)
+[![Build Status](https://github.com/equinor/webviz-ert/workflows/Python/badge.svg)](https://github.com/equinor/webviz-ert/actions?query=workflow%3APython)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
