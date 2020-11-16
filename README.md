@@ -4,8 +4,8 @@
 
 # Web based visualization for ERT
 
-## What is ertviz
-ertviz is a visualization tool for ERT based on [dash](https://github.com/plotly/dash) 
+## What is Webviz-ert
+Webviz-ert is a visualization tool for ERT based on [dash](https://github.com/plotly/dash) 
 and [webviz-config](https://github.com/equinor/webviz-config).
 
 ## Download project
@@ -15,4 +15,19 @@ https://github.com/equinor/webviz-ert
 ```sh
 # From the downloaded project's root folder - to install
 pip install .
+```
+
+## Run Webviz-ert
+Webviz-ert connects automatically to a storage server running in [ERT](https://github.com/equinor/ert).
+Here are a few steps to get an example version of webviz-ert running.
+
+```sh
+# Run simulations in ert - <ert-root-folder>/test-data/local/poly_example/
+ert ensemble-smooter --target-case smoother poly.ert
+
+# After simulation has finished, start the ert storage server
+ert api
+
+# start webviz ert in a different terminal
+ert vis
 ```
