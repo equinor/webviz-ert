@@ -9,25 +9,31 @@ cyto.load_extra_layouts()
 
 def ensemble_selector_view(parent):
     return [
-        dcc.Dropdown(
-            id="dropdown-layout",
-            className="ert-dropdown",
-            options=[
-                {"label": "random", "value": "random"},
-                {"label": "grid", "value": "grid"},
-                {"label": "circle", "value": "circle"},
-                {"label": "concentric", "value": "concentric"},
-                {"label": "breadthfirst", "value": "breadthfirst"},
-                {"label": "cose", "value": "cose"},
-                {"label": "cose-bilkent", "value": "cose-bilkent"},
-                {"label": "dagre", "value": "dagre"},
-                {"label": "cola", "value": "cola"},
-                {"label": "klay", "value": "klay"},
-                {"label": "spread", "value": "spread"},
-                {"label": "euler", "value": "euler"},
+        html.Div(
+            [
+                html.Label("Layout:", className="ert-label"),
+                dcc.Dropdown(
+                    id=parent.uuid("dropdown-layout"),
+                    className="ert-dropdown",
+                    options=[
+                        {"label": "random", "value": "random"},
+                        {"label": "grid", "value": "grid"},
+                        {"label": "circle", "value": "circle"},
+                        {"label": "concentric", "value": "concentric"},
+                        {"label": "breadthfirst", "value": "breadthfirst"},
+                        {"label": "cose", "value": "cose"},
+                        {"label": "cose-bilkent", "value": "cose-bilkent"},
+                        {"label": "dagre", "value": "dagre"},
+                        {"label": "cola", "value": "cola"},
+                        {"label": "klay", "value": "klay"},
+                        {"label": "spread", "value": "spread"},
+                        {"label": "euler", "value": "euler"},
+                    ],
+                    value="cola",
+                    clearable=False,
+                ),
             ],
-            value="cola",
-            clearable=False,
+            className="ert-dropdown-container",
         ),
         html.Div(
             [
@@ -37,7 +43,8 @@ def ensemble_selector_view(parent):
                     className="ert-ensemble-selector",
                     stylesheet=assets.ERTSTYLE["ensemble-selector"]["stylesheet"],
                 )
-            ]
+            ],
+            className="ert-ensemble-selector-container",
         ),
         dcc.Store(id=parent.uuid("ensemble-selection-store")),
     ]

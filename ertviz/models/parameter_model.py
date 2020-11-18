@@ -1,7 +1,3 @@
-import pandas
-import math
-import plotly.express as px
-import plotly.figure_factory as ff
 from ertviz.data_loader import get_schema, get_csv_data
 
 

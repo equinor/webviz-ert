@@ -1,26 +1,13 @@
-title: Test of ERTViz plugins
+title: ERT - Visualization tool
 
 pages:
 
  - title: Front page
    content:
-    - Ensemble Oveview
+    - Welcome to Webviz-ERT
     - EnsembleOverview:
-
- - title: Ensemble Viewer
-   content:
-    - Ensemble
-    - Ensemble:
 
  - title: Comparison Viewer
    content:
     - EnsembleComparison
     - EnsembleComparison:
-
-#  - title: Simulation time series
-#    content:
-#     - ERTTimeSeries:
-
-#  - title: Parameter distribution
-#    content:
-#     - ERTParameterDistribution:

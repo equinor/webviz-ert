@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from unittest import mock
 from tests.conftest import mocked_get_info, mocked_requests_get
-from ertviz.controllers.response_controller import (
+from ertviz.controllers.multi_response_controller import (
     _get_observation_plots,
     _get_realizations_plots,
     _get_realizations_statistics_plots,
@@ -39,7 +39,9 @@ def test_realizations_plot_representation():
     data = np.random.rand(200).reshape(-1, 20)
     realization_df = pd.DataFrame(data=data, index=range(10), columns=range(20))
     x_axis = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    plots = _get_realizations_plots(realization_df, x_axis)
+    plots = _get_realizations_plots(
+        realization_df, x_axis, assets.ERTSTYLE["ensemble-selector"]["color_wheel"][0]
+    )
     assert len(plots) == 20
     for plot in plots:
         np.testing.assert_equal(x_axis, plot.repr.x)
@@ -50,7 +52,9 @@ def test_realizations_statistics_plot_representation():
     data = np.random.rand(200).reshape(-1, 20)
     realization_df = pd.DataFrame(data=data, index=range(10), columns=range(20))
     x_axis = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    plots = _get_realizations_statistics_plots(realization_df, x_axis)
+    plots = _get_realizations_statistics_plots(
+        realization_df, x_axis, assets.ERTSTYLE["ensemble-selector"]["color_wheel"][0]
+    )
 
     assert len(plots) == 3
     assert "mode" in plots[0].repr

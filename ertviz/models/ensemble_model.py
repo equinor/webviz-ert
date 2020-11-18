@@ -1,4 +1,4 @@
-from ertviz.data_loader import get_data, get_schema, get_csv_data
+from ertviz.data_loader import get_schema
 from ertviz.models import Response
 
 from ertviz.models.parameter_model import (
