@@ -1,9 +1,7 @@
 import os
 import requests
-from datetime import datetime
 import logging
 import pandas
-import json
 
 
 def get_info():
@@ -22,20 +20,6 @@ def get_url():
 
 def get_auth():
     return get_info()["auth"]
-
-
-def get_data(data_url):
-    logging.info(f"Getting data from {data_url}...")
-    http_response = requests.get(data_url, auth=get_auth())
-    http_response.raise_for_status()
-
-    logging.info(" done!")
-    return http_response.text.split(",")
-
-
-def get_numeric_data(data_url):
-    data = get_data(data_url)
-    return [eval(d) for d in data]
 
 
 def get_csv_data(data_url):
