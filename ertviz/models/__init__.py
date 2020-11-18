@@ -6,9 +6,12 @@ def _convertdate(dstring):
 
 
 def indexes_to_axis(indexes):
-    if indexes and ":" in indexes[0]:
-        return list(map(_convertdate, indexes))
-    return list(map(int, indexes))
+    try:
+        if indexes and type(indexes[0]) is str:
+            return list(map(_convertdate, indexes))
+        return indexes
+    except ValueError as e:
+        raise ValueError("Could not parse indexes as either int or dates", e)
 
 
 from .observation import Observation

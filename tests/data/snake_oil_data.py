@@ -108,21 +108,21 @@ ensembles_response = {
         "key": "BPR_138_PERSISTENCE",
         "parameter_realizations": [
             {
-                "data_url": "http://127.0.0.1:5000/data/33",
+                "data": "http://127.0.0.1:5000/data/33",
                 "name": 0,
                 "realization": {
                     "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/0"
                 },
             },
             {
-                "data_url": "http://127.0.0.1:5000/data/34",
+                "data": "http://127.0.0.1:5000/data/34",
                 "name": 1,
                 "realization": {
                     "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/1"
                 },
             },
             {
-                "data_url": "http://127.0.0.1:5000/data/35",
+                "data": "http://127.0.0.1:5000/data/35",
                 "name": 2,
                 "realization": {
                     "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/2"
@@ -140,41 +140,41 @@ ensembles_response = {
         "name": 0,
         "parameters": [
             {
-                "data_url": "http://127.0.0.1:5000/data/33",
+                "data": "http://127.0.0.1:5000/data/33",
                 "name": "BPR_138_PERSISTENCE",
             },
             {
-                "data_url": "http://127.0.0.1:5000/data/58",
+                "data": "http://127.0.0.1:5000/data/58",
                 "name": "BPR_555_PERSISTENCE",
             },
             {
-                "data_url": "http://127.0.0.1:5000/data/83",
+                "data": "http://127.0.0.1:5000/data/83",
                 "name": "OP1_DIVERGENCE_SCALE",
             },
         ],
         "responses": [
             {
-                "data_url": "http://127.0.0.1:5000/data/284",
+                "data": "http://127.0.0.1:5000/data/284",
                 "name": "SNAKE_OIL_GPR_DIFF",
             },
             {
-                "data_url": "http://127.0.0.1:5000/data/310",
+                "data": "http://127.0.0.1:5000/data/310",
                 "name": "SNAKE_OIL_OPR_DIFF",
             },
             {
-                "data_url": "http://127.0.0.1:5000/data/336",
+                "data": "http://127.0.0.1:5000/data/336",
                 "name": "SNAKE_OIL_WPR_DIFF",
             },
         ],
     },
     "http://127.0.0.1:5000/ensembles/1/responses/SNAKE_OIL_GPR_DIFF": {
         "alldata_url": "http://127.0.0.1:5000/ensembles/1/responses/SNAKE_OIL_GPR_DIFF/data",
-        "axis": {"data_url": "http://127.0.0.1:5000/data/283"},
+        "axis": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
         "ensemble_id": "1",
         "name": "SNAKE_OIL_GPR_DIFF",
         "realizations": [
             {
-                "data_url": "http://127.0.0.1:5000/data/284",
+                "data": "http://127.0.0.1:5000/data/284",
                 "name": 0,
                 "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/0",
                 "summarized_misfits": {},
@@ -184,23 +184,23 @@ ensembles_response = {
     },
     "http://127.0.0.1:5000/ensembles/1/responses/FOPR": {
         "alldata_url": "http://127.0.0.1:5000/ensembles/1/responses/FOPR/data",
-        "axis": {"data_url": "http://127.0.0.1:5000/data/725"},
+        "axis": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
         "ensemble_id": "1",
         "name": "FOPR",
         "observations": [
             {
                 "data": {
-                    "data_indexes": {"data_url": "http://127.0.0.1:5000/data/2"},
-                    "key_indexes": {"data_url": "http://127.0.0.1:5000/data/1"},
-                    "std": {"data_url": "http://127.0.0.1:5000/data/4"},
-                    "values": {"data_url": "http://127.0.0.1:5000/data/3"},
+                    "data_indexes": {"data": "http://127.0.0.1:5000/data/2"},
+                    "key_indexes": {"data": "http://127.0.0.1:5000/data/1"},
+                    "std": {"data": "http://127.0.0.1:5000/data/4"},
+                    "values": {"data": "http://127.0.0.1:5000/data/3"},
                 },
                 "name": "FOPR",
             }
         ],
         "realizations": [
             {
-                "data_url": "http://127.0.0.1:5000/data/726",
+                "data": "http://127.0.0.1:5000/data/726",
                 "name": 0,
                 "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/0",
                 "summarized_misfits": {"FOPR": 946.263115564503},
@@ -214,7 +214,5 @@ ensembles_response = {
             }
         ],
     },
-    "http://127.0.0.1:5000/data/725": "0,1,2,3,4,5,6,7,8,9",
-    "http://127.0.0.1:5000/data/283": "0,1,2,3,4,5,6,7,8,9",
     "http://127.0.0.1:5000/ensembles/1/parameters/1/data": "0.1",
 }

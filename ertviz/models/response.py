@@ -1,5 +1,5 @@
 import pandas as pd
-from ertviz.data_loader import get_data, get_schema
+from ertviz.data_loader import get_schema
 from ertviz.models import Realization, Observation, indexes_to_axis
 
 
@@ -26,10 +26,9 @@ class Response:
 
     @property
     def axis(self):
-        self._update_schema()
-        self._axis_url = self._schema["axis"]["data_url"]
         if self._axis is None:
-            indexes = get_data(self._axis_url)
+            self._update_schema()
+            indexes = self._schema["axis"]["data"]
             self._axis = indexes_to_axis(indexes)
         return self._axis
 
@@ -74,7 +73,7 @@ class Response:
     @property
     def observations(self):
         self._update_schema()
-        if not "observations" in self._schema:
+        if "observations" not in self._schema:
             return []
         _observations_schema = self._schema["observations"]
         if self._observations is None and _observations_schema is not None:
