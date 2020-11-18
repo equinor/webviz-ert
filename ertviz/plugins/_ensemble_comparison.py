@@ -1,7 +1,5 @@
 import dash_html_components as html
 from webviz_config import WebvizPluginABC
-from ertviz.data_loader import get_ensembles
-import dash_core_components as dcc
 from ertviz.views import ensemble_selector_view, response_view, parameter_view
 from ertviz.controllers import (
     ensemble_selector_controller,

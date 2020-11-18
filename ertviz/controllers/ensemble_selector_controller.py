@@ -1,5 +1,3 @@
-import json
-import random
 import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -21,7 +19,7 @@ def _construct_graph(ensembles):
     for index, ensemble in enumerate(roots):
         queue.append(ensemble)
 
-    def _construct_node(ensembl):
+    def _construct_node(ensemble):
         return {
             "data": {
                 "id": ensemble.id,
@@ -50,7 +48,7 @@ def _construct_graph(ensembles):
 def ensemble_selector_controller(parent, app):
     @app.callback(
         Output(parent.uuid("ensemble-selector"), "layout"),
-        [Input("dropdown-layout", "value")],
+        [Input(parent.uuid("dropdown-layout"), "value")],
     )
     def update_cytoscape_layout(layout):
         return {"name": layout}

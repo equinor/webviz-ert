@@ -1,10 +1,7 @@
 import dash
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
-
-from ertviz.controllers import parse_url_query
 from ertviz.models import EnsembleModel, MultiHistogramPlotModel
-from ertviz.data_loader import get_ensemble_url
 
 
 def _prev_value(current_value, options):
@@ -45,7 +42,6 @@ def multi_parameter_controller(parent, app):
             {"label": parameter_key, "value": parameter_key}
             for parameter_key in parent.parameter_models[ensemble_id]
         ]
-        print(options)
         return options
 
     @app.callback(

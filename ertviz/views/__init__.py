@@ -6,18 +6,23 @@ from .ensemble_selector_view import ensemble_selector_view
 
 def response_view(parent):
     return [
+        html.H5("Response plots"),
+        html.Div(
+            className="ert-dropdown-container",
+            children=[
+                html.Label("Response", className="ert-label"),
+                dcc.Dropdown(
+                    id=parent.uuid("response-selector"),
+                    className="ert-dropdown",
+                ),
+            ],
+        ),
         html.Div(
             [
                 html.Div(
-                    className="ert-dropdown",
+                    className="ert-graph-options",
                     children=[
-                        html.H5("Response"),
-                        dcc.Dropdown(id=parent.uuid("response-selector")),
-                    ],
-                ),
-                html.Div(
-                    children=[
-                        html.Label("Select Graph Type:"),
+                        html.Label("Graph Type:"),
                         dcc.RadioItems(
                             options=[
                                 {"label": key, "value": key}
@@ -26,11 +31,16 @@ def response_view(parent):
                             value="Function plot",
                             id=parent.uuid("plot-type"),
                         ),
-                    ]
+                    ],
                 ),
-            ]
-        ),
-        dcc.Graph(
-            id={"id": parent.uuid("response-graphic"), "type": parent.uuid("graph")}
+                dcc.Graph(
+                    id={
+                        "id": parent.uuid("response-graphic"),
+                        "type": parent.uuid("graph"),
+                    },
+                    className="ert-graph",
+                ),
+            ],
+            className="ert-graph-container",
         ),
     ]

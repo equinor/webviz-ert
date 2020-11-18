@@ -1,6 +1,5 @@
-from dash.dependencies import Input, Output, State, ALL, MATCH
-import json
 import dash
+from dash.dependencies import Input, Output, ALL
 from dash.exceptions import PreventUpdate
 
 
