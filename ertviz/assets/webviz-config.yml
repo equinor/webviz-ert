@@ -13,3 +13,7 @@ pages:
  - title: Response Comparison Viewer
    content:
     - ResponseComparison:
+
+ - title: Observation Analyzer
+   content:
+    - ObservationAnalyzer:

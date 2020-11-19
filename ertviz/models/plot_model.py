@@ -3,6 +3,41 @@ import plotly.graph_objects as go
 import plotly.figure_factory as ff
 
 
+class BoxPlotModel:
+    def __init__(self, **kwargs):
+        self.selected = True
+        self._x_axis = kwargs["x_axis"]
+        self._y_axis = kwargs["y_axis"]
+        self._text = kwargs["text"]
+        self._name = kwargs["name"]
+        self._color = kwargs["color"]
+
+    @property
+    def repr(self):
+        repr_dict = dict(
+            # x=self._x_axis,
+            y=self._y_axis,
+            # text=self.display_name,
+            name=self.display_name,
+            boxpoints="all",
+            jitter=0.3,
+            pointpos=-1.8,
+            marker_color=self._color,
+        )
+        return go.Box(repr_dict)
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def display_name(self):
+        if isinstance(self._name, int):
+            return f"Value {self._name}"
+        else:
+            return self._name
+
+
 class PlotModel:
     def __init__(self, **kwargs):
         self._x_axis = kwargs["x_axis"]

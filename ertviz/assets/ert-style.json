@@ -2,13 +2,13 @@
     "ensemble-selector": {
         "stylesheet": [
             {
-                "selector" : "edge",
+                "selector": "edge",
                 "style": {
-                    "line-color" : "rgba(128,128,128,0.5)"
+                    "line-color": "rgba(128,128,128,0.5)"
                 }
             },
             {
-                "selector" : "node",
+                "selector": "node",
                 "style": {
                     "label": "data(label)"
                 }
@@ -29,33 +29,65 @@
             "rgba(191,91,23,0.8)"
         ]
     },
-    "response-plot":{
+    "observation-response-plot": {
         "observation": {
-            "mode" : "markers",
-            "color" : "rgb(176, 28, 52)",
+            "mode": "markers",
+            "color": "rgb(176, 28, 52)",
             "line": null,
-            "marker" : {
+            "marker": {
+                "symbol": "line-ew-open",
                 "color": "rgb(176, 28, 52)",
-                "size" : 10
+                "size": 20,
+                "line": {
+                    "width": 5,
+                    "color": "DarkSlateGrey"
+                }
             }
         },
-        "response" : {
-            "mode" : "markers+lines",
+        "misfits": {
+            "mode": "markers+lines",
             "line": {
-                "color" : "rgba(56,108,176,0.8)"
+                "color": "rgba(56,108,176,0.8)",
+                "dash": "dash",
+                "width": 2
             },
-            "marker" : {
-                "color" : "rgba(56,108,176,0.8)",
-                "size" : 1
+            "marker": {
+                "color": "rgba(56,108,176,0.8)",
+                "size": 10,
+                "line": {
+                    "width": 3,
+                    "color": "DarkSlateGrey"
+                }
+            }
+        }
+    },
+    "response-plot": {
+        "observation": {
+            "mode": "markers",
+            "color": "rgb(176, 28, 52)",
+            "line": null,
+            "marker": {
+                "color": "rgb(176, 28, 52)",
+                "size": 10
             }
         },
-        "statistics" : {
-            "mode" : "lines",
+        "response": {
+            "mode": "markers+lines",
             "line": {
-                "color" : "rgba(56,108,176,0.8)",
-                "dash" : "dash"
+                "color": "rgba(56,108,176,0.8)"
             },
-            "marker" : null
+            "marker": {
+                "color": "rgba(56,108,176,0.8)",
+                "size": 1
+            }
+        },
+        "statistics": {
+            "mode": "lines",
+            "line": {
+                "color": "rgba(56,108,176,0.8)",
+                "dash": "dash"
+            },
+            "marker": null
         }
     },
     "figure":{

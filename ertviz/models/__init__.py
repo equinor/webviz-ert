@@ -22,6 +22,7 @@ from .plot_model import (
     ResponsePlotModel,
     HistogramPlotModel,
     MultiHistogramPlotModel,
+    BoxPlotModel,
 )
 from .parameter_model import PriorModel, ParametersModel
 from .ensemble_model import EnsembleModel
