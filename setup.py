@@ -26,6 +26,7 @@ setup(
             "EnsembleOverview = ertviz.plugins:EnsembleOverview",
             "EnsembleComparison = ertviz.plugins:EnsembleComparison",
             "ResponseComparison = ertviz.plugins:ResponseComparison",
+            "ObservationAnalyzer = ertviz.plugins:ObservationAnalyzer",
         ],
         "ert": [
             "ertviz = ertviz.ert_hooks",

@@ -10,8 +10,6 @@ class Response:
         self.name = name
         self._axis = None
         self._data = None
-        self._realizations = []
-        self._observations = []
         self._realizations = None
         self._observations = None
 
@@ -42,6 +40,26 @@ class Response:
                 realization.name for realization in self._realizations
             ]
         return self._data
+
+    def univariate_misfits_df(self, selection=None):
+        if selection is not None:
+            data = {
+                realization.name: realization.univariate_misfits_df["value"]
+                for realization in self.realizations
+                if realization.name in selection
+                and realization.univariate_misfits_df is not None
+            }
+        else:
+            data = {
+                realization.name: realization.univariate_misfits_df["value"]
+                for realization in self.realizations
+                if realization.univariate_misfits_df is not None
+            }
+        if bool(data):
+            misfits_df = pd.DataFrame(data=data)
+            misfits_df["x_axis"] = self.observations[0].data_df()["x_axis"]
+            return misfits_df.astype("float64")
+        return None
 
     def data_df(self, selection=None):
         if selection is not None:
