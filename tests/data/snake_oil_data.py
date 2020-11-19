@@ -108,21 +108,21 @@ ensembles_response = {
         "key": "BPR_138_PERSISTENCE",
         "parameter_realizations": [
             {
-                "data": "http://127.0.0.1:5000/data/33",
+                "data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                 "name": 0,
                 "realization": {
                     "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/0"
                 },
             },
             {
-                "data": "http://127.0.0.1:5000/data/34",
+                "data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                 "name": 1,
                 "realization": {
                     "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/1"
                 },
             },
             {
-                "data": "http://127.0.0.1:5000/data/35",
+                "data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                 "name": 2,
                 "realization": {
                     "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/2"
@@ -140,29 +140,29 @@ ensembles_response = {
         "name": 0,
         "parameters": [
             {
-                "data": "http://127.0.0.1:5000/data/33",
+                "data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                 "name": "BPR_138_PERSISTENCE",
             },
             {
-                "data": "http://127.0.0.1:5000/data/58",
+                "data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                 "name": "BPR_555_PERSISTENCE",
             },
             {
-                "data": "http://127.0.0.1:5000/data/83",
+                "data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                 "name": "OP1_DIVERGENCE_SCALE",
             },
         ],
         "responses": [
             {
-                "data": "http://127.0.0.1:5000/data/284",
+                "data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                 "name": "SNAKE_OIL_GPR_DIFF",
             },
             {
-                "data": "http://127.0.0.1:5000/data/310",
+                "data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                 "name": "SNAKE_OIL_OPR_DIFF",
             },
             {
-                "data": "http://127.0.0.1:5000/data/336",
+                "data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                 "name": "SNAKE_OIL_WPR_DIFF",
             },
         ],
@@ -174,7 +174,7 @@ ensembles_response = {
         "name": "SNAKE_OIL_GPR_DIFF",
         "realizations": [
             {
-                "data": "http://127.0.0.1:5000/data/284",
+                "data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                 "name": 0,
                 "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/0",
                 "summarized_misfits": {},
@@ -190,10 +190,10 @@ ensembles_response = {
         "observations": [
             {
                 "data": {
-                    "data_indexes": {"data": "http://127.0.0.1:5000/data/2"},
-                    "key_indexes": {"data": "http://127.0.0.1:5000/data/1"},
-                    "std": {"data": "http://127.0.0.1:5000/data/4"},
-                    "values": {"data": "http://127.0.0.1:5000/data/3"},
+                    "data_indexes": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+                    "key_indexes": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+                    "std": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+                    "values": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
                 },
                 "name": "FOPR",
             }
@@ -214,5 +214,5 @@ ensembles_response = {
             }
         ],
     },
-    "http://127.0.0.1:5000/ensembles/1/parameters/1/data": "0.1",
+    "http://127.0.0.1:5000/ensembles/1/parameters/1/data": 0.1,
 }
