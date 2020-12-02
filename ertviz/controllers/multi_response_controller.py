@@ -1,6 +1,6 @@
 import dash
 import plotly.graph_objects as go
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output, State, ALL, MATCH
 from dash.exceptions import PreventUpdate
 from ertviz.models import ResponsePlotModel, PlotModel, EnsembleModel
 import ertviz.assets as assets
@@ -83,8 +83,6 @@ def _create_response_plot(response, plot_type, selected_realizations, color):
         dict(
             xaxis={"title": "Index"},
             yaxis={"title": "Unit TODO"},
-            hovermode="closest",
-            uirevision=True,
         ),
     )
     return ensemble_plot
@@ -92,29 +90,32 @@ def _create_response_plot(response, plot_type, selected_realizations, color):
 
 def multi_response_controller(parent, app):
     @app.callback(
-        Output(parent.uuid("response-selector"), "options"),
+        Output({"index": ALL, "type": parent.uuid("response-selector")}, "options"),
         [Input(parent.uuid("ensemble-selection-store"), "data")],
+        [State({"index": ALL, "type": parent.uuid("response-selector")}, "options")],
     )
-    def _set_response_options(selected_ensembles):
+    def _set_response_options(selected_ensembles, selectors):
         # Should either return a union of all possible responses or the other thing which I cant think of...
-
         if not selected_ensembles:
             raise PreventUpdate
         ensemble_id, _ = selected_ensembles.popitem()
         ensemble = parent.ensembles.get(ensemble_id, EnsembleModel(ref_url=ensemble_id))
         parent.ensembles[ensemble_id] = ensemble
         return [
-            {
-                "label": response,
-                "value": response,
-            }
-            for response in ensemble.responses
+            [
+                {
+                    "label": response,
+                    "value": response,
+                }
+                for response in ensemble.responses
+            ]
+            for i in range(len(selectors))
         ]
 
     @app.callback(
-        Output(parent.uuid("response-selector"), "value"),
-        [Input(parent.uuid("response-selector"), "options")],
-        [State(parent.uuid("response-selector"), "value")],
+        Output({"index": MATCH, "type": parent.uuid("response-selector")}, "value"),
+        [Input({"index": MATCH, "type": parent.uuid("response-selector")}, "options")],
+        [State({"index": MATCH, "type": parent.uuid("response-selector")}, "value")],
     )
     def _set_responses_value(available_options, previous_selected_response):
         if available_options and previous_selected_response in [
@@ -127,12 +128,16 @@ def multi_response_controller(parent, app):
 
     @app.callback(
         Output(
-            {"id": parent.uuid("response-graphic"), "type": parent.uuid("graph")},
+            {
+                "index": MATCH,
+                "id": parent.uuid("response-graphic"),
+                "type": parent.uuid("graph"),
+            },
             "figure",
         ),
         [
-            Input(parent.uuid("response-selector"), "value"),
-            Input(parent.uuid("plot-type"), "value"),
+            Input({"index": MATCH, "type": parent.uuid("response-selector")}, "value"),
+            Input({"index": MATCH, "type": parent.uuid("plot-type")}, "value"),
         ],
         [State(parent.uuid("ensemble-selection-store"), "data")],
     )
@@ -156,4 +161,5 @@ def multi_response_controller(parent, app):
         for plot in response_plots:
             for trace in plot.repr.data:
                 fig.add_trace(trace)
+        fig.update_layout(assets.ERTSTYLE["figure"]["layout"])
         return fig

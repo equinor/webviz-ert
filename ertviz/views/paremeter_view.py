@@ -56,6 +56,7 @@ def parameter_view(parent):
                         "type": parent.uuid("graph"),
                     },
                     className="ert-graph",
+                    config={"responsive": True},
                 ),
             ],
             className="ert-graph-container",

@@ -9,5 +9,10 @@ pages:
 
  - title: Comparison Viewer
    content:
-    - EnsembleComparison
+    - Ensemble Comparison
     - EnsembleComparison:
+
+ - title: Response Comparison Viewer
+   content:
+    - Response Comparison
+    - ResponseComparison:

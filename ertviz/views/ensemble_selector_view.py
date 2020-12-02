@@ -42,6 +42,7 @@ def ensemble_selector_view(parent):
                     layout={"name": "grid"},
                     className="ert-ensemble-selector",
                     stylesheet=assets.ERTSTYLE["ensemble-selector"]["stylesheet"],
+                    responsive=True,
                 )
             ],
             className="ert-ensemble-selector-container",
