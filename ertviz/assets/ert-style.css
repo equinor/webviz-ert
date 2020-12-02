@@ -18,16 +18,16 @@
 }
 
 .ert-ensemble-selector {
-    width: auto !important;
     height: 200px !important;
     border-color: rgba(181, 223, 223, 0.5);
     border-style: solid;
     border-width: 5px;
-
+    flex: 1;
 }
 .ert-ensemble-selector-container {
-    display: block;
-
+    display: flex;
+    flex-direction: initial;
+    width: 100%
 }
 .ert-graph-container {
     display: table;
@@ -46,4 +46,8 @@
     vertical-align: middle;
     height: 5in;
     width: 100%;
+}
+.ert-graph-multi{
+    width: 50% ;
+    float: left;
 }

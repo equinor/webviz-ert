@@ -4,7 +4,7 @@ from .paremeter_view import parameter_view
 from .ensemble_selector_view import ensemble_selector_view
 
 
-def response_view(parent):
+def response_view(parent, index=0):
     return [
         html.H5("Response plots"),
         html.Div(
@@ -12,7 +12,7 @@ def response_view(parent):
             children=[
                 html.Label("Response", className="ert-label"),
                 dcc.Dropdown(
-                    id=parent.uuid("response-selector"),
+                    id={"index": index, "type": parent.uuid("response-selector")},
                     className="ert-dropdown",
                 ),
             ],
@@ -29,15 +29,17 @@ def response_view(parent):
                                 for key in ["Function plot", "Statistics"]
                             ],
                             value="Function plot",
-                            id=parent.uuid("plot-type"),
+                            id={"index": index, "type": parent.uuid("plot-type")},
                         ),
                     ],
                 ),
                 dcc.Graph(
                     id={
+                        "index": index,
                         "id": parent.uuid("response-graphic"),
                         "type": parent.uuid("graph"),
                     },
+                    config={"responsive": True},
                     className="ert-graph",
                 ),
             ],

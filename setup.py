@@ -25,6 +25,7 @@ setup(
         "webviz_config_plugins": [
             "EnsembleOverview = ertviz.plugins:EnsembleOverview",
             "EnsembleComparison = ertviz.plugins:EnsembleComparison",
+            "ResponseComparison = ertviz.plugins:ResponseComparison",
         ],
         "ert": [
             "ertviz = ertviz.ert_hooks",
