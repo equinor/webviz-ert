@@ -2,40 +2,24 @@ import plotly.graph_objects as go
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from copy import deepcopy
-from ertviz.models import ResponsePlotModel, BoxPlotModel, PlotModel, EnsembleModel
-import ertviz.assets as assets
-
-
-def _get_univariate_misfits_plots(misfits_df, color):
-    if misfits_df is None:
-        return []
-    style = deepcopy(assets.ERTSTYLE["observation-response-plot"]["misfits"])
-    style["line"]["color"] = color
-    style["marker"]["color"] = color
-    x_axis = misfits_df.pop("x_axis")
-    misfits_data = list()
-    for misfits in misfits_df:
-        plot = PlotModel(
-            x_axis=x_axis,
-            y_axis=misfits_df[misfits].pow(1 / 2.0).values,
-            text=misfits,
-            name=misfits,
-            **style,
-        )
-        misfits_data.append(plot)
-    return misfits_data
+from ertviz.models import (
+    ResponsePlotModel,
+    BoxPlotModel,
+    EnsembleModel,
+    MultiHistogramPlotModel,
+)
 
 
 def _get_univariate_misfits_boxplots(misfits_df, color):
     if misfits_df is None:
         return []
+
     x_axis = misfits_df.pop("x_axis")
     misfits_data = list()
     for misfits in misfits_df.T:
         plot = BoxPlotModel(
-            x_axis=[x_axis.loc[misfits]],
-            y_axis=misfits_df.T[misfits].pow(1 / 2.0).values,
-            text=misfits,
+            x_axis=[int(x_axis[misfits])],
+            y_axis=misfits_df.T[misfits].values,
             name=f"Misfits@{int(x_axis.loc[misfits])}",
             color=color,
         )
@@ -43,36 +27,15 @@ def _get_univariate_misfits_boxplots(misfits_df, color):
     return misfits_data
 
 
-def _get_observation_plots(observation_df, x_axis):
-    data = observation_df["values"]
-    stds = observation_df["std"]
-    x_axis = observation_df["x_axis"]
-    style = deepcopy(assets.ERTSTYLE["observation-response-plot"]["observation"])
-    observation_data = PlotModel(
-        x_axis=x_axis,
-        y_axis=stds.values,
-        text="Observations",
-        name="Observations",
-        **style,
-    )
-    return [observation_data]
+def _create_misfits_plot(response, selected_realizations, color):
 
-
-def _create_misfits_plot(response, yaxis_type, selected_realizations, color):
-
-    x_axis = response.axis
-    # realizations = _get_univariate_misfits_plots(
     realizations = _get_univariate_misfits_boxplots(
-        response.univariate_misfits_df(selected_realizations), color=color
+        response.univariate_misfits_df(selected_realizations),
+        color=color,
     )
-    observations = []
-
-    # for obs in response.observations:
-    #     observations += _get_observation_plots(obs.data_df(), x_axis)
-
     ensemble_plot = ResponsePlotModel(
         realizations,
-        observations,
+        [],
         dict(
             xaxis={"title": "Index"},
             yaxis={"title": "Unit TODO"},
@@ -89,12 +52,13 @@ def observation_response_controller(parent, app):
         [Input(parent.uuid("ensemble-selection-store"), "data")],
     )
     def _set_response_options(selected_ensembles):
-        # Should either return a union of all possible responses or the other thing which I cant think of...
-
         if not selected_ensembles:
             raise PreventUpdate
         ensemble_id, _ = selected_ensembles.popitem()
-        ensemble = parent.ensembles.get(ensemble_id, EnsembleModel(ref_url=ensemble_id))
+        ensemble = parent.ensembles.get(
+            ensemble_id,
+            EnsembleModel(ref_url=ensemble_id, project_id=parent.project_identifier),
+        )
         parent.ensembles[ensemble_id] = ensemble
         return [
             {
@@ -134,11 +98,29 @@ def observation_response_controller(parent, app):
         if response in [None, ""] or not selected_ensembles:
             raise PreventUpdate
 
+        if misfits_type == "Summary":
+            data_dict = {}
+            colors = {}
+            for ensemble_id, color in selected_ensembles.items():
+                ensemble = parent.ensembles.get(ensemble_id, None)
+                summary_df = ensemble.responses[response].summary_misfits_df(
+                    selection=None
+                )  # What about selections?
+                if summary_df is not None:
+                    data_dict[parent.ensembles[ensemble_id]._name] = summary_df
+                colors[parent.ensembles[ensemble_id]._name] = color["color"]
+            if bool(data_dict):
+                plot = MultiHistogramPlotModel(
+                    data_dict,
+                    colors=colors,
+                    hist=True,
+                    kde=False,
+                )
+                return plot.repr
+
         def _generate_plot(ensemble_id, color):
             ensemble = parent.ensembles.get(ensemble_id, None)
-            plot = _create_misfits_plot(
-                ensemble.responses[response], yaxis_type, None, color
-            )
+            plot = _create_misfits_plot(ensemble.responses[response], None, color)
             return plot
 
         response_plots = [

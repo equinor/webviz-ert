@@ -8,22 +8,22 @@ class BoxPlotModel:
         self.selected = True
         self._x_axis = kwargs["x_axis"]
         self._y_axis = kwargs["y_axis"]
-        self._text = kwargs["text"]
         self._name = kwargs["name"]
         self._color = kwargs["color"]
 
     @property
     def repr(self):
         repr_dict = dict(
-            # x=self._x_axis,
+            # x=self._x_axis, this won't work :/
+            # need something else to get axis right if required
             y=self._y_axis,
-            # text=self.display_name,
             name=self.display_name,
             boxpoints="all",
             jitter=0.3,
             pointpos=-1.8,
             marker_color=self._color,
         )
+
         return go.Box(repr_dict)
 
     @property
