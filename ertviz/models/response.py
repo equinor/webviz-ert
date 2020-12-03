@@ -44,20 +44,41 @@ class Response:
     def univariate_misfits_df(self, selection=None):
         if selection is not None:
             data = {
-                realization.name: realization.univariate_misfits_df["value"]
+                realization.name: realization.univariate_misfits_df["value_sign"]
                 for realization in self.realizations
                 if realization.name in selection
                 and realization.univariate_misfits_df is not None
             }
         else:
             data = {
-                realization.name: realization.univariate_misfits_df["value"]
+                realization.name: realization.univariate_misfits_df["value_sign"]
                 for realization in self.realizations
                 if realization.univariate_misfits_df is not None
             }
         if bool(data):
             misfits_df = pd.DataFrame(data=data)
             misfits_df["x_axis"] = self.observations[0].data_df()["x_axis"]
+            misfits_df.index.name = self.name
+            return misfits_df.astype("float64")
+        return None
+
+    def summary_misfits_df(self, selection=None):
+        if bool(selection):
+            data = {
+                realization.name: [realization.summarized_misfits_value]
+                for realization in self.realizations
+                if realization.name in selection
+                and bool(realization.summarized_misfits_value)
+            }
+        else:
+            data = {
+                realization.name: [realization.summarized_misfits_value]
+                for realization in self.realizations
+                if bool(realization.summarized_misfits_value)
+            }
+        if bool(data):
+            misfits_df = pd.DataFrame(data=data)
+            misfits_df.index.name = self.name
             return misfits_df.astype("float64")
         return None
 

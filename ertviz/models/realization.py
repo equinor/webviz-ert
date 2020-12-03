@@ -1,5 +1,5 @@
 import pandas as pd
-from ertviz.data_loader import get_data
+import math
 
 
 class Realization:
@@ -14,16 +14,22 @@ class Realization:
         )
 
     def _extract_univariate_misfits(self, schema):
-        if bool(schema):  # this account for not None and empty dict
-            misfits_ = list(schema.values())
-            return pd.DataFrame(misfits_[0])
-        return None
+        # this account for not None and empty dict
+        if not bool(schema):
+            return None
+        misfits_ = list(schema.values())
+        df = pd.DataFrame(misfits_[0])
+        df["value_sign"] = df[["value", "sign"]].apply(
+            lambda row: -1.0 * math.sqrt(row[0]) if row[1] else math.sqrt(row[0]),
+            axis=1,
+        )
+        return df
 
     def _extract_summary_misfits(self, schema):
-        if bool(schema):
-            misfits_ = list(schema.values())[0]
-            return misfits_
-        return None
+        if not bool(schema):
+            return None
+        misfits_ = list(schema.values())[0]
+        return misfits_
 
     @property
     def summarized_misfits_value(self):
