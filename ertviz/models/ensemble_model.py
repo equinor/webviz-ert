@@ -7,7 +7,7 @@ from ertviz.models.parameter_model import (
 )
 
 
-def get_parameter_models(parameters_schema):
+def get_parameter_models(parameters_schema, project_id):
     parameters = {}
     for param in parameters_schema:
         group = param["group"]
@@ -20,14 +20,19 @@ def get_parameter_models(parameters_schema):
                 param["prior"]["parameter_values"],
             )
         parameters[key] = ParametersModel(
-            group=group, key=key, prior=prior, schema_url=param["ref_url"]
+            group=group,
+            key=key,
+            prior=prior,
+            schema_url=param["ref_url"],
+            project_id=project_id,
         )
     return parameters
 
 
 class EnsembleModel:
-    def __init__(self, ref_url):
+    def __init__(self, ref_url, project_id):
         self._schema = get_schema(api_url=ref_url)
+        self._project_id = project_id
         self._name = self._schema["name"]
         self._id = ref_url
         self._children = self._schema["children"]
@@ -46,7 +51,8 @@ class EnsembleModel:
         if hasattr(self, "_cached_children"):
             return self._cached_children
         self._cached_children = [
-            EnsembleModel(ref_url=child["ref_url"]) for child in self._children
+            EnsembleModel(ref_url=child["ref_url"], project_id=self._project_id)
+            for child in self._children
         ]
         return self._cached_children
 
@@ -57,13 +63,17 @@ class EnsembleModel:
         if hasattr(self, "_cached_parent"):
             return self._cached_parent
 
-        self._cached_parent = EnsembleModel(ref_url=self._parent["ref_url"])
+        self._cached_parent = EnsembleModel(
+            ref_url=self._parent["ref_url"], project_id=self._project_id
+        )
         return self._cached_parent
 
     @property
     def parameters(self):
         if self._parameters is None:
-            self._parameters = get_parameter_models(self._schema["parameters"])
+            self._parameters = get_parameter_models(
+                self._schema["parameters"], project_id=self._project_id
+            )
         return self._parameters
 
     @property

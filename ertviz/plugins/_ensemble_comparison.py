@@ -9,8 +9,9 @@ from ertviz.controllers import (
 
 
 class EnsembleComparison(WebvizPluginABC):
-    def __init__(self, app):
+    def __init__(self, app, project_identifier: str):
         super().__init__()
+        self.project_identifier = project_identifier
         self.ensembles = {}
         self.parameter_models = {}
         self.set_callbacks(app)

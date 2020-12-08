@@ -5,8 +5,9 @@ from ertviz.controllers import ensemble_selector_controller
 
 
 class EnsembleOverview(WebvizPluginABC):
-    def __init__(self, app):
+    def __init__(self, app, project_identifier: str):
         super().__init__()
+        self.project_identifier = project_identifier
         self.ensembles = {}
         self.set_callbacks(app)
 

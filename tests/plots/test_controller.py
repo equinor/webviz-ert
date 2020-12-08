@@ -69,9 +69,10 @@ def test_realizations_statistics_plot_representation():
 @mock.patch("ertviz.data_loader.requests.get", side_effect=mocked_requests_get)
 @mock.patch("ertviz.data_loader.get_info", side_effect=mocked_get_info)
 def test_ensemble_selector_graph_constructor(mock_request, mock_get_info):
-    ensemble_dict = get_ensembles()
+    ensemble_dict = get_ensembles(project_id=None)
     ensemble_models = {
-        schema["ref_url"]: EnsembleModel(schema["ref_url"]) for schema in ensemble_dict
+        schema["ref_url"]: EnsembleModel(schema["ref_url"], project_id=None)
+        for schema in ensemble_dict
     }
     graph_data = _construct_graph(ensemble_models)
     parent_ensemble_node = {
