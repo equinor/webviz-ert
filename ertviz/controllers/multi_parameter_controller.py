@@ -35,7 +35,10 @@ def multi_parameter_controller(parent, app):
         if not selected_ensembles:
             raise PreventUpdate
         ensemble_id, _ = selected_ensembles.popitem()
-        ensemble = parent.ensembles.get(ensemble_id, EnsembleModel(ref_url=ensemble_id))
+        ensemble = parent.ensembles.get(
+            ensemble_id,
+            EnsembleModel(ref_url=ensemble_id, project_id=parent.project_identifier),
+        )
         parent.ensembles[ensemble_id] = ensemble
         parent.parameter_models[ensemble_id] = ensemble.parameters
         options = [

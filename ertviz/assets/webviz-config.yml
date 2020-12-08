@@ -4,15 +4,12 @@ pages:
 
  - title: Front page
    content:
-    - Welcome to Webviz-ERT
     - EnsembleOverview:
 
  - title: Comparison Viewer
    content:
-    - Ensemble Comparison
     - EnsembleComparison:
 
  - title: Response Comparison Viewer
    content:
-    - Response Comparison
     - ResponseComparison:

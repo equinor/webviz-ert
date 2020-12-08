@@ -11,7 +11,7 @@ def pytest_setup_options():
     return options
 
 
-def mocked_get_info():
+def mocked_get_info(project_id):
     return {"baseurl": "http://127.0.0.1:5000", "auth": ""}
 
 
