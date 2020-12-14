@@ -18,7 +18,6 @@ def _get_univariate_misfits_boxplots(misfits_df, color):
     misfits_data = list()
     for misfits in misfits_df.T:
         plot = BoxPlotModel(
-            x_axis=[int(x_axis[misfits])],
             y_axis=misfits_df.T[misfits].values,
             name=f"Misfits@{int(x_axis.loc[misfits])}",
             color=color,
