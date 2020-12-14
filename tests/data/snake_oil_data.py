@@ -14,12 +14,12 @@ ensembles_response = {
                 "children": [
                     {
                         "name": "default_smoother_update",
-                        "ref_url": "http://127.0.0.1:5000/ensembles/2",
+                        "id": 2,
                     }
                 ],
                 "name": "default",
                 "parent": {},
-                "ref_url": "http://127.0.0.1:5000/ensembles/1",
+                "id": 1,
                 "time_created": "2020-04-29T09:36:26",
             },
             {
@@ -27,9 +27,9 @@ ensembles_response = {
                 "name": "default_smoother_update",
                 "parent": {
                     "name": "default",
-                    "ref_url": "http://127.0.0.1:5000/ensembles/1",
+                    "id": 1,
                 },
-                "ref_url": "http://127.0.0.1:5000/ensembles/2",
+                "id": 2,
                 "time_created": "2020-04-29T09:43:25",
             },
         ]
@@ -38,7 +38,7 @@ ensembles_response = {
         "children": [
             {
                 "name": "default_smoother_update",
-                "ref_url": "http://127.0.0.1:5000/ensembles/2",
+                "id": 2,
             }
         ],
         "name": "default",
@@ -51,20 +51,20 @@ ensembles_response = {
                     "parameter_names": ["MIN", "MAX"],
                     "parameter_values": [0.2, 0.7],
                 },
-                "ref_url": "http://127.0.0.1:5000/ensembles/1/parameters/1",
+                "id": 1,
             },
         ],
         "parent": {},
         "realizations": [
-            {"name": 0, "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/0"},
-            {"name": 1, "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/1"},
-            {"name": 2, "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/2"},
+            {"name": 0, "id": 0},
+            {"name": 1, "id": 1},
+            {"name": 2, "id": 2},
         ],
-        "ref_url": "http://127.0.0.1:5000/ensembles/1",
+        "id": 1,
         "responses": [
             {
                 "name": "SNAKE_OIL_GPR_DIFF",
-                "ref_url": "http://127.0.0.1:5000/ensembles/1/responses/SNAKE_OIL_GPR_DIFF",
+                "id": "SNAKE_OIL_GPR_DIFF",
             },
         ],
         "time_created": "2020-04-29T09:36:26",
@@ -81,23 +81,23 @@ ensembles_response = {
                     "parameter_names": ["MIN", "MAX"],
                     "parameter_values": [0.2, 0.7],
                 },
-                "ref_url": "http://127.0.0.1:5000/ensembles/1/parameters/1",
+                "id": 1,
             },
         ],
         "parent": {
             "name": "default",
-            "ref_url": "http://127.0.0.1:5000/ensembles/1",
+            "id": 1,
         },
         "realizations": [
-            {"name": 0, "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/0"},
-            {"name": 1, "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/1"},
-            {"name": 2, "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/2"},
+            {"name": 0, "id": 0},
+            {"name": 1, "id": 1},
+            {"name": 2, "id": 2},
         ],
-        "ref_url": "http://127.0.0.1:5000/ensembles/2",
+        "id": 2,
         "responses": [
             {
                 "name": "SNAKE_OIL_GPR_DIFF",
-                "ref_url": "http://127.0.0.1:5000/ensembles/1/responses/SNAKE_OIL_GPR_DIFF",
+                "id": "SNAKE_OIL_GPR_DIFF",
             },
         ],
         "time_created": "2020-04-29T10:36:26",
@@ -110,23 +110,17 @@ ensembles_response = {
             {
                 "data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                 "name": 0,
-                "realization": {
-                    "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/0"
-                },
+                "realization": {"id": 0},
             },
             {
                 "data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                 "name": 1,
-                "realization": {
-                    "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/1"
-                },
+                "realization": {"id": 1},
             },
             {
                 "data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                 "name": 2,
-                "realization": {
-                    "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/2"
-                },
+                "realization": {"id": 2},
             },
         ],
         "prior": {
@@ -134,7 +128,7 @@ ensembles_response = {
             "parameter_names": ["MIN", "MAX"],
             "parameter_values": [0.2, 0.7],
         },
-        "ref_url": "http://127.0.0.1:5000/ensembles/1/parameters/1",
+        "id": 1,
     },
     "http://127.0.0.1:5000/ensembles/1/realizations/0": {
         "name": 0,
@@ -176,7 +170,7 @@ ensembles_response = {
             {
                 "data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                 "name": 0,
-                "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/0",
+                "id": "0",
                 "summarized_misfits": {},
                 "univariate_misfits": {},
             }
@@ -202,7 +196,7 @@ ensembles_response = {
             {
                 "data": "http://127.0.0.1:5000/data/726",
                 "name": 0,
-                "ref_url": "http://127.0.0.1:5000/ensembles/1/realizations/0",
+                "id": 0,
                 "summarized_misfits": {"FOPR": 946.263115564503},
                 "univariate_misfits": {
                     "FOPR": [

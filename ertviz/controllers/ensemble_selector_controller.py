@@ -77,10 +77,11 @@ def ensemble_selector_controller(parent, app):
         else:
             ensemble_dict = get_ensembles(project_id=parent.project_identifier)
             for ensemble_schema in ensemble_dict:
-                ensemble_id = ensemble_schema["ref_url"]
+                ensemble_id = ensemble_schema["id"]
                 if ensemble_id not in parent.ensembles:
                     parent.ensembles[ensemble_id] = EnsembleModel(
-                        ref_url=ensemble_id, project_id=parent.project_identifier
+                        ensemble_id=int(ensemble_id),
+                        project_id=parent.project_identifier,
                     )
             datas = _construct_graph(parent.ensembles)
         return datas
