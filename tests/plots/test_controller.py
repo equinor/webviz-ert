@@ -152,7 +152,6 @@ def test_boxplot_representation():
     data_df = pd.DataFrame(data=data, index=range(10))
 
     plot = BoxPlotModel(
-        x_axis=[5],
         y_axis=data_df.values,
         name="Boxplot@Location5",
         color=assets.ERTSTYLE["ensemble-selector"]["color_wheel"][0],

@@ -6,7 +6,6 @@ import plotly.figure_factory as ff
 class BoxPlotModel:
     def __init__(self, **kwargs):
         self.selected = True
-        self._x_axis = kwargs["x_axis"]
         self._y_axis = kwargs["y_axis"]
         self._name = kwargs["name"]
         self._color = kwargs["color"]
@@ -14,8 +13,6 @@ class BoxPlotModel:
     @property
     def repr(self):
         repr_dict = dict(
-            # x=self._x_axis, this won't work :/
-            # need something else to get axis right if required
             y=self._y_axis,
             name=self.display_name,
             boxpoints="all",
