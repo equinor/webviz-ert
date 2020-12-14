@@ -90,11 +90,16 @@
             "marker": null
         }
     },
-    "figure":{
-        "layout" : {
-            "hovermode":"closest",
-            "uirevision":true,
-            "margin": {"l": 5, "b": 5, "t": 5, "r": 5},
+    "figure": {
+        "layout": {
+            "hovermode": "closest",
+            "uirevision": true,
+            "margin": {
+                "l": 5,
+                "b": 5,
+                "t": 5,
+                "r": 5
+            },
             "autosize": true
         }
     }

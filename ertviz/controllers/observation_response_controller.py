@@ -37,8 +37,6 @@ def _create_misfits_plot(response, selected_realizations, color):
         realizations,
         [],
         dict(
-            xaxis={"title": "Index"},
-            yaxis={"title": "Unit TODO"},
             hovermode="closest",
             uirevision=True,
         ),
