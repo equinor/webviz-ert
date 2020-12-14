@@ -1,4 +1,4 @@
-from ertviz.data_loader import get_schema
+from ertviz.data_loader import get_ensemble_url, get_schema
 from ertviz.models import Response
 
 from ertviz.models.parameter_model import (
@@ -7,7 +7,7 @@ from ertviz.models.parameter_model import (
 )
 
 
-def get_parameter_models(parameters_schema, project_id):
+def get_parameter_models(parameters_schema, ensemble_id, project_id):
     parameters = {}
     for param in parameters_schema:
         group = param["group"]
@@ -23,23 +23,26 @@ def get_parameter_models(parameters_schema, project_id):
             group=group,
             key=key,
             prior=prior,
-            schema_url=param["ref_url"],
+            param_id=param["id"],
             project_id=project_id,
+            ensemble_id=ensemble_id,
         )
     return parameters
 
 
 class EnsembleModel:
-    def __init__(self, ref_url, project_id):
-        self._schema = get_schema(api_url=ref_url)
+    def __init__(self, ensemble_id, project_id):
+        self._schema = get_schema(get_ensemble_url(ensemble_id))
         self._project_id = project_id
         self._name = self._schema["name"]
-        self._id = ref_url
+        self._id = ensemble_id
         self._children = self._schema["children"]
         self._parent = self._schema["parent"]
         self.responses = {
             resp_schema["name"]: Response(
-                name=resp_schema["name"], ref_url=resp_schema["ref_url"]
+                name=resp_schema["name"],
+                response_id=resp_schema["id"],
+                ensemble_id=ensemble_id,
             )
             for resp_schema in self._schema["responses"]
         }
@@ -51,7 +54,7 @@ class EnsembleModel:
         if hasattr(self, "_cached_children"):
             return self._cached_children
         self._cached_children = [
-            EnsembleModel(ref_url=child["ref_url"], project_id=self._project_id)
+            EnsembleModel(ensemble_id=child["id"], project_id=self._project_id)
             for child in self._children
         ]
         return self._cached_children
@@ -64,7 +67,7 @@ class EnsembleModel:
             return self._cached_parent
 
         self._cached_parent = EnsembleModel(
-            ref_url=self._parent["ref_url"], project_id=self._project_id
+            ensemble_id=self._parent["id"], project_id=self._project_id
         )
         return self._cached_parent
 
@@ -72,7 +75,9 @@ class EnsembleModel:
     def parameters(self):
         if self._parameters is None:
             self._parameters = get_parameter_models(
-                self._schema["parameters"], project_id=self._project_id
+                self._schema["parameters"],
+                ensemble_id=self._id,
+                project_id=self._project_id,
             )
         return self._parameters
 

@@ -101,7 +101,9 @@ def multi_response_controller(parent, app):
         ensemble_id, _ = selected_ensembles.popitem()
         ensemble = parent.ensembles.get(
             ensemble_id,
-            EnsembleModel(ref_url=ensemble_id, project_id=parent.project_identifier),
+            EnsembleModel(
+                ensemble_id=int(ensemble_id), project_id=parent.project_identifier
+            ),
         )
         parent.ensembles[ensemble_id] = ensemble
         return [

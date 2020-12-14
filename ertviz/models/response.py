@@ -1,12 +1,13 @@
 import pandas as pd
-from ertviz.data_loader import get_schema
+from ertviz.data_loader import get_schema, get_response_url
 from ertviz.models import Realization, Observation, indexes_to_axis
 
 
 class Response:
-    def __init__(self, name, ref_url):
+    def __init__(self, name, response_id, ensemble_id):
         self._schema = None  # get_schema(api_url=ref_url)
-        self._ref_url = ref_url
+        self._id = response_id
+        self._ensemble_id = ensemble_id
         self.name = name
         self._axis = None
         self._data = None
@@ -15,12 +16,15 @@ class Response:
 
     def _update_schema(self):
         if not self._schema:
-            self._schema = get_schema(api_url=self._ref_url)
+            self._schema = get_schema(
+                api_url=get_response_url(
+                    ensemble_id=self._ensemble_id, response_id=self._id
+                )
+            )
 
     @property
     def ensemble_id(self):
-        self._update_schema()
-        return self._schema["ensemble_id"]
+        return self._ensemble_id
 
     @property
     def axis(self):

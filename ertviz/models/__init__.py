@@ -2,7 +2,7 @@ from datetime import datetime
 
 
 def _convertdate(dstring):
-    return datetime.strptime(dstring, "%a, %d %b %Y %H:%M:%S GMT")
+    return datetime.fromisoformat(dstring)
 
 
 def indexes_to_axis(indexes):

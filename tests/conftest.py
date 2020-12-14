@@ -54,3 +54,11 @@ def mocked_get_url():
 
 def mocked_get_auth():
     return ""
+
+
+def mocked_get_ensemble_url(ensemble_id, project_id=None):
+    return f"http://127.0.0.1:5000/ensembles/{ensemble_id}"
+
+
+def mocked_get_response_url(ensemble_id, response_id, project_id=None):
+    return f"http://127.0.0.1:5000/ensembles/{ensemble_id}/responses/{response_id}"
