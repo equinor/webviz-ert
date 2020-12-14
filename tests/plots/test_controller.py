@@ -7,10 +7,13 @@ from ertviz.controllers.multi_response_controller import (
     _get_realizations_plots,
     _get_realizations_statistics_plots,
 )
+from ertviz.controllers.observation_response_controller import (
+    _get_univariate_misfits_boxplots,
+)
 from ertviz.controllers.ensemble_selector_controller import _construct_graph
 from ertviz.data_loader import get_ensembles
 from ertviz.models import EnsembleModel
-from ertviz.models import HistogramPlotModel, MultiHistogramPlotModel
+from ertviz.models import HistogramPlotModel, MultiHistogramPlotModel, BoxPlotModel
 import ertviz.assets as assets
 
 
@@ -125,3 +128,36 @@ def test_multi_histogram_plot_representation():
         assert plot.data[idx].autobinx == False
         assert plot.data[idx].marker.color == colors_dict[ensemble_name]
         assert plot.data[idx].name == ensemble_name
+
+
+def test_univariate_misfits_boxplot_representation():
+    data = np.random.rand(200).reshape(-1, 20)
+    missfits_df = pd.DataFrame(data=data, index=range(10), columns=range(20))
+    missfits_df["x_axis"] = np.arange(10)
+    plots = _get_univariate_misfits_boxplots(
+        missfits_df.copy(), assets.ERTSTYLE["ensemble-selector"]["color_wheel"][0]
+    )
+
+    assert len(plots) == 10
+    for id_plot, plot in enumerate(plots):
+        np.testing.assert_equal(0.3, plot.repr.jitter)
+        np.testing.assert_equal("all", plot.repr.boxpoints)
+        x_pos = int(missfits_df["x_axis"][id_plot])
+        name = f"Misfits@{x_pos}"
+        assert name == plot.repr.name
+
+
+def test_boxplot_representation():
+    data = np.random.rand(10)
+    data_df = pd.DataFrame(data=data, index=range(10))
+
+    plot = BoxPlotModel(
+        x_axis=[5],
+        y_axis=data_df.values,
+        name="Boxplot@Location5",
+        color=assets.ERTSTYLE["ensemble-selector"]["color_wheel"][0],
+    )
+    plot = plot.repr
+    np.testing.assert_equal(plot.y.flatten(), data)
+    assert plot.boxpoints == "all"
+    assert plot.name == "Boxplot@Location5"
