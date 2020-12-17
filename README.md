@@ -25,9 +25,6 @@ Here are a few steps to get an example version of webviz-ert running.
 # Run simulations in ert - <ert-root-folder>/test-data/local/poly_example/
 ert ensemble-smooter --target-case smoother poly.ert
 
-# After simulation has finished, start the ert storage server
-ert api
-
-# start webviz ert in a different terminal
+# After simulation has finished, start webviz-ert from the same location with
 ert vis
 ```
