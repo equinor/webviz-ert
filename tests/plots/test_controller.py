@@ -12,7 +12,7 @@ from ertviz.controllers.observation_response_controller import (
 )
 from ertviz.controllers.ensemble_selector_controller import _construct_graph
 from ertviz.data_loader import get_ensembles
-from ertviz.models import EnsembleModel
+from ertviz.models import EnsembleModel, PriorModel
 from ertviz.models import HistogramPlotModel, MultiHistogramPlotModel, BoxPlotModel
 import ertviz.assets as assets
 
@@ -111,26 +111,34 @@ def test_multi_histogram_plot_representation():
     data_dict = {}
     colors_dict = {}
 
-    keys = "KEY_NAME"
     ensemble_names = ["default", "update_1", "update_2"]
     colors = assets.ERTSTYLE["ensemble-selector"]["color_wheel"]
-    for ensemble_name, color in zip(ensemble_names, colors[: len(ensemble_names)]):
+    for ensemble_id, (ensemble_name, color) in enumerate(
+        zip(ensemble_names, colors[: len(ensemble_names)])
+    ):
+        key = (ensemble_id, ensemble_name)
         data = np.random.rand(20).reshape(-1, 20)
         data_df = pd.DataFrame(data=data, index=range(1), columns=range(20))
         data_df.index.name = "KEY_NAME"
-        data_dict[ensemble_name] = data_df
-        colors_dict[ensemble_name] = color
+        data_dict[key] = data_df
+        colors_dict[key] = color
+    priors = {
+        (0, "default"): (PriorModel("UNIFORM", ["STD", "MEAN"], [0, 1]), colors[0])
+    }
 
-    plot = MultiHistogramPlotModel(data_dict, colors_dict, hist=True, kde=False)
+    plot = MultiHistogramPlotModel(
+        data_dict, colors_dict, hist=True, kde=False, priors=priors
+    )
     plot = plot.repr
     for idx, ensemble_name in enumerate(ensemble_names):
-        np.testing.assert_equal(
-            plot.data[idx].x, data_dict[ensemble_name].values.flatten()
-        )
+        key = (idx, ensemble_name)
+        np.testing.assert_equal(plot.data[idx].x, data_dict[key].values.flatten())
         assert plot.data[idx].histnorm == "probability density"
         assert plot.data[idx].autobinx == False
-        assert plot.data[idx].marker.color == colors_dict[ensemble_name]
+        assert plot.data[idx].marker.color == colors_dict[key]
         assert plot.data[idx].name == ensemble_name
+
+    assert plot.data[-1].name == "default-prior"
 
 
 def test_univariate_misfits_boxplot_representation():
