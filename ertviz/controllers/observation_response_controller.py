@@ -7,6 +7,7 @@ from ertviz.models import (
     BoxPlotModel,
     EnsembleModel,
     MultiHistogramPlotModel,
+    load_ensemble,
 )
 
 
@@ -52,13 +53,7 @@ def observation_response_controller(parent, app):
         if not selected_ensembles:
             raise PreventUpdate
         ensemble_id, _ = selected_ensembles.popitem()
-        ensemble = parent.ensembles.get(
-            ensemble_id,
-            EnsembleModel(
-                ensemble_id=int(ensemble_id), project_id=parent.project_identifier
-            ),
-        )
-        parent.ensembles[ensemble_id] = ensemble
+        ensemble = load_ensemble(parent, ensemble_id)
         return [
             {
                 "label": response,
@@ -101,7 +96,7 @@ def observation_response_controller(parent, app):
             data_dict = {}
             colors = {}
             for ensemble_id, color in selected_ensembles.items():
-                ensemble = parent.ensembles.get(ensemble_id, None)
+                ensemble = load_ensemble(parent, ensemble_id)
                 summary_df = ensemble.responses[response].summary_misfits_df(
                     selection=None
                 )  # What about selections?
@@ -118,7 +113,7 @@ def observation_response_controller(parent, app):
                 return plot.repr
 
         def _generate_plot(ensemble_id, color):
-            ensemble = parent.ensembles.get(ensemble_id, None)
+            ensemble = load_ensemble(parent, ensemble_id)
             plot = _create_misfits_plot(ensemble.responses[response], None, color)
             return plot
 

@@ -1,6 +1,94 @@
 import math
+import logging
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
+from scipy.stats import norm, lognorm, truncnorm, uniform, loguniform, triang
+import ertviz.assets as assets
+
+"""
+Unsupported priors
+CONST
+DUNIF
+ERRF
+DERRF
+"""
+
+logger = logging.getLogger()
+
+WARNING_MSG = """Plotting {prior_type} is not yet fully supported.
+Please contact us on slack channel #ert-users if this is a desired feature."""
+
+
+def _TRIANGULAR(xaxis, xmin, xmode, xmax):
+    loc = xmin
+    scale = xmax - xmin
+    c = (xmode - xmin) / scale
+    return triang.pdf(xaxis, c, loc, scale)
+
+
+def _TRUNC_NORMAL(xaxis, mean, std, _min, _max):
+    logger.warning(WARNING_MSG.format(prior_type="TRUNCATED_NORMAL"))
+    a = (_min - mean) / std
+    b = (_max - mean) / std
+    return truncnorm.pdf(xaxis, a, b, mean, std)
+
+
+def _CONST(xaxis, value):
+    logger.warning(WARNING_MSG.format(prior_type="CONST"))
+    return [value for x in xaxis]
+
+
+def _UNIFORM(xaxis, _min, _max):
+    loc = _min
+    scale = _max - _min
+    return uniform.pdf(xaxis, loc, scale)
+
+
+def _DUNIFORM(xaxis, _steps, _min, _max):
+    logger.warning(WARNING_MSG.format(prior_type="DUNIF"))
+    loc = _min
+    scale = _max - _min
+    return uniform.pdf(xaxis, loc, scale)
+
+
+def _RAW(xaxis):
+    return norm.pdf(xaxis, 0, 1)
+
+
+def _ERRF(*args):
+    logger.warning(WARNING_MSG.format(prior_type="ERRF"))
+    return []
+
+
+def _DERRF(*args):
+    logger.warning(WARNING_MSG.format(prior_type="DERRF"))
+    return []
+
+
+PRIOR_FUNCTIONS = {
+    "NORMAL": norm.pdf,
+    "LOGNORMAL": lognorm.pdf,
+    "TRUNCATED_NORMAL": _TRUNC_NORMAL,
+    "UNIFORM": _UNIFORM,
+    "DUNIF": _DUNIFORM,
+    "LOGUNIF": loguniform.pdf,
+    "TRIANGULAR": _TRIANGULAR,
+    "CONST": _CONST,
+    "RAW": _RAW,
+    "ERRF": _ERRF,
+    "DERRF": _DERRF,
+}
+
+
+def _create_prior_plot(name, prior, _min, _max, color):
+    n = 100
+    diff = (_max - _min) / n
+    xaxis = [_min + i * diff for i in range(n)]
+    yaxis = PRIOR_FUNCTIONS[prior.function](xaxis, *prior.function_parameter_values)
+    style = assets.ERTSTYLE["parameter-plot"]["prior"].copy()
+    style["line"]["color"] = color
+
+    return go.Scattergl(name=f"{name}-prior", x=xaxis, y=yaxis, line=style["line"])
 
 
 class BoxPlotModel:
@@ -108,12 +196,13 @@ class ResponsePlotModel:
 
 
 class MultiHistogramPlotModel:
-    def __init__(self, data_df_dict, colors, hist=True, kde=True):
+    def __init__(self, data_df_dict, colors, hist=True, kde=True, priors={}):
         self._hist_enabled = hist
         self._kde_enabled = kde
         self._data_df_dict = data_df_dict
         self.selection = []
         self._colors = colors
+        self._priors = priors
 
     @property
     def data_df(self):
@@ -135,15 +224,13 @@ class MultiHistogramPlotModel:
         data = []
         names = []
         realization_nums = []
-        for response_name in self._data_df_dict:
-            data.append(list(self._data_df_dict[response_name].values.flatten()))
-            colors.append(self._colors[response_name])
-            names.append(response_name)
+        for key in self._data_df_dict:
+            data.append(list(self._data_df_dict[key].values.flatten()))
+            colors.append(self._colors[key])
+            _, name = key
+            names.append(name)
             realization_nums.append(
-                [
-                    f"Realization {num}"
-                    for num in self._data_df_dict[response_name].columns
-                ]
+                [f"Realization {num}" for num in self._data_df_dict[key].columns]
             )
 
         bin_count = int(math.ceil(math.sqrt(len(data[0]))))
@@ -161,8 +248,10 @@ class MultiHistogramPlotModel:
             rug_text=realization_nums,
         )
         fig.update_layout(clickmode="event+select")
-
         fig.update_layout(uirevision=True)
+
+        for (_, name), (prior, color) in self._priors.items():
+            fig.add_trace(_create_prior_plot(name, prior, _min, _max, color))
         return fig
 
 

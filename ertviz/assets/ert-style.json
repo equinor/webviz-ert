@@ -85,9 +85,18 @@
             "mode": "lines",
             "line": {
                 "color": "rgba(56,108,176,0.8)",
-                "dash": "dash"
+                "dash": "dash",
+                "width": 4
             },
             "marker": null
+        }
+    },
+    "parameter-plot" : {
+        "prior" : {
+            "line" : {
+                "dash" : "dash",
+                "width" : 4
+            }
         }
     },
     "figure": {

@@ -2,7 +2,7 @@ import dash
 import plotly.graph_objects as go
 from dash.dependencies import Input, Output, State, ALL, MATCH
 from dash.exceptions import PreventUpdate
-from ertviz.models import ResponsePlotModel, PlotModel, EnsembleModel
+from ertviz.models import ResponsePlotModel, PlotModel, EnsembleModel, load_ensemble
 import ertviz.assets as assets
 
 
@@ -99,13 +99,7 @@ def multi_response_controller(parent, app):
         if not selected_ensembles:
             raise PreventUpdate
         ensemble_id, _ = selected_ensembles.popitem()
-        ensemble = parent.ensembles.get(
-            ensemble_id,
-            EnsembleModel(
-                ensemble_id=int(ensemble_id), project_id=parent.project_identifier
-            ),
-        )
-        parent.ensembles[ensemble_id] = ensemble
+        ensemble = load_ensemble(parent, ensemble_id)
         return [
             [
                 {
@@ -151,7 +145,7 @@ def multi_response_controller(parent, app):
             raise PreventUpdate
 
         def _generate_plot(ensemble_id, color):
-            ensemble = parent.ensembles.get(ensemble_id, None)
+            ensemble = load_ensemble(parent, ensemble_id)
             plot = _create_response_plot(
                 ensemble.responses[response], plot_type, None, color
             )

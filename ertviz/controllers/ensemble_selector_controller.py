@@ -2,7 +2,7 @@ import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from ertviz.data_loader import get_ensembles
-from ertviz.models import EnsembleModel
+from ertviz.models import EnsembleModel, load_ensemble
 import ertviz.assets as assets
 
 
@@ -78,11 +78,7 @@ def ensemble_selector_controller(parent, app):
             ensemble_dict = get_ensembles(project_id=parent.project_identifier)
             for ensemble_schema in ensemble_dict:
                 ensemble_id = ensemble_schema["id"]
-                if ensemble_id not in parent.ensembles:
-                    parent.ensembles[ensemble_id] = EnsembleModel(
-                        ensemble_id=int(ensemble_id),
-                        project_id=parent.project_identifier,
-                    )
+                load_ensemble(parent, ensemble_id)
             datas = _construct_graph(parent.ensembles)
         return datas
 
