@@ -43,19 +43,39 @@ def multi_parameter_controller(parent, app):
         return options
 
     @app.callback(
-        Output(
-            {"id": parent.uuid("parameter-scatter"), "type": parent.uuid("graph")},
-            "figure",
-        ),
+        Output(parent.uuid("bincount-store"), "data"),
+        [Input(parent.uuid("hist-bincount"), "value")],
+        [State(parent.uuid("bincount-store"), "data")],
+    )
+    def _update_bincount(hist_bincount, store_bincount):
+        if hist_bincount == store_bincount:
+            raise PreventUpdate
+        return hist_bincount
+
+    @app.callback(
+        [
+            Output(
+                {"id": parent.uuid("parameter-scatter"), "type": parent.uuid("graph")},
+                "figure",
+            ),
+            Output(parent.uuid("hist-bincount"), "value"),
+        ],
         [
             Input(parent.uuid("parameter-selector"), "value"),
             Input(parent.uuid("hist-check"), "value"),
+            Input(parent.uuid("bincount-store"), "data"),
         ],
         [State(parent.uuid("ensemble-selection-store"), "data")],
     )
-    def _update_histogram(parameter, hist_check_values, selected_ensembles):
+    def _update_histogram(parameter, hist_check_values, bin_count, selected_ensembles):
         if not selected_ensembles:
             raise PreventUpdate
+
+        if dash.callback_context.triggered[0]["prop_id"].split(".")[0] == parent.uuid(
+            "parameter-selector"
+        ):
+            bin_count = None
+
         data = {}
         colors = {}
         priors = {}
@@ -76,9 +96,9 @@ def multi_parameter_controller(parent, app):
             hist="hist" in hist_check_values,
             kde="kde" in hist_check_values,
             priors=priors,
+            bin_count=bin_count,
         )
-
-        return parent.parameter_plot.repr
+        return parent.parameter_plot.repr, parent.parameter_plot.bin_count
 
     @app.callback(
         Output(parent.uuid("parameter-selector"), "value"),

@@ -126,9 +126,13 @@ def test_multi_histogram_plot_representation():
         (0, "default"): (PriorModel("UNIFORM", ["STD", "MEAN"], [0, 1]), colors[0])
     }
 
+    plot = MultiHistogramPlotModel(data_dict, colors_dict, hist=True, kde=False)
+    assert plot.bin_count == 4
+
     plot = MultiHistogramPlotModel(
-        data_dict, colors_dict, hist=True, kde=False, priors=priors
+        data_dict, colors_dict, hist=True, kde=False, priors=priors, bin_count=10
     )
+    assert plot.bin_count == 10
     plot = plot.repr
     for idx, ensemble_name in enumerate(ensemble_names):
         key = (idx, ensemble_name)
