@@ -196,13 +196,16 @@ class ResponsePlotModel:
 
 
 class MultiHistogramPlotModel:
-    def __init__(self, data_df_dict, colors, hist=True, kde=True, priors={}):
+    def __init__(
+        self, data_df_dict, colors, hist=True, kde=True, priors={}, bin_count=None
+    ):
         self._hist_enabled = hist
         self._kde_enabled = kde
         self._data_df_dict = data_df_dict
         self.selection = []
         self._colors = colors
         self._priors = priors
+        self._bin_count = bin_count
 
     @property
     def data_df(self):
@@ -219,6 +222,14 @@ class MultiHistogramPlotModel:
         return {plot_idx: real.name for plot_idx, real in enumerate(df)}
 
     @property
+    def bin_count(self):
+        if self._bin_count is None:
+            # get any dict response data_frame, so the first is a good choice
+            data = list(self._data_df_dict.values())[0].values.flatten()
+            self._bin_count = int(math.ceil(math.sqrt(len(data)))) - 1
+        return self._bin_count
+
+    @property
     def repr(self):
         colors = []
         data = []
@@ -233,10 +244,9 @@ class MultiHistogramPlotModel:
                 [f"Realization {num}" for num in self._data_df_dict[key].columns]
             )
 
-        bin_count = int(math.ceil(math.sqrt(len(data[0]))))
         _max = max(map(max, data))
         _min = min(map(min, data))
-        bin_size = float((_max - _min) / bin_count)
+        bin_size = float((_max - _min) / self.bin_count)
         fig = ff.create_distplot(
             data,
             names,
@@ -246,6 +256,8 @@ class MultiHistogramPlotModel:
             colors=colors,
             show_rug=True,
             rug_text=realization_nums,
+            curve_type="normal",
+            histnorm="probability density",
         )
         fig.update_layout(clickmode="event+select")
         fig.update_layout(uirevision=True)
