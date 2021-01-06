@@ -23,7 +23,7 @@ Here are a few steps to get an example version of webviz-ert running.
 
 ```sh
 # Run simulations in ert - <ert-root-folder>/test-data/local/poly_example/
-ert ensemble-smooter --target-case smoother poly.ert
+ert ensemble_smoother --target-case smoother poly.ert
 
 # After simulation has finished, start webviz-ert from the same location with
 ert vis
