@@ -13,3 +13,7 @@ pages:
  - title: Observation Analyzer
    content:
     - ObservationAnalyzer:
+
+ - title: Parameter Comparison Viewer
+   content:
+    - ParameterComparison:

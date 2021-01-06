@@ -33,4 +33,5 @@ class ParametersModel:
                 ),
                 project_id=self._project_id,
             ).T
+            self._data_df.index.name = self.key
         return self._data_df
