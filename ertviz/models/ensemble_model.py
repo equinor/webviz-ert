@@ -1,3 +1,4 @@
+import pandas as pd
 from ertviz.data_loader import get_ensemble_url, get_schema
 from ertviz.models import Response
 
@@ -81,6 +82,15 @@ class EnsembleModel:
                 project_id=self._project_id,
             )
         return self._parameters
+
+    def parameters_df(self, parameter_list=None):
+        if parameter_list is None:
+            parameter_list = self.parameters
+        data = {
+            parameter: self.parameters[parameter].data_df().values.flatten()
+            for parameter in parameter_list
+        }
+        return pd.DataFrame(data=data)
 
     @property
     def id(self):
