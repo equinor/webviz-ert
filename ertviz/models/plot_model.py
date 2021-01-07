@@ -134,10 +134,17 @@ class MultiHistogramPlotModel:
         colors = []
         data = []
         names = []
+        realization_nums = []
         for response_name in self._data_df_dict:
             data.append(list(self._data_df_dict[response_name].values.flatten()))
             colors.append(self._colors[response_name])
             names.append(response_name)
+            realization_nums.append(
+                [
+                    f"Realization {num}"
+                    for num in self._data_df_dict[response_name].columns
+                ]
+            )
 
         bin_count = int(math.ceil(math.sqrt(len(data[0]))))
         _max = max(map(max, data))
@@ -150,6 +157,8 @@ class MultiHistogramPlotModel:
             show_curve=self._kde_enabled,
             bin_size=bin_size,
             colors=colors,
+            show_rug=True,
+            rug_text=realization_nums,
         )
         fig.update_layout(clickmode="event+select")
 
