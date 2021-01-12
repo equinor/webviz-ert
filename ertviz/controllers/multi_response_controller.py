@@ -88,13 +88,23 @@ def _create_response_plot(response, plot_type, selected_realizations, color):
     return ensemble_plot
 
 
+def _valid_response_option(response_filters, response):
+    if "obs" in response_filters:
+        return response.observations
+    else:
+        return True
+
+
 def multi_response_controller(parent, app):
     @app.callback(
         Output({"index": ALL, "type": parent.uuid("response-selector")}, "options"),
-        [Input(parent.uuid("ensemble-selection-store"), "data")],
+        [
+            Input(parent.uuid("ensemble-selection-store"), "data"),
+            Input(parent.uuid("response-observations-check"), "value"),
+        ],
         [State({"index": ALL, "type": parent.uuid("response-selector")}, "options")],
     )
-    def _set_response_options(selected_ensembles, selectors):
+    def _set_response_options(selected_ensembles, response_filters, selectors):
         # Should either return a union of all possible responses or the other thing which I cant think of...
         if not selected_ensembles:
             raise PreventUpdate
@@ -107,6 +117,9 @@ def multi_response_controller(parent, app):
                     "value": response,
                 }
                 for response in ensemble.responses
+                if _valid_response_option(
+                    response_filters, ensemble.responses[response]
+                )
             ]
             for i in range(len(selectors))
         ]
