@@ -15,6 +15,16 @@ def response_view(parent, index=0):
                     id={"index": index, "type": parent.uuid("response-selector")},
                     className="ert-dropdown",
                 ),
+                dcc.Checklist(
+                    id=parent.uuid("response-observations-check"),
+                    options=[
+                        {
+                            "label": "Show only responses with observations",
+                            "value": "obs",
+                        },
+                    ],
+                    value=[],
+                ),
             ],
         ),
         html.Div(
