@@ -60,6 +60,7 @@ def observation_response_controller(parent, app):
                 "value": response,
             }
             for response in ensemble.responses
+            if ensemble.responses[response].observations
         ]
 
     @app.callback(
