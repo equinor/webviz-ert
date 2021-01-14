@@ -1,8 +1,8 @@
-from datetime import datetime
+import dateutil.parser
 
 
 def _convertdate(dstring):
-    return datetime.fromisoformat(dstring)
+    return dateutil.parser.isoparse(dstring)
 
 
 def indexes_to_axis(indexes):
