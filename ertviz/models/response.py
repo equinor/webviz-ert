@@ -61,9 +61,11 @@ class Response:
             }
         if bool(data):
             misfits_df = pd.DataFrame(data=data)
-            misfits_df["x_axis"] = self.observations[0].data_df()["x_axis"]
+            misfits_df["x_axis"] = (
+                self.observations[0].data_df()["x_axis"].values.astype("float64")
+            )
             misfits_df.index.name = self.name
-            return misfits_df.astype("float64")
+            return misfits_df
         return None
 
     def summary_misfits_df(self, selection=None):
