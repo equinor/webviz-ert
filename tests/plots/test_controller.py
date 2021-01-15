@@ -83,7 +83,7 @@ def test_ensemble_selector_graph_constructor(
         for schema in ensemble_dict
     }
     graph_data = _construct_graph(ensemble_models)
-    parent_ensemble_node = {"data": {"id": 1, "label": "default"}}
+    parent_ensemble_node = {"data": {"id": 1, "label": "2020-04-29T09:36:26, default"}}
     parent_child_edge = {
         "data": {
             "source": 1,
@@ -113,10 +113,10 @@ def test_multi_histogram_plot_representation():
 
     ensemble_names = ["default", "update_1", "update_2"]
     colors = assets.ERTSTYLE["ensemble-selector"]["color_wheel"]
-    for ensemble_id, (ensemble_name, color) in enumerate(
+    for ensemble_date, (ensemble_name, color) in enumerate(
         zip(ensemble_names, colors[: len(ensemble_names)])
     ):
-        key = (ensemble_id, ensemble_name)
+        key = f"{ensemble_date}, {ensemble_name}"
         data = np.random.rand(20).reshape(-1, 20)
         data_df = pd.DataFrame(data=data, index=range(1), columns=range(20))
         data_df.index.name = "KEY_NAME"
@@ -135,14 +135,14 @@ def test_multi_histogram_plot_representation():
     assert plot.bin_count == 10
     plot = plot.repr
     for idx, ensemble_name in enumerate(ensemble_names):
-        key = (idx, ensemble_name)
+        key = f"{idx}, {ensemble_name}"
         np.testing.assert_equal(plot.data[idx].x, data_dict[key].values.flatten())
         assert plot.data[idx].histnorm == "probability density"
         assert plot.data[idx].autobinx == False
         assert plot.data[idx].marker.color == colors_dict[key]
-        assert plot.data[idx].name == ensemble_name
+        assert plot.data[idx].name == key
 
-    assert plot.data[-1].name == "default-prior"
+    assert plot.data[-1].name == "(0, 'default')-prior"
 
 
 def test_univariate_misfits_boxplot_representation():

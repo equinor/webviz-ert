@@ -235,13 +235,12 @@ class MultiHistogramPlotModel:
         data = []
         names = []
         realization_nums = []
-        for key in self._data_df_dict:
-            data.append(list(self._data_df_dict[key].values.flatten()))
-            colors.append(self._colors[key])
-            _, name = key
+        for name in self._data_df_dict:
+            data.append(list(self._data_df_dict[name].values.flatten()))
+            colors.append(self._colors[name])
             names.append(name)
             realization_nums.append(
-                [f"Realization {num}" for num in self._data_df_dict[key].columns]
+                [f"Realization {num}" for num in self._data_df_dict[name].columns]
             )
 
         _max = max(map(max, data))
@@ -262,7 +261,7 @@ class MultiHistogramPlotModel:
         fig.update_layout(clickmode="event+select")
         fig.update_layout(uirevision=True)
 
-        for (_, name), (prior, color) in self._priors.items():
+        for name, (prior, color) in self._priors.items():
             fig.add_trace(_create_prior_plot(name, prior, _min, _max, color))
         return fig
 
