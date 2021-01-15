@@ -38,6 +38,7 @@ class EnsembleModel:
         self._id = ensemble_id
         self._children = self._schema["children"]
         self._parent = self._schema["parent"]
+        self._time_created = self._schema["time_created"]
         self.responses = {
             resp_schema["name"]: Response(
                 name=resp_schema["name"],
@@ -84,3 +85,8 @@ class EnsembleModel:
     @property
     def id(self):
         return self._id
+
+    def __str__(self):
+        if "." in self._time_created:
+            return f"{self._time_created.split('.')[0]}, {self._name}"
+        return f"{self._time_created}, {self._name}"

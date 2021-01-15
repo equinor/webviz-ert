@@ -82,7 +82,7 @@ def multi_parameter_controller(parent, app):
         for ensemble_id, color in selected_ensembles.items():
             ensemble = load_ensemble(parent, ensemble_id)
             if parameter in ensemble.parameters:
-                key = (ensemble.id, ensemble._name)
+                key = str(ensemble)
                 parameter_model = ensemble.parameters[parameter]
                 data[key] = parameter_model.data_df()
                 colors[key] = color["color"]

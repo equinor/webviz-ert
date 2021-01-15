@@ -23,7 +23,7 @@ def _construct_graph(ensembles):
         return {
             "data": {
                 "id": ensemble.id,
-                "label": ensemble._name,
+                "label": str(ensemble),
             }
         }
 
