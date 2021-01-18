@@ -24,3 +24,4 @@ class EnsembleOverview(WebvizPluginABC):
 
     def set_callbacks(self, app):
         ensemble_selector_controller(self, app)
+        pass

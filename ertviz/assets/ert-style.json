@@ -27,7 +27,8 @@
             "rgba(253,192,134,0.8)",
             "rgba(240,2,127,0.8)",
             "rgba(191,91,23,0.8)"
-        ]
+        ],
+        "default_color" : "rgba(128,128,128,0.3)"
     },
     "observation-response-plot": {
         "observation": {

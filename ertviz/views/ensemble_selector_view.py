@@ -11,41 +11,21 @@ def ensemble_selector_view(parent):
     return [
         html.Div(
             [
-                html.Label("Layout:", className="ert-label"),
-                dcc.Dropdown(
-                    id=parent.uuid("dropdown-layout"),
-                    className="ert-dropdown",
-                    options=[
-                        {"label": "random", "value": "random"},
-                        {"label": "grid", "value": "grid"},
-                        {"label": "circle", "value": "circle"},
-                        {"label": "concentric", "value": "concentric"},
-                        {"label": "breadthfirst", "value": "breadthfirst"},
-                        {"label": "cose", "value": "cose"},
-                        {"label": "cose-bilkent", "value": "cose-bilkent"},
-                        {"label": "dagre", "value": "dagre"},
-                        {"label": "cola", "value": "cola"},
-                        {"label": "klay", "value": "klay"},
-                        {"label": "spread", "value": "spread"},
-                        {"label": "euler", "value": "euler"},
-                    ],
-                    value="cola",
-                    clearable=False,
-                ),
-            ],
-            className="ert-dropdown-container",
-        ),
-        html.Div(
-            [
                 cyto.Cytoscape(
                     id=parent.uuid("ensemble-selector"),
                     layout={"name": "grid"},
-                    className="ert-ensemble-selector",
+                    className="ert-ensemble-selector-large",
                     stylesheet=assets.ERTSTYLE["ensemble-selector"]["stylesheet"],
-                    responsive=True,
-                )
+                    responsive=False,
+                ),
+                html.Button(
+                    id=parent.uuid("ensemble-selector-button"),
+                    className="ert-ensemble-selector-view-toggle",
+                    children=("Minimize"),
+                ),
             ],
-            className="ert-ensemble-selector-container",
+            id=parent.uuid("ensemble-selector-container"),
+            className="ert-ensemble-selector-container-large",
         ),
         dcc.Store(id=parent.uuid("ensemble-selection-store")),
     ]
