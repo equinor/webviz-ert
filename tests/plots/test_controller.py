@@ -83,11 +83,18 @@ def test_ensemble_selector_graph_constructor(
         for schema in ensemble_dict
     }
     graph_data = _construct_graph(ensemble_models)
-    parent_ensemble_node = {"data": {"id": 1, "label": "2020-04-29T09:36:26, default"}}
+
+    parent_ensemble_node = {
+        "data": {
+            "id": "1",
+            "label": "2020-04-29T09:36:26, default",
+            "color": assets.ERTSTYLE["ensemble-selector"]["default_color"],
+        }
+    }
     parent_child_edge = {
         "data": {
-            "source": 1,
-            "target": 2,
+            "source": "1",
+            "target": "2",
         }
     }
     assert parent_ensemble_node in graph_data
