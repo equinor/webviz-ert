@@ -102,6 +102,48 @@ ensembles_response = {
         ],
         "time_created": "2020-04-29T10:36:26",
     },
+    "http://127.0.0.1:5000/ensembles/3": {
+        "children": [],
+        "name": "default3",
+        "parameters": [],
+        "parent": {},
+        "id": 3,
+        "realizations": [],
+        "responses": [
+            {
+                "name": "SNAKE_OIL_GPR_DIFF",
+                "id": "SNAKE_OIL_GPR_DIFF",
+            },
+            {
+                "name": "FOPR",
+                "id": "FOPR",
+            },
+            {
+                "name": "WOPR:OP1",
+                "id": "WOPR:OP1",
+            },
+        ],
+        "time_created": "2020-04-29T10:57:47",
+    },
+    "http://127.0.0.1:5000/ensembles/4": {
+        "children": [],
+        "name": "default4",
+        "parameters": [],
+        "parent": {},
+        "id": 4,
+        "realizations": [],
+        "responses": [
+            {
+                "name": "SNAKE_OIL_GPR_DIFF",
+                "id": "SNAKE_OIL_GPR_DIFF",
+            },
+            {
+                "name": "FOPR",
+                "id": "FOPR",
+            },
+        ],
+        "time_created": "2020-04-29T10:59:37",
+    },
     "http://127.0.0.1:5000/ensembles/1/parameters/1": {
         "alldata_url": "http://127.0.0.1:5000/ensembles/1/parameters/1/data",
         "group": "SNAKE_OIL_PARAM",
@@ -205,6 +247,63 @@ ensembles_response = {
                         {"obs_index": 2, "sign": True, "value": 1.3966335691013885},
                     ]
                 },
+            }
+        ],
+    },
+    "http://127.0.0.1:5000/ensembles/3/responses/SNAKE_OIL_GPR_DIFF": {
+        "alldata_url": "http://127.0.0.1:5000/ensembles/3/responses/SNAKE_OIL_GPR_DIFF/data",
+        "axis": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+        "ensemble_id": "1",
+        "name": "SNAKE_OIL_GPR_DIFF",
+        "realizations": [],
+    },
+    "http://127.0.0.1:5000/ensembles/3/responses/FOPR": {
+        "alldata_url": "http://127.0.0.1:5000/ensembles/3/responses/FOPR/data",
+        "axis": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+        "ensemble_id": "3",
+        "name": "FOPR",
+        "realizations": [],
+    },
+    "http://127.0.0.1:5000/ensembles/3/responses/WOPR:OP1": {
+        "alldata_url": "http://127.0.0.1:5000/ensembles/3/responses/WOPR:OP1/data",
+        "axis": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+        "ensemble_id": "3",
+        "name": "WOPR:OP1",
+        "realizations": [],
+        "observations": [
+            {
+                "data": {
+                    "data_indexes": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+                    "key_indexes": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+                    "std": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+                    "values": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+                },
+                "name": "WOPR:OP1",
+            }
+        ],
+    },
+    "http://127.0.0.1:5000/ensembles/4/responses/SNAKE_OIL_GPR_DIFF": {
+        "alldata_url": "http://127.0.0.1:5000/ensembles/4/responses/SNAKE_OIL_GPR_DIFF/data",
+        "axis": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+        "ensemble_id": "1",
+        "name": "SNAKE_OIL_GPR_DIFF",
+        "realizations": [],
+    },
+    "http://127.0.0.1:5000/ensembles/4/responses/FOPR": {
+        "alldata_url": "http://127.0.0.1:5000/ensembles/4/responses/FOPR/data",
+        "axis": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+        "ensemble_id": "4",
+        "name": "FOPR",
+        "realizations": [],
+        "observations": [
+            {
+                "data": {
+                    "data_indexes": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+                    "key_indexes": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+                    "std": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+                    "values": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+                },
+                "name": "FOPR",
             }
         ],
     },
