@@ -53,6 +53,16 @@ ensembles_response = {
                 },
                 "id": 1,
             },
+            {
+                "group": "SNAKE_OIL_PARAM",
+                "key": "OP1_DIVERGENCE_SCALE",
+                "prior": {
+                    "function": "UNIFORM",
+                    "parameter_names": ["MIN", "MAX"],
+                    "parameter_values": [0.2, 0.7],
+                },
+                "id": 2,
+            },
         ],
         "parent": {},
         "realizations": [
