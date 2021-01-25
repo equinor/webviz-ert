@@ -13,7 +13,12 @@ from ertviz.controllers.observation_response_controller import (
 from ertviz.controllers.ensemble_selector_controller import _construct_graph
 from ertviz.data_loader import get_ensembles
 from ertviz.models import EnsembleModel, PriorModel
-from ertviz.models import HistogramPlotModel, MultiHistogramPlotModel, BoxPlotModel
+from ertviz.models import (
+    HistogramPlotModel,
+    MultiHistogramPlotModel,
+    BoxPlotModel,
+    ParallelCoordinates,
+)
 import ertviz.assets as assets
 
 
@@ -150,6 +155,34 @@ def test_multi_histogram_plot_representation():
         assert plot.data[idx].name == key
 
     assert plot.data[-1].name == "(0, 'default')-prior"
+
+
+def test_parallel_coordinates_representation():
+    data_dict = {}
+    colors_dict = {}
+
+    ensemble_names = ["default", "update_1", "update_2"]
+    colors = assets.ERTSTYLE["ensemble-selector"]["color_wheel"]
+    for idx, (ensemble_name, color) in enumerate(
+        zip(ensemble_names, colors[: len(ensemble_names)])
+    ):
+        key = f"{idx}, {ensemble_name}"
+        data = np.random.rand(50).reshape(-1, 5)
+        data_df = pd.DataFrame(data=data, columns=[f"PARAM_{i}" for i in range(5)])
+        data_df["ensemble_id"] = idx
+        data_dict[key] = data_df
+        colors_dict[key] = color
+
+    plot = ParallelCoordinates(data_dict, colors_dict)
+    plot = plot.repr
+
+    assert len(plot.data[0].dimensions) == 5
+    for idx, ensemble_name in enumerate(ensemble_names):
+        key = f"{idx}, {ensemble_name}"
+        assert plot.data[0].dimensions[idx].label == f"PARAM_{idx}"
+        assert len(plot.data[0].dimensions[idx].values) == 10 * len(ensemble_names)
+        assert plot.data[0].labelangle == 45
+        assert len(plot.data[0].line.color) == 10 * len(ensemble_names)
 
 
 def test_univariate_misfits_boxplot_representation():
