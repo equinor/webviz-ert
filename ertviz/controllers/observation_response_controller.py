@@ -2,6 +2,7 @@ import plotly.graph_objects as go
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from copy import deepcopy
+from ertviz.controllers.controller_functions import response_options
 from ertviz.models import (
     ResponsePlotModel,
     BoxPlotModel,
@@ -52,16 +53,10 @@ def observation_response_controller(parent, app):
     def _set_response_options(selected_ensembles):
         if not selected_ensembles:
             raise PreventUpdate
-        ensemble_id, _ = selected_ensembles.popitem()
-        ensemble = load_ensemble(parent, ensemble_id)
-        return [
-            {
-                "label": response,
-                "value": response,
-            }
-            for response in ensemble.responses
-            if ensemble.responses[response].observations
+        ensembles = [
+            load_ensemble(parent, ensemble_id) for ensemble_id in selected_ensembles
         ]
+        return response_options(response_filters=["obs"], ensembles=ensembles)
 
     @app.callback(
         Output(parent.uuid("response-selector"), "value"),
