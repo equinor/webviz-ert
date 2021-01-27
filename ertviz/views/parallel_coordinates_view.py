@@ -6,21 +6,15 @@ import ertviz.assets as assets
 
 def parallel_coordinates_view(parent):
     return html.Div(
-        [
-            html.Div(
-                [
-                    html.Label("ParCoor:"),
-                ],
-                className="ert-graph-options",
-            ),
+        className="ert-view-container",
+        children=[
             dcc.Graph(
                 id={
                     "id": parent.uuid("parallel-coor"),
                     "type": parent.uuid("graph"),
                 },
-                className="ert-graph",
+                className="ert-view-cell",
                 config={"responsive": True},
-            ),
+            )
         ],
-        className="ert-graph-container",
     )

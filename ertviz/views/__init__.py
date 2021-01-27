@@ -13,12 +13,14 @@ def parameter_selector_view(parent):
     return html.Div(
         children=[
             html.Div(
-                [
-                    html.Label("Search substring:"),
+                className="ert-dropdown-container",
+                children=[
+                    html.Label("Search:", className="ert-label"),
                     dcc.Input(
                         id=parent.uuid("parameter-selector-filter"),
                         type="search",
-                        placeholder="",
+                        placeholder="Substring...",
+                        className="ert-dropdown",
                     ),
                 ],
             ),
