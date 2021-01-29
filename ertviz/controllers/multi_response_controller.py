@@ -3,6 +3,7 @@ import plotly.graph_objects as go
 from dash.dependencies import Input, Output, State, ALL, MATCH
 from dash.exceptions import PreventUpdate
 from ertviz.models import ResponsePlotModel, PlotModel, EnsembleModel, load_ensemble
+from ertviz.controllers.controller_functions import response_options
 import ertviz.assets as assets
 
 
@@ -88,13 +89,6 @@ def _create_response_plot(response, plot_type, selected_realizations, color):
     return ensemble_plot
 
 
-def _valid_response_option(response_filters, response):
-    if "obs" in response_filters:
-        return response.observations
-    else:
-        return True
-
-
 def multi_response_controller(parent, app):
     @app.callback(
         Output({"index": ALL, "type": parent.uuid("response-selector")}, "options"),
@@ -105,23 +99,13 @@ def multi_response_controller(parent, app):
         [State({"index": ALL, "type": parent.uuid("response-selector")}, "options")],
     )
     def _set_response_options(selected_ensembles, response_filters, selectors):
-        # Should either return a union of all possible responses or the other thing which I cant think of...
         if not selected_ensembles:
             raise PreventUpdate
-        ensemble_id, _ = selected_ensembles.popitem()
-        ensemble = load_ensemble(parent, ensemble_id)
+        ensembles = [
+            load_ensemble(parent, ensemble_id) for ensemble_id in selected_ensembles
+        ]
         return [
-            [
-                {
-                    "label": response,
-                    "value": response,
-                }
-                for response in ensemble.responses
-                if _valid_response_option(
-                    response_filters, ensemble.responses[response]
-                )
-            ]
-            for i in range(len(selectors))
+            response_options(response_filters, ensembles) for _ in range(len(selectors))
         ]
 
     @app.callback(
