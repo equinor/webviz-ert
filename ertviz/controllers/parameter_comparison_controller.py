@@ -23,6 +23,7 @@ def parameter_comparison_controller(parent, app):
 
         data = {}
         colors = {}
+
         for idx, (ensemble_id, color) in enumerate(selected_ensembles.items()):
             ensemble = load_ensemble(parent, ensemble_id)
             ens_key = str(ensemble)
