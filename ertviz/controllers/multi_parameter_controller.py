@@ -1,37 +1,25 @@
 import dash
 from dash.exceptions import PreventUpdate
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output, State, MATCH
+import plotly.graph_objects as go
 from ertviz.models import EnsembleModel, MultiHistogramPlotModel, load_ensemble
-
-
-def _prev_value(current_value, options):
-    try:
-        index = options.index(current_value)
-    except ValueError:
-        index = None
-    if index > 0:
-        return options[index - 1]
-    return current_value
-
-
-def next_value(current_value, options):
-    try:
-        index = options.index(current_value)
-    except ValueError:
-        index = None
-    if index < len(options) - 1:
-        return options[index + 1]
-    return current_value
+import ertviz.assets as assets
 
 
 def multi_parameter_controller(parent, app):
     @app.callback(
-        Output(parent.uuid("parameter-selector"), "options"),
+        [
+            Output(parent.uuid("parameter-selector"), "options"),
+            Output(parent.uuid("parameter-selector"), "value"),
+        ],
         [
             Input(parent.uuid("ensemble-selection-store"), "data"),
+            Input(parent.uuid("response-observations-check"), "value"),
         ],
+        [State(parent.uuid("plot-selection-store"), "data")],
     )
-    def update_parameter_options(selected_ensembles):
+    def update_parameter_options(selected_ensembles, _, prev_plot_selection):
+        prev_plot_selection = [] if not prev_plot_selection else prev_plot_selection
         if not selected_ensembles:
             raise PreventUpdate
         ensemble_id, _ = selected_ensembles.popitem()
@@ -40,12 +28,15 @@ def multi_parameter_controller(parent, app):
             {"label": parameter_key, "value": parameter_key}
             for parameter_key in ensemble.parameters
         ]
-        return options
+        prev_selection = [
+            plot["name"] for plot in prev_plot_selection if plot["type"] == "parameter"
+        ]
+        return options, prev_selection
 
     @app.callback(
-        Output(parent.uuid("bincount-store"), "data"),
-        [Input(parent.uuid("hist-bincount"), "value")],
-        [State(parent.uuid("bincount-store"), "data")],
+        Output({"index": MATCH, "type": parent.uuid("bincount-store")}, "data"),
+        [Input({"index": MATCH, "type": parent.uuid("hist-bincount")}, "value")],
+        [State({"index": MATCH, "type": parent.uuid("bincount-store")}, "data")],
     )
     def _update_bincount(hist_bincount, store_bincount):
         if hist_bincount == store_bincount:
@@ -55,26 +46,33 @@ def multi_parameter_controller(parent, app):
     @app.callback(
         [
             Output(
-                {"id": parent.uuid("parameter-scatter"), "type": parent.uuid("graph")},
+                {
+                    "index": MATCH,
+                    "id": parent.uuid("parameter-scatter"),
+                    "type": parent.uuid("graph"),
+                },
                 "figure",
             ),
-            Output(parent.uuid("hist-bincount"), "value"),
+            Output({"index": MATCH, "type": parent.uuid("hist-bincount")}, "value"),
         ],
         [
-            Input(parent.uuid("parameter-selector"), "value"),
-            Input(parent.uuid("hist-check"), "value"),
-            Input(parent.uuid("bincount-store"), "data"),
+            Input({"index": MATCH, "type": parent.uuid("hist-check")}, "value"),
+            Input(
+                {"index": MATCH, "type": parent.uuid("bincount-store")},
+                "modified_timestamp",
+            ),
         ],
-        [State(parent.uuid("ensemble-selection-store"), "data")],
+        [
+            State(parent.uuid("ensemble-selection-store"), "data"),
+            State({"index": MATCH, "type": parent.uuid("parameter-id-store")}, "data"),
+            State({"index": MATCH, "type": parent.uuid("bincount-store")}, "data"),
+        ],
     )
-    def _update_histogram(parameter, hist_check_values, bin_count, selected_ensembles):
+    def _update_histogram(
+        hist_check_values, _, selected_ensembles, parameter, bin_count
+    ):
         if not selected_ensembles:
             raise PreventUpdate
-
-        if dash.callback_context.triggered[0]["prop_id"].split(".")[0] == parent.uuid(
-            "parameter-selector"
-        ):
-            bin_count = None
 
         data = {}
         colors = {}
@@ -101,42 +99,12 @@ def multi_parameter_controller(parent, app):
         return parent.parameter_plot.repr, parent.parameter_plot.bin_count
 
     @app.callback(
-        Output(parent.uuid("parameter-selector"), "value"),
+        Output({"index": MATCH, "type": parent.uuid("hist-check")}, "options"),
         [
-            Input(parent.uuid("prev-btn"), "n_clicks"),
-            Input(parent.uuid("next-btn"), "n_clicks"),
-            Input(parent.uuid("parameter-selector"), "options"),
+            Input({"index": MATCH, "type": parent.uuid("parameter-id-store")}, "data"),
         ],
         [
-            State(parent.uuid("parameter-selector"), "value"),
-        ],
-    )
-    def _set_parameter_from_btn(_prev_click, _next_click, parameter_options, parameter):
-
-        ctx = dash.callback_context.triggered
-
-        callback = ctx[0]["prop_id"]
-        if callback == f"{parent.uuid('prev-btn')}.n_clicks":
-            parameter = _prev_value(
-                parameter, [option["value"] for option in parameter_options]
-            )
-        elif callback == f"{parent.uuid('next-btn')}.n_clicks":
-            parameter = next_value(
-                parameter, [option["value"] for option in parameter_options]
-            )
-        elif parameter_options:
-            parameter = parameter_options[0]["value"]
-        else:
-            raise PreventUpdate
-        return parameter
-
-    @app.callback(
-        Output(parent.uuid("hist-check"), "options"),
-        [
-            Input(parent.uuid("parameter-selector"), "value"),
-        ],
-        [
-            State(parent.uuid("hist-check"), "options"),
+            State({"index": MATCH, "type": parent.uuid("hist-check")}, "options"),
             State(parent.uuid("ensemble-selection-store"), "data"),
         ],
     )
