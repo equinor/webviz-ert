@@ -22,7 +22,7 @@ def _construct_graph(ensembles):
                 "id": str(ensemble.id),
                 "label": str(ensemble),
                 "color": assets.ERTSTYLE["ensemble-selector"]["default_color"],
-            }
+            },
         }
 
     def _construct_edge(ensemble_src, ensemble_target):
@@ -53,12 +53,15 @@ def ensemble_selector_controller(parent, app):
             State(parent.uuid("ensemble-selector"), "elements"),
         ],
     )
-    def update_ensemble_selector(selected_ensembles, _, elements):
+    def update_ensemble_selector_graph(selected_ensembles, _, elements):
         selected_ensembles = {} if selected_ensembles is None else selected_ensembles
         ctx = dash.callback_context
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-        if triggered_id == parent.uuid("ensemble-selection-store"):
+        if (
+            triggered_id == parent.uuid("ensemble-selection-store")
+            and elements is not None
+        ):
             datas = elements
         else:
             ensemble_dict = get_ensembles(project_id=parent.project_identifier)
@@ -73,6 +76,7 @@ def ensemble_selector_controller(parent, app):
                 element["data"].update(
                     selected_ensembles.get(element["data"]["id"], {})
                 )
+                element["selected"] = element["data"]["id"] in selected_ensembles
         return datas
 
     @app.callback(
@@ -99,6 +103,7 @@ def ensemble_selector_controller(parent, app):
             Output(parent.uuid("ensemble-selector"), "className"),
             Output(parent.uuid("ensemble-selector-container"), "className"),
             Output(parent.uuid("ensemble-selector-button"), "children"),
+            Output(parent.uuid("ensemble-view-store"), "data"),
         ],
         [
             Input(parent.uuid("ensemble-selector-button"), "n_clicks"),
@@ -106,11 +111,20 @@ def ensemble_selector_controller(parent, app):
         [
             State(parent.uuid("ensemble-selector"), "className"),
             State(parent.uuid("ensemble-selector-container"), "className"),
+            State(parent.uuid("ensemble-view-store"), "data"),
         ],
     )
-    def update_ensemble_selector_view_size(n_clicks, class_name, class_name_container):
-        n_clicks = 0 if n_clicks is None else n_clicks
-        if n_clicks % 2 == 0:
+    def update_ensemble_selector_view_size(
+        n_clicks, class_name, class_name_container, maximized
+    ):
+
+        ctx = dash.callback_context
+        triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+        if triggered_id == parent.uuid("ensemble-selector-button"):
+            maximized = not maximized
+
+        if maximized:
             old_class_name = "ert-ensemble-selector-small"
             new_class_name = "ert-ensemble-selector-large"
             old_container_class_name = "ert-ensemble-selector-container-small"
@@ -129,4 +143,5 @@ def ensemble_selector_controller(parent, app):
                 old_container_class_name, new_container_class_name
             ),
             new_button_text,
+            maximized,
         ]

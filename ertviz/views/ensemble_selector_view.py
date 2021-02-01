@@ -27,5 +27,8 @@ def ensemble_selector_view(parent):
             id=parent.uuid("ensemble-selector-container"),
             className="ert-ensemble-selector-container-large",
         ),
-        dcc.Store(id=parent.uuid("ensemble-selection-store")),
+        dcc.Store(id=parent.uuid("ensemble-selection-store"), storage_type="session"),
+        dcc.Store(
+            id=parent.uuid("ensemble-view-store"), storage_type="session", data=True
+        ),
     ]
