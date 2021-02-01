@@ -50,7 +50,7 @@ def observation_response_controller(parent, app):
         Output(parent.uuid("response-selector"), "options"),
         [Input(parent.uuid("ensemble-selection-store"), "data")],
     )
-    def _set_response_options(selected_ensembles):
+    def set_response_options(selected_ensembles):
         if not selected_ensembles:
             raise PreventUpdate
         ensembles = [
@@ -63,7 +63,7 @@ def observation_response_controller(parent, app):
         [Input(parent.uuid("response-selector"), "options")],
         [State(parent.uuid("response-selector"), "value")],
     )
-    def _set_responses_value(available_options, previous_selected_response):
+    def set_responses_value(available_options, previous_selected_response):
         if available_options and previous_selected_response in [
             opt["value"] for opt in available_options
         ]:
@@ -84,7 +84,7 @@ def observation_response_controller(parent, app):
         ],
         [State(parent.uuid("ensemble-selection-store"), "data")],
     )
-    def _update_graph(response, yaxis_type, misfits_type, selected_ensembles):
+    def update_graph(response, yaxis_type, misfits_type, selected_ensembles):
         if response in [None, ""] or not selected_ensembles:
             raise PreventUpdate
 

@@ -1,4 +1,3 @@
-# Could go into seperate file
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
@@ -55,7 +54,7 @@ def plot_view_controller(parent, app):
         ],
         [State(parent.uuid("plotting-content-store"), "data")],
     )
-    def _create_grid(plots, children):
+    def create_grid(plots, children):
         if not plots:
             return [], []
         if children is None:
