@@ -6,11 +6,7 @@ pages:
    content:
     - EnsembleOverview:
 
- - title: Comparison Viewer
-   content:
-    - EnsembleComparison:
-
- - title: Response Comparison Viewer
+ - title: Plot Viewer
    content:
     - ResponseComparison:
 

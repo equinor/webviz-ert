@@ -24,7 +24,6 @@ setup(
     entry_points={
         "webviz_config_plugins": [
             "EnsembleOverview = ertviz.plugins:EnsembleOverview",
-            "EnsembleComparison = ertviz.plugins:EnsembleComparison",
             "ResponseComparison = ertviz.plugins:ResponseComparison",
             "ObservationAnalyzer = ertviz.plugins:ObservationAnalyzer",
         ],
