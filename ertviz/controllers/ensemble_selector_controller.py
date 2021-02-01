@@ -115,7 +115,7 @@ def ensemble_selector_controller(parent, app):
         ],
     )
     def update_ensemble_selector_view_size(
-        n_clicks, class_name, class_name_container, maximized
+        _, class_name, class_name_container, maximized
     ):
 
         ctx = dash.callback_context

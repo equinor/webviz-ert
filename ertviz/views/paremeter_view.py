@@ -1,72 +1,96 @@
 import dash
 import dash_html_components as html
 import dash_core_components as dcc
+import dash_bootstrap_components as dbc
 import ertviz.assets as assets
 
 
-def parameter_view(parent):
+def parameter_view(parent, index=0):
     return [
-        html.H5("Parameter distribution"),
-        html.Div(
-            className="ert-dropdown-container",
+        dcc.Store(
+            id={"index": index, "type": parent.uuid("parameter-id-store")}, data=index
+        ),
+        dbc.Row(
+            className="ert-plot-options",
             children=[
-                html.Label("Parameter", className="ert-label"),
-                dcc.Dropdown(
-                    id=parent.uuid("parameter-selector"), className="ert-dropdown"
-                ),
-                html.Div(
+                dbc.Col(
                     [
-                        html.Button(
-                            id=parent.uuid("prev-btn"),
-                            children="⬅",
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    [html.H4(index)],
+                                    align="center",
+                                ),
+                                dbc.Col(
+                                    [
+                                        html.Label("Plots:"),
+                                    ],
+                                    width="auto",
+                                    align="center",
+                                ),
+                                dbc.Col(
+                                    [
+                                        dcc.Checklist(
+                                            id={
+                                                "index": index,
+                                                "type": parent.uuid("hist-check"),
+                                            },
+                                            options=[
+                                                {"label": "histogram", "value": "hist"},
+                                                {"label": "kde", "value": "kde"},
+                                            ],
+                                            value=["hist", "kde"],
+                                            persistence="session",
+                                        ),
+                                    ],
+                                    align="center",
+                                ),
+                            ]
                         )
                     ],
-                    className="ert-button",
+                    width="auto",
                 ),
-                html.Div(
+                dbc.Col(
                     [
-                        html.Button(
-                            id=parent.uuid("next-btn"),
-                            children="➡",
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    [
+                                        html.Label(
+                                            "Number of bins:", className="ert-label"
+                                        ),
+                                    ],
+                                    width="auto",
+                                ),
+                                dbc.Col(
+                                    [
+                                        dcc.Input(
+                                            id={
+                                                "index": index,
+                                                "type": parent.uuid("hist-bincount"),
+                                            },
+                                            type="number",
+                                            placeholder="# bins",
+                                            min=2,
+                                        ),
+                                    ]
+                                ),
+                            ]
                         )
-                    ],
-                    className="ert-button",
+                    ]
+                ),
+                dcc.Store(
+                    id={"index": index, "type": parent.uuid("bincount-store")},
+                    storage_type="session",
                 ),
             ],
         ),
-        html.Div(
-            [
-                html.Div(
-                    [
-                        html.Label("Plots:"),
-                        dcc.Checklist(
-                            id=parent.uuid("hist-check"),
-                            options=[
-                                {"label": "histogram", "value": "hist"},
-                                {"label": "kde", "value": "kde"},
-                            ],
-                            value=["hist", "kde"],
-                        ),
-                        html.Label("Number of bins:"),
-                        dcc.Input(
-                            id=parent.uuid("hist-bincount"),
-                            type="number",
-                            placeholder="",
-                            min=2,
-                        ),
-                        dcc.Store(id=parent.uuid("bincount-store")),
-                    ],
-                    className="ert-graph-options",
-                ),
-                dcc.Graph(
-                    id={
-                        "id": parent.uuid("parameter-scatter"),
-                        "type": parent.uuid("graph"),
-                    },
-                    className="ert-graph",
-                    config={"responsive": True},
-                ),
-            ],
-            className="ert-graph-container",
+        dcc.Graph(
+            id={
+                "index": index,
+                "id": parent.uuid("parameter-scatter"),
+                "type": parent.uuid("graph"),
+            },
+            config={"responsive": True},
         ),
     ]

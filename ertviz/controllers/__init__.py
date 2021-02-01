@@ -4,3 +4,4 @@ from .multi_response_controller import multi_response_controller
 from .observation_response_controller import observation_response_controller
 from .multi_parameter_controller import multi_parameter_controller
 from .controller_functions import response_options
+from .plot_view_controller import plot_view_controller

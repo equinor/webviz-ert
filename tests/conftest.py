@@ -16,8 +16,7 @@ def mocked_get_info(project_id):
 
 
 def mocked_read_csv(*args, **kwargs):
-    data_url = args[0]
-    data = ensembles_response[data_url]
+    data = args[0]
     if "header" in kwargs:
         return pd.DataFrame(data=list(data), columns=kwargs["header"])
     return pd.DataFrame(data=list(data), columns=["value"])
@@ -34,6 +33,10 @@ def mocked_requests_get(*args, **kwargs):
 
         @property
         def text(self):
+            return self.data
+
+        @property
+        def raw(self):
             return self.data
 
         def raise_for_status(self):
@@ -62,3 +65,9 @@ def mocked_get_ensemble_url(ensemble_id, project_id=None):
 
 def mocked_get_response_url(ensemble_id, response_id, project_id=None):
     return f"http://127.0.0.1:5000/ensembles/{ensemble_id}/responses/{response_id}"
+
+
+def mocked_get_parameter_data_url(ensemble_id, parameter_id, project_id=None):
+    return (
+        f"http://127.0.0.1:5000/ensembles/{ensemble_id}/parameters/{parameter_id}/data"
+    )
