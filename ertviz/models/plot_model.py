@@ -258,11 +258,10 @@ class MultiHistogramPlotModel:
             curve_type="normal",
             histnorm="probability density",
         )
-        fig.update_layout(clickmode="event+select")
-        fig.update_layout(uirevision=True)
-
         for name, (prior, color) in self._priors.items():
             fig.add_trace(_create_prior_plot(name, prior, _min, _max, color))
+        fig.update_layout(clickmode="event+select")
+        fig.update_layout(assets.ERTSTYLE["figure"]["layout"])
         return fig
 
 
@@ -299,5 +298,5 @@ class HistogramPlotModel:
         )
         fig.update_layout(clickmode="event+select")
 
-        fig.update_layout(uirevision=True)
+        fig.update_layout(assets.ERTSTYLE["figure"]["layout"])
         return fig
