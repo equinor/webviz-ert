@@ -101,9 +101,7 @@ def multi_response_controller(parent, app):
         ],
         [State(parent.uuid("plot-selection-store"), "data")],
     )
-    def _set_response_options(
-        selected_ensembles, response_filters, prev_plot_selection
-    ):
+    def set_response_options(selected_ensembles, response_filters, prev_plot_selection):
         prev_plot_selection = [] if not prev_plot_selection else prev_plot_selection
         # Should either return a union of all possible responses or the other thing which I cant think of...
         if not selected_ensembles:
@@ -134,7 +132,7 @@ def multi_response_controller(parent, app):
             State({"index": MATCH, "type": parent.uuid("response-id-store")}, "data"),
         ],
     )
-    def _update_graph(plot_type, selected_ensembles, response):
+    def update_graph(plot_type, selected_ensembles, response):
         if response in [None, ""] or not selected_ensembles:
             raise PreventUpdate
 

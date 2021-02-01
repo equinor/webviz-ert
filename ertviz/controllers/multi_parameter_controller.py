@@ -38,7 +38,7 @@ def multi_parameter_controller(parent, app):
         [Input({"index": MATCH, "type": parent.uuid("hist-bincount")}, "value")],
         [State({"index": MATCH, "type": parent.uuid("bincount-store")}, "data")],
     )
-    def _update_bincount(hist_bincount, store_bincount):
+    def update_bincount(hist_bincount, store_bincount):
         if hist_bincount == store_bincount:
             raise PreventUpdate
         return hist_bincount
@@ -68,7 +68,7 @@ def multi_parameter_controller(parent, app):
             State({"index": MATCH, "type": parent.uuid("bincount-store")}, "data"),
         ],
     )
-    def _update_histogram(
+    def update_histogram(
         hist_check_values, _, selected_ensembles, parameter, bin_count
     ):
         if not selected_ensembles:
@@ -108,7 +108,7 @@ def multi_parameter_controller(parent, app):
             State(parent.uuid("ensemble-selection-store"), "data"),
         ],
     )
-    def _set_parameter_from_btn(parameter, plotting_options, selected_ensembles):
+    def set_parameter_from_btn(parameter, plotting_options, selected_ensembles):
         has_priors = False
         for ensemble_id, _ in selected_ensembles.items():
             ensemble = load_ensemble(parent, ensemble_id)
