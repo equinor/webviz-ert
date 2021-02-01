@@ -107,7 +107,7 @@
             "margin": {
                 "l": 5,
                 "b": 5,
-                "t": 5,
+                "t": 25,
                 "r": 5
             },
             "autosize": true
