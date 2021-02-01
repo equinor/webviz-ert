@@ -1,20 +1,8 @@
-.ert-dropdown-container {
-    display: table;
+.ert-label {
+    white-space: nowrap;
 }
-.ert-button {
-    display: table-cell;
-    padding-left: 1mm;
-}
-
-.ert-dropdown {
-    display: table-cell;
-    min-width: 3in;
-    padding-left: 1mm;
-
-}
-.ert-label{
-    display: table-cell;
-    padding-left: 1mm;
+.ert-plot-options {
+    height: 84px !important;
 }
 .ert-ensemble-selector-small {
     height: 240px !important;
@@ -26,7 +14,7 @@
 }
 .ert-ensemble-selector-large {
     height: 600px !important;
-    width: 100% !important;
+    width: 100px !important;
     border-color: rgba(181, 223, 223, 0.5);
     border-style: solid;
     border-width: 5px;
@@ -48,26 +36,4 @@
     display: block;
     position: relative;
     width: 250px;
-}
-.ert-graph-container {
-    display: table;
-    table-layout: auto;
-}
-
-.ert-graph-options {
-    display: table-cell;
-    white-space: nowrap;
-    vertical-align: middle;
-    height: 5in;
-    width: fit-content;
-}
-.ert-graph {
-    display: table-cell;
-    vertical-align: middle;
-    height: 5in;
-    width: 100%;
-}
-.ert-graph-multi{
-    width: 50% ;
-    float: left;
 }
