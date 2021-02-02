@@ -312,11 +312,12 @@ class ParallelCoordinates:
                 ),
                 dimensions=dimensions,
                 labelangle=45,
-                labelside="bottom",
+                labelside="top",
             )
         )
         fig.update_layout(clickmode="event+select")
         fig.update_layout(uirevision=True)
+
         return fig
 
 
