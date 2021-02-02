@@ -1,5 +1,6 @@
 import dash
 import plotly.graph_objects as go
+from copy import deepcopy
 from dash.dependencies import Input, Output, State, ALL, MATCH
 from dash.exceptions import PreventUpdate
 from ertviz.models import ResponsePlotModel, PlotModel, EnsembleModel, load_ensemble
@@ -29,9 +30,11 @@ def _get_realizations_statistics_plots(df_response, x_axis, color):
     p90 = data.quantile(0.9, axis=1)
     _mean = data.mean(axis=1)
     style = assets.ERTSTYLE["response-plot"]["statistics"].copy()
-    style.update({"line": {"color": color}})
+    style["line"]["color"] = color
+    style_mean = deepcopy(style)
+    style_mean["line"]["dash"] = "solid"
     mean_data = PlotModel(
-        x_axis=x_axis, y_axis=_mean, text="Mean", name="Mean", **style
+        x_axis=x_axis, y_axis=_mean, text="Mean", name="Mean", **style_mean
     )
     lower_std_data = PlotModel(
         x_axis=x_axis, y_axis=p10, text="p10 quantile", name="p10 quantile", **style
