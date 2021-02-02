@@ -29,7 +29,7 @@ def _get_realizations_statistics_plots(df_response, x_axis, color):
     p10 = data.quantile(0.1, axis=1)
     p90 = data.quantile(0.9, axis=1)
     _mean = data.mean(axis=1)
-    style = assets.ERTSTYLE["response-plot"]["statistics"].copy()
+    style = deepcopy(assets.ERTSTYLE["response-plot"]["statistics"])
     style["line"]["color"] = color
     style_mean = deepcopy(style)
     style_mean["line"]["dash"] = "solid"
