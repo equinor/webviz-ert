@@ -1,41 +1,11 @@
 import dash
 import ertviz
-from unittest import mock
 from ertviz.plugins._response_comparison import ResponseComparison
-from tests.data.snake_oil_data import ensembles_response
-from tests.conftest import (
-    mocked_requests_get,
-    mocked_read_csv,
-    mocked_get_info,
-    mocked_get_ensemble_url,
-    mocked_get_parameter_data_url,
-    mocked_get_response_url,
-)
 
 
-@mock.patch("ertviz.data_loader.requests.get", side_effect=mocked_requests_get)
-@mock.patch("ertviz.data_loader.pandas.read_csv", side_effect=mocked_read_csv)
-@mock.patch("ertviz.data_loader.get_info", side_effect=mocked_get_info)
-@mock.patch(
-    "ertviz.models.ensemble_model.get_ensemble_url", side_effect=mocked_get_ensemble_url
-)
-@mock.patch(
-    "ertviz.models.parameter_model.get_parameter_data_url",
-    side_effect=mocked_get_parameter_data_url,
-)
-@mock.patch(
-    "ertviz.models.response.get_response_url", side_effect=mocked_get_response_url
-)
 def test_plot_view(
-    mock_get,
-    mock_get_csv,
-    mock_get_info,
-    mock_get_ensemble_url,
-    mock_get_parameter_data_url,
-    mock_get_response_url,
+    mock_data,
     dash_duo,
-    monkeypatch,
-    mocker,
 ):
     # This test selects an ensemble from the ensemble-selector
     # then selects a response and parameter and checks that the

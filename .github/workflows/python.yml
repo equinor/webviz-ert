@@ -20,9 +20,6 @@ jobs:
       run: |
         pip install .
         pip install -r test_requirements.txt
-    - name: Prepare Selenium
-      # https://github.com/marketplace/actions/setup-chromedriver
-      uses: nanasess/setup-chromedriver@master
     - name: Test with pytest
       run: |
         pytest

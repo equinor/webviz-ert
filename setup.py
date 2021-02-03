@@ -4,12 +4,12 @@ with open("README.md", "r") as fh:
     LONG_DESCRIPTION = fh.read()
 
 TESTS_REQUIRE = [
-    "selenium~=3.141",
-    "pylint",
-    "mock",
-    "black",
     "bandit",
+    "black",
     "dash[testing]",
+    "pylint",
+    "pytest-mock",
+    "selenium~=3.141",
 ]
 
 setup(
