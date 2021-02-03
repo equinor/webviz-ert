@@ -100,3 +100,6 @@ class EnsembleModel:
         if "." in self._time_created:
             return f"{self._time_created.split('.')[0]}, {self._name}"
         return f"{self._time_created}, {self._name}"
+
+    def __repr__(self):
+        return f"{self._name}"

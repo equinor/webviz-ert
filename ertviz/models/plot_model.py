@@ -198,7 +198,7 @@ class ResponsePlotModel:
 
 class MultiHistogramPlotModel:
     def __init__(
-        self, data_df_dict, colors, hist=True, kde=True, priors={}, bin_count=None
+        self, data_df_dict, names, colors, hist=True, kde=True, priors={}, bin_count=None
     ):
         self._hist_enabled = hist
         self._kde_enabled = kde
@@ -207,6 +207,7 @@ class MultiHistogramPlotModel:
         self._colors = colors
         self._priors = priors
         self._bin_count = bin_count
+        self._names = names
 
     @property
     def data_df(self):
@@ -239,7 +240,7 @@ class MultiHistogramPlotModel:
         for name in self._data_df_dict:
             data.append(list(self._data_df_dict[name].values.flatten()))
             colors.append(self._colors[name])
-            names.append(name)
+            names.append(self._names[name])
             realization_nums.append(
                 [f"Realization {num}" for num in self._data_df_dict[name].columns]
             )

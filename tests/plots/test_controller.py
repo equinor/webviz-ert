@@ -112,6 +112,7 @@ def test_histogram_plot_representation():
 
 def test_multi_histogram_plot_representation():
     data_dict = {}
+    name_dict = {}
     colors_dict = {}
 
     ensemble_names = ["default", "update_1", "update_2"]
@@ -124,16 +125,25 @@ def test_multi_histogram_plot_representation():
         data_df = pd.DataFrame(data=data, index=range(1), columns=range(20))
         data_df.index.name = "KEY_NAME"
         data_dict[key] = data_df
+        name_dict[key] = f"{ensemble_name}"
         colors_dict[key] = color
     priors = {
         (0, "default"): (PriorModel("UNIFORM", ["STD", "MEAN"], [0, 1]), colors[0])
     }
 
-    plot = MultiHistogramPlotModel(data_dict, colors_dict, hist=True, kde=False)
+    plot = MultiHistogramPlotModel(
+        data_dict, name_dict, colors_dict, hist=True, kde=False
+    )
     assert plot.bin_count == 4
 
     plot = MultiHistogramPlotModel(
-        data_dict, colors_dict, hist=True, kde=False, priors=priors, bin_count=10
+        data_dict,
+        name_dict,
+        colors_dict,
+        hist=True,
+        kde=False,
+        priors=priors,
+        bin_count=10,
     )
     assert plot.bin_count == 10
     plot = plot.repr
@@ -143,7 +153,7 @@ def test_multi_histogram_plot_representation():
         assert plot.data[idx].histnorm == "probability density"
         assert plot.data[idx].autobinx == False
         assert plot.data[idx].marker.color == colors_dict[key]
-        assert plot.data[idx].name == key
+        assert plot.data[idx].name == ensemble_name
 
     assert plot.data[-1].name == "(0, 'default')-prior"
 

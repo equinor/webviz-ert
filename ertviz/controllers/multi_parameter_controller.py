@@ -51,6 +51,7 @@ def multi_parameter_controller(parent, app):
 
         data = {}
         colors = {}
+        names = {}
         priors = {}
         for ensemble_id, color in selected_ensembles.items():
             ensemble = load_ensemble(parent, ensemble_id)
@@ -59,12 +60,14 @@ def multi_parameter_controller(parent, app):
                 parameter_model = ensemble.parameters[parameter]
                 data[key] = parameter_model.data_df()
                 colors[key] = color["color"]
+                names[key] = repr(ensemble)
 
                 if parameter_model.priors and "prior" in hist_check_values:
-                    priors[key] = (parameter_model.priors, colors[key])
+                    priors[names[key]] = (parameter_model.priors, colors[key])
 
         parent.parameter_plot = MultiHistogramPlotModel(
             data,
+            names=names,
             colors=colors,
             hist="hist" in hist_check_values,
             kde="kde" in hist_check_values,
