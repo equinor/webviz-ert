@@ -154,10 +154,10 @@ def multi_response_controller(parent, app):
         ]
 
         fig = go.Figure()
-        for plot in response_plots:
+        for plot in filter(None, response_plots):
             for realization in plot._realization_plots:
                 fig.add_trace(realization.repr)
-        for plot in response_plots:
+        for plot in filter(None, response_plots):
             for observation in plot._observations:
                 fig.add_trace(observation.repr)
         fig.update_layout(assets.ERTSTYLE["figure"]["layout"])
