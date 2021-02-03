@@ -198,7 +198,14 @@ class ResponsePlotModel:
 
 class MultiHistogramPlotModel:
     def __init__(
-        self, data_df_dict, names, colors, hist=True, kde=True, priors={}, bin_count=None
+        self,
+        data_df_dict,
+        names,
+        colors,
+        hist=True,
+        kde=True,
+        priors={},
+        bin_count=None,
     ):
         self._hist_enabled = hist
         self._kde_enabled = kde

@@ -52,3 +52,22 @@ def plot_view_body(parent):
         html.Div(id=parent.uuid("plotting-content")),
         dcc.Store(id=parent.uuid("plotting-content-store"), storage_type="session"),
     ]
+
+
+def plot_view_menu(parent):
+    return [
+        html.Div(
+            dcc.Checklist(
+                id=parent.uuid("param-label-check"),
+                options=[
+                    {
+                        "label": "Show legend description",
+                        "value": "label",
+                    }
+                ],
+                value=["label"],
+                persistence="session",
+            ),
+            className="ert-parameter-label-checkbox",
+        ),
+    ]
