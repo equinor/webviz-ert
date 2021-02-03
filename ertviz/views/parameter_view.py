@@ -92,5 +92,6 @@ def parameter_view(parent, index=0):
                 "type": parent.uuid("graph"),
             },
             config={"responsive": True},
+            style={"height": "450px"},
         ),
     ]

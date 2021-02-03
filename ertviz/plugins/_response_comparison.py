@@ -1,7 +1,12 @@
 import dash_html_components as html
 
 from webviz_config import WebvizPluginABC
-from ertviz.views import ensemble_selector_view, plot_view_body, plot_view_header
+from ertviz.views import (
+    ensemble_selector_view,
+    plot_view_body,
+    plot_view_header,
+    plot_view_menu,
+)
 from ertviz.controllers import (
     ensemble_selector_controller,
     plot_view_controller,
@@ -30,6 +35,9 @@ class ResponseComparison(WebvizPluginABC):
                 ),
                 html.Div(
                     children=plot_view_body(parent=self),
+                ),
+                html.Div(
+                    children=plot_view_menu(parent=self),
                 ),
             ]
         )

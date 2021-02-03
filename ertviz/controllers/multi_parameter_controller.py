@@ -36,6 +36,7 @@ def multi_parameter_controller(parent, app):
                 "modified_timestamp",
             ),
             Input(parent.uuid("ensemble-selection-store"), "modified_timestamp"),
+            Input(parent.uuid("param-label-check"), "value"),
         ],
         [
             State(parent.uuid("ensemble-selection-store"), "data"),
@@ -44,7 +45,7 @@ def multi_parameter_controller(parent, app):
         ],
     )
     def update_histogram(
-        hist_check_values, _, __, selected_ensembles, parameter, bin_count
+        hist_check_values, _, __, legend, selected_ensembles, parameter, bin_count
     ):
         if not selected_ensembles:
             raise PreventUpdate
@@ -60,7 +61,7 @@ def multi_parameter_controller(parent, app):
                 parameter_model = ensemble.parameters[parameter]
                 data[key] = parameter_model.data_df()
                 colors[key] = color["color"]
-                names[key] = repr(ensemble)
+                names[key] = repr(ensemble) if "label" in legend else ""
 
                 if parameter_model.priors and "prior" in hist_check_values:
                     priors[names[key]] = (parameter_model.priors, colors[key])
