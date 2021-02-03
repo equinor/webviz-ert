@@ -4,6 +4,10 @@ import logging
 import pandas
 
 
+def _requests_get(*args, **kwargs):
+    return requests.get(*args, **kwargs)
+
+
 def get_info(project_id=None):
     from ert_shared.storage.connection import get_info
 
@@ -23,7 +27,7 @@ def get_auth(project_id=None):
 
 
 def get_csv_data(data_url, project_id=None):
-    response = requests.get(data_url, auth=get_auth(project_id), stream=True)
+    response = _requests_get(data_url, auth=get_auth(project_id), stream=True)
     response.raise_for_status()
     return pandas.read_csv(response.raw, names=["value"])
 
@@ -70,7 +74,7 @@ def get_parameter_data_url(ensemble_id, parameter_id, project_id=None):
 
 def get_schema(api_url, project_id=None):
     logging.info(f"Getting json from {api_url}...")
-    http_response = requests.get(api_url, auth=get_auth(project_id))
+    http_response = _requests_get(api_url, auth=get_auth(project_id))
     http_response.raise_for_status()
 
     logging.info(" done!")

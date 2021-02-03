@@ -1,7 +1,5 @@
 import pandas as pd
 import numpy as np
-from unittest import mock
-from tests.conftest import mocked_get_info, mocked_requests_get, mocked_get_ensemble_url
 from ertviz.controllers.multi_response_controller import (
     _get_observation_plots,
     _get_realizations_plots,
@@ -74,14 +72,7 @@ def test_realizations_statistics_plot_representation():
     np.testing.assert_equal(plots[2].repr.y, np.quantile(data, 0.9, axis=1))
 
 
-@mock.patch("ertviz.data_loader.requests.get", side_effect=mocked_requests_get)
-@mock.patch("ertviz.data_loader.get_info", side_effect=mocked_get_info)
-@mock.patch(
-    "ertviz.models.ensemble_model.get_ensemble_url", side_effect=mocked_get_ensemble_url
-)
-def test_ensemble_selector_graph_constructor(
-    mock_request, mock_get_info, mock_get_ensemble_url
-):
+def test_ensemble_selector_graph_constructor(mock_data):
     ensemble_dict = get_ensembles(project_id=None)
     ensemble_models = {
         schema["id"]: EnsembleModel(schema["id"], project_id=None)

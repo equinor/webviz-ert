@@ -1,3 +1,4 @@
+import pytest
 import pandas as pd
 from requests import HTTPError
 
@@ -14,18 +15,36 @@ def pytest_setup_options():
     return options
 
 
-def mocked_get_info(project_id):
-    return {"baseurl": "http://127.0.0.1:5000", "auth": ""}
+@pytest.fixture
+def mock_data(mocker):
+    mocker.patch(
+        "ertviz.data_loader.get_info",
+        side_effect=lambda _: {"baseurl": "http://127.0.0.1:5000", "auth": ""},
+    )
+    mocker.patch(
+        "ertviz.data_loader.get_url", side_effect=lambda _: "http://127.0.0.1:5000"
+    )
+    mocker.patch("ertviz.data_loader.get_auth", side_effect=lambda _: "")
+    mocker.patch("ertviz.data_loader.pandas.read_csv", side_effect=_pandas_read_csv)
+    mocker.patch("ertviz.data_loader._requests_get", side_effect=_requests_get)
+    mocker.patch(
+        "ertviz.models.ensemble_model.get_ensemble_url", side_effect=_ensemble_url
+    )
+    mocker.patch("ertviz.models.response.get_response_url", side_effect=_response_url)
+    mocker.patch(
+        "ertviz.models.parameter_model.get_parameter_data_url",
+        side_effect=_parameter_data_url,
+    )
 
 
-def mocked_read_csv(*args, **kwargs):
+def _pandas_read_csv(*args, **kwargs):
     data = args[0]
     if "header" in kwargs:
         return pd.DataFrame(data=list(data), columns=kwargs["header"])
     return pd.DataFrame(data=list(data), columns=["value"])
 
 
-def mocked_requests_get(*args, **kwargs):
+def _requests_get(url, **kwargs):
     class MockResponse:
         def __init__(self, data, status_code):
             self.data = data
@@ -49,28 +68,20 @@ def mocked_requests_get(*args, **kwargs):
                     f"{args[0]}"
                 )
 
-    if args[0] in ensembles_response:
-        return MockResponse(ensembles_response[args[0]], 200)
+    if url in ensembles_response:
+        return MockResponse(ensembles_response[url], 200)
     return MockResponse({}, 400)
 
 
-def mocked_get_url():
-    return "http://127.0.0.1:5000"
-
-
-def mocked_get_auth():
-    return ""
-
-
-def mocked_get_ensemble_url(ensemble_id, project_id=None):
+def _ensemble_url(ensemble_id, project_id=None):
     return f"http://127.0.0.1:5000/ensembles/{ensemble_id}"
 
 
-def mocked_get_response_url(ensemble_id, response_id, project_id=None):
+def _response_url(ensemble_id, response_id, project_id=None):
     return f"http://127.0.0.1:5000/ensembles/{ensemble_id}/responses/{response_id}"
 
 
-def mocked_get_parameter_data_url(ensemble_id, parameter_id, project_id=None):
+def _parameter_data_url(ensemble_id, parameter_id, project_id=None):
     return (
         f"http://127.0.0.1:5000/ensembles/{ensemble_id}/parameters/{parameter_id}/data"
     )
