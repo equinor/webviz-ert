@@ -17,7 +17,7 @@ from ertviz.models import (
     HistogramPlotModel,
     MultiHistogramPlotModel,
     BoxPlotModel,
-    ParallelCoordinates,
+    ParallelCoordinatesPlotModel,
 )
 import ertviz.assets as assets
 
@@ -173,7 +173,7 @@ def test_parallel_coordinates_representation():
         data_dict[key] = data_df
         colors_dict[key] = color
 
-    plot = ParallelCoordinates(data_dict, colors_dict)
+    plot = ParallelCoordinatesPlotModel(data_dict, colors_dict)
     plot = plot.repr
 
     assert len(plot.data[0].dimensions) == 5
