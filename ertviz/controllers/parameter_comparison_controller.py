@@ -2,7 +2,7 @@ from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 from ertviz.models import (
     load_ensemble,
-    ParallelCoordinates,
+    ParallelCoordinatesPlotModel,
 )
 
 
@@ -21,10 +21,8 @@ def parameter_comparison_controller(parent, app):
             State(parent.uuid("ensemble-selection-store"), "data"),
         ],
     )
-    def _update_parallel_coor(
-        timestamp_param, timestamp_ensemble, selected_parameters, selected_ensembles
-    ):
-        if None in [selected_ensembles, timestamp_param, timestamp_ensemble]:
+    def update_parallel_coor(_, __, selected_parameters, selected_ensembles):
+        if selected_ensembles is None:
             raise PreventUpdate
         selected_parameters = [] if not selected_parameters else selected_parameters
 
@@ -37,6 +35,6 @@ def parameter_comparison_controller(parent, app):
             df["ensemble_id"] = idx
             data[ens_key] = df.copy()
             colors[ens_key] = color["color"]
-        parent.parallel_plot = ParallelCoordinates(data, colors)
+        parent.parallel_plot = ParallelCoordinatesPlotModel(data, colors)
 
         return parent.parallel_plot.repr
