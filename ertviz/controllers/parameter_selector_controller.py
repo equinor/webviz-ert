@@ -1,4 +1,4 @@
-import regex
+import re
 import dash
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
@@ -10,7 +10,7 @@ from ertviz.models import (
 def _filter_match(filter, key):
     reg_exp = ".*" + ".*".join(filter.split())
     try:
-        match = bool(regex.match(reg_exp, key))
+        match = bool(re.match(reg_exp, key))
     except:
         return False
     return match
