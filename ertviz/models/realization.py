@@ -17,8 +17,13 @@ class Realization:
         # this account for not None and empty dict
         if not bool(schema):
             return None
-        misfits_ = list(schema.values())
-        df = pd.DataFrame(misfits_[0])
+
+        misfits_list = []
+        for _, misfits in schema.items():
+            for misfits_instance in misfits:
+                misfits_list.append(misfits_instance)
+
+        df = pd.DataFrame(data=misfits_list)
         df["value_sign"] = df[["value", "sign"]].apply(
             lambda row: -1.0 * math.sqrt(row[0]) if row[1] else math.sqrt(row[0]),
             axis=1,

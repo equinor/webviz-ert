@@ -198,7 +198,7 @@ def test_univariate_misfits_boxplot_representation():
         np.testing.assert_equal(0.3, plot.repr.jitter)
         np.testing.assert_equal("all", plot.repr.boxpoints)
         x_pos = int(missfits_df["x_axis"][id_plot])
-        name = f"Misfits@{x_pos}"
+        name = f"{x_pos}"
         assert name == plot.repr.name
 
 

@@ -252,9 +252,24 @@ ensembles_response = {
                 "summarized_misfits": {"FOPR": 946.263115564503},
                 "univariate_misfits": {
                     "FOPR": [
-                        {"obs_index": 0, "sign": True, "value": 1.3776484533744848},
-                        {"obs_index": 1, "sign": True, "value": 1.384794184010784},
-                        {"obs_index": 2, "sign": True, "value": 1.3966335691013885},
+                        {
+                            "obs_index": 0,
+                            "sign": True,
+                            "value": 1.3776484533744848,
+                            "obs_location": 0,
+                        },
+                        {
+                            "obs_index": 1,
+                            "sign": True,
+                            "value": 1.384794184010784,
+                            "obs_location": 1,
+                        },
+                        {
+                            "obs_index": 2,
+                            "sign": True,
+                            "value": 1.3966335691013885,
+                            "obs_location": 2,
+                        },
                     ]
                 },
             }

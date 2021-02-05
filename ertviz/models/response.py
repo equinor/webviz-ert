@@ -61,9 +61,13 @@ class Response:
             }
         if bool(data):
             misfits_df = pd.DataFrame(data=data)
-            misfits_df["x_axis"] = (
-                self.observations[0].data_df()["x_axis"].values.astype("float64")
-            )
+            misfits_df["x_axis"] = self.realizations[0].univariate_misfits_df[
+                "obs_location"
+            ]
+            if misfits_df["x_axis"].dtype == "object":
+                misfits_df["x_axis"] = pd.to_datetime(
+                    misfits_df["x_axis"], infer_datetime_format=True
+                )
             misfits_df.index.name = self.name
             return misfits_df
         return None
