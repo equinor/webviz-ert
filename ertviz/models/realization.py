@@ -9,9 +9,6 @@ class Realization:
         self._univariate_misfits_df = self._extract_univariate_misfits(
             realization_schema.get("univariate_misfits")
         )
-        self._summarized_missfits_value = self._extract_summary_misfits(
-            realization_schema.get("summarized_misfits")
-        )
 
     def _extract_univariate_misfits(self, schema):
         # this account for not None and empty dict
@@ -30,15 +27,9 @@ class Realization:
         )
         return df
 
-    def _extract_summary_misfits(self, schema):
-        if not bool(schema):
-            return None
-        misfits_ = list(schema.values())[0]
-        return misfits_
-
     @property
     def summarized_misfits_value(self):
-        return self._summarized_missfits_value
+        return self.univariate_misfits_df["value"].sum()
 
     @property
     def univariate_misfits_df(self):
