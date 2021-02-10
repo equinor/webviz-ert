@@ -8,32 +8,6 @@ import ertviz.assets as assets
 
 def multi_parameter_controller(parent, app):
     @app.callback(
-        [
-            Output(parent.uuid("parameter-selector"), "options"),
-            Output(parent.uuid("parameter-selector"), "value"),
-        ],
-        [
-            Input(parent.uuid("ensemble-selection-store"), "data"),
-            Input(parent.uuid("response-observations-check"), "value"),
-        ],
-        [State(parent.uuid("plot-selection-store"), "data")],
-    )
-    def update_parameter_options(selected_ensembles, _, prev_plot_selection):
-        prev_plot_selection = [] if not prev_plot_selection else prev_plot_selection
-        if not selected_ensembles:
-            raise PreventUpdate
-        ensemble_id, _ = selected_ensembles.popitem()
-        ensemble = load_ensemble(parent, ensemble_id)
-        options = [
-            {"label": parameter_key, "value": parameter_key}
-            for parameter_key in ensemble.parameters
-        ]
-        prev_selection = [
-            plot["name"] for plot in prev_plot_selection if plot["type"] == "parameter"
-        ]
-        return options, prev_selection
-
-    @app.callback(
         Output({"index": MATCH, "type": parent.uuid("bincount-store")}, "data"),
         [Input({"index": MATCH, "type": parent.uuid("hist-bincount")}, "value")],
         [State({"index": MATCH, "type": parent.uuid("bincount-store")}, "data")],
@@ -61,6 +35,7 @@ def multi_parameter_controller(parent, app):
                 {"index": MATCH, "type": parent.uuid("bincount-store")},
                 "modified_timestamp",
             ),
+            Input(parent.uuid("ensemble-selection-store"), "modified_timestamp"),
         ],
         [
             State(parent.uuid("ensemble-selection-store"), "data"),
@@ -69,7 +44,7 @@ def multi_parameter_controller(parent, app):
         ],
     )
     def update_histogram(
-        hist_check_values, _, selected_ensembles, parameter, bin_count
+        hist_check_values, _, __, selected_ensembles, parameter, bin_count
     ):
         if not selected_ensembles:
             raise PreventUpdate

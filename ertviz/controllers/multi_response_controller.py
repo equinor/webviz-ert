@@ -94,31 +94,6 @@ def _create_response_plot(response, plot_type, selected_realizations, color):
 
 def multi_response_controller(parent, app):
     @app.callback(
-        [
-            Output(parent.uuid("response-selector"), "options"),
-            Output(parent.uuid("response-selector"), "value"),
-        ],
-        [
-            Input(parent.uuid("ensemble-selection-store"), "data"),
-            Input(parent.uuid("response-observations-check"), "value"),
-        ],
-        [State(parent.uuid("plot-selection-store"), "data")],
-    )
-    def set_response_options(selected_ensembles, response_filters, prev_plot_selection):
-        prev_plot_selection = [] if not prev_plot_selection else prev_plot_selection
-        # Should either return a union of all possible responses or the other thing which I cant think of...
-        if not selected_ensembles:
-            raise PreventUpdate
-        ensembles = [
-            load_ensemble(parent, ensemble_id) for ensemble_id in selected_ensembles
-        ]
-        new_options = response_options(response_filters, ensembles)
-        prev_selection = [
-            plot["name"] for plot in prev_plot_selection if plot["type"] == "response"
-        ]
-        return new_options, prev_selection
-
-    @app.callback(
         Output(
             {
                 "index": MATCH,
@@ -129,13 +104,14 @@ def multi_response_controller(parent, app):
         ),
         [
             Input({"index": MATCH, "type": parent.uuid("plot-type")}, "value"),
+            Input(parent.uuid("ensemble-selection-store"), "modified_timestamp"),
         ],
         [
             State(parent.uuid("ensemble-selection-store"), "data"),
             State({"index": MATCH, "type": parent.uuid("response-id-store")}, "data"),
         ],
     )
-    def update_graph(plot_type, selected_ensembles, response):
+    def update_graph(plot_type, _, selected_ensembles, response):
         if response in [None, ""] or not selected_ensembles:
             raise PreventUpdate
 

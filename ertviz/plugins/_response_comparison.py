@@ -5,6 +5,7 @@ from ertviz.views import ensemble_selector_view, plot_view_body, plot_view_heade
 from ertviz.controllers import (
     ensemble_selector_controller,
     plot_view_controller,
+    parameter_selector_controller,
 )
 
 
@@ -35,4 +36,6 @@ class ResponseComparison(WebvizPluginABC):
 
     def set_callbacks(self, app):
         ensemble_selector_controller(self, app)
+        parameter_selector_controller(self, app, suffix="param")
+        parameter_selector_controller(self, app, suffix="resp", extra_input=True)
         plot_view_controller(self, app)

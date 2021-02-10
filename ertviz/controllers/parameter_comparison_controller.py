@@ -6,18 +6,20 @@ from ertviz.models import (
 )
 
 
-def parameter_comparison_controller(parent, app):
+def parameter_comparison_controller(parent, app, suffix=""):
     @app.callback(
         Output(
             {"id": parent.uuid("parallel-coor"), "type": parent.uuid("graph")},
             "figure",
         ),
         [
-            Input(parent.uuid("parameter-selection-store"), "modified_timestamp"),
+            Input(
+                parent.uuid("parameter-selection-store-" + suffix), "modified_timestamp"
+            ),
             Input(parent.uuid("ensemble-selection-store"), "modified_timestamp"),
         ],
         [
-            State(parent.uuid("parameter-selection-store"), "data"),
+            State(parent.uuid("parameter-selection-store-" + suffix), "data"),
             State(parent.uuid("ensemble-selection-store"), "data"),
         ],
     )

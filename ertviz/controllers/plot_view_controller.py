@@ -3,8 +3,7 @@ from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 from ertviz.views import response_view, parameter_view
-from .multi_parameter_controller import multi_parameter_controller
-from .multi_response_controller import multi_response_controller
+from ertviz.controllers import multi_response_controller, multi_parameter_controller
 
 
 def _get_child(response, children):
@@ -15,18 +14,22 @@ def _get_child(response, children):
 
 
 def plot_view_controller(parent, app):
-    multi_parameter_controller(parent, app)
     multi_response_controller(parent, app)
+    multi_parameter_controller(parent, app)
 
     @app.callback(
         Output(parent.uuid("plot-selection-store"), "data"),
         [
-            Input(parent.uuid("parameter-selector"), "value"),
-            Input(parent.uuid("response-selector"), "value"),
+            Input(parent.uuid("parameter-selection-store-param"), "modified_timestamp"),
+            Input(parent.uuid("parameter-selection-store-resp"), "modified_timestamp"),
         ],
-        [State(parent.uuid("plot-selection-store"), "data")],
+        [
+            State(parent.uuid("parameter-selection-store-param"), "data"),
+            State(parent.uuid("parameter-selection-store-resp"), "data"),
+            State(parent.uuid("plot-selection-store"), "data"),
+        ],
     )
-    def update_plot_selection(parameters, responses, current_selection):
+    def update_plot_selection(_, __, parameters, responses, current_selection):
         parameters = [] if not parameters else parameters
         responses = [] if not responses else responses
         current_selection = [] if not current_selection else current_selection

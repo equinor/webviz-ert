@@ -4,44 +4,58 @@ import webviz_core_components as wcc
 import dash_bootstrap_components as dbc
 
 
-def parameter_selector_view(parent, data_type="parameter"):
+def parameter_selector_view(parent, data_type="parameter", suffix=""):
     return html.Div(
         [
             dbc.Row(
                 [
                     dbc.Col(
-                        html.Label("Search:", className="ert-label"),
+                        html.Label(
+                            "Search (Press ENTER to select all matches):",
+                            className="ert-label",
+                        ),
                         align="left",
                         width="auto",
                     ),
                     dbc.Col(
                         dcc.Input(
-                            id=parent.uuid("parameter-selector-filter"),
+                            id=parent.uuid(f"parameter-selector-filter-{suffix}"),
                             type="search",
                             placeholder="Substring...",
                             persistence="session",
                         ),
                         align="left",
                     ),
+                    dbc.Col(
+                        html.Button(
+                            id=parent.uuid(f"parameter-selector-button-{suffix}"),
+                            children=("Toggle selector visibility"),
+                        ),
+                        align="right",
+                    ),
                 ],
             ),
-            wcc.Select(
-                id=parent.uuid("parameter-selector-multi"),
-                multi=True,
-                size=10,
-                persistence="session",
-                className="ert-dropdown",
+            html.Div(
+                wcc.Select(
+                    id=parent.uuid(f"parameter-selector-multi-{suffix}"),
+                    multi=True,
+                    size=10,
+                    persistence="session",
+                ),
+                id=parent.uuid(f"container-parameter-selector-multi-{suffix}"),
+                className="ert-parameter-selector-container-show",
             ),
             dcc.Dropdown(
-                id=parent.uuid("parameter-deactivator"),
+                id=parent.uuid(f"parameter-deactivator-{suffix}"),
                 multi=True,
                 persistence="session",
             ),
             dcc.Store(
-                id=parent.uuid("parameter-selection-store"), storage_type="session"
+                id=parent.uuid(f"parameter-selection-store-{suffix}"),
+                storage_type="session",
             ),
             dcc.Store(
-                id=parent.uuid("parameter-type-store"),
+                id=parent.uuid(f"parameter-type-store-{suffix}"),
                 storage_type="session",
                 data=data_type,
             ),
