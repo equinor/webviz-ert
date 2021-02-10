@@ -27,6 +27,7 @@ setup(
             "ResponseComparison = ertviz.plugins:ResponseComparison",
             "ObservationAnalyzer = ertviz.plugins:ObservationAnalyzer",
             "ParameterComparison = ertviz.plugins:ParameterComparison",
+            "ResponseCorrelation = ertviz.plugins:ResponseCorrelation",
         ],
         "ert": [
             "ertviz = ertviz.ert_hooks",

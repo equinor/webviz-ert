@@ -124,6 +124,49 @@ class BoxPlotModel:
             return self._name
 
 
+class BarChartPlotModel:
+    def __init__(self, data_df_dict, colors):
+        self._data_df_dict = data_df_dict
+        self._colors = colors
+        self.selection = []
+
+    @property
+    def plot_ids(self):
+        return {plot_idx: ens_name for plot_idx, ens_name in enumerate(self.data)}
+
+    @property
+    def data(self):
+        return self._data_df_dict
+
+    @property
+    def repr(self):
+        fig = go.Figure()
+        for ens_name in self.data:
+            fig.add_trace(
+                go.Bar(
+                    x=self.data[ens_name].values,
+                    y=self.data[ens_name].index,
+                    orientation="h",
+                    name=ens_name,
+                    marker=dict(
+                        color=self._colors[ens_name],
+                    ),
+                ),
+            )
+        _layout = assets.ERTSTYLE["figure"]["layout"].copy()
+        _layout.update(
+            {
+                "showlegend": False,
+                "yaxis": {
+                    "showticklabels": True,
+                },
+                "font": {"size": 10},
+            }
+        )
+        fig.update_layout(_layout)
+        return fig
+
+
 class PlotModel:
     def __init__(self, **kwargs):
         self._x_axis = kwargs["x_axis"]

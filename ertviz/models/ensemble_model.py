@@ -102,4 +102,4 @@ class EnsembleModel:
         return f"{self._time_created}, {self._name}"
 
     def __repr__(self):
-        return f"{self._name}"
+        return f"{self.id}, {self._name}"

@@ -8,9 +8,11 @@ from ertviz.controllers.controller_functions import response_options
 import ertviz.assets as assets
 
 
-def _get_realizations_plots(realizations_df, x_axis, color):
-    style = assets.ERTSTYLE["response-plot"]["response"].copy()
+def _get_realizations_plots(realizations_df, x_axis, color, style=None):
+    if not style:
+        style = assets.ERTSTYLE["response-plot"]["response"].copy()
     style.update({"line": {"color": color}})
+    style.update({"marker": {"color": color}})
     realizations_data = list()
     for realization in realizations_df:
         plot = PlotModel(
@@ -67,7 +69,9 @@ def _get_observation_plots(observation_df, x_axis):
     return [observation_data]
 
 
-def _create_response_plot(response, plot_type, selected_realizations, color):
+def _create_response_plot(
+    response, plot_type, selected_realizations, color, style=None
+):
 
     x_axis = response.axis
     if plot_type == "Statistics":
@@ -76,7 +80,7 @@ def _create_response_plot(response, plot_type, selected_realizations, color):
         )
     else:
         realizations = _get_realizations_plots(
-            response.data_df(selected_realizations), x_axis, color=color
+            response.data_df(selected_realizations), x_axis, color=color, style=style
         )
     observations = []
 

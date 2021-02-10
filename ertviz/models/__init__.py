@@ -35,6 +35,7 @@ from .plot_model import (
     MultiHistogramPlotModel,
     BoxPlotModel,
     ParallelCoordinatesPlotModel,
+    BarChartPlotModel,
 )
 from .parameter_model import PriorModel, ParametersModel
 from .ensemble_model import EnsembleModel
