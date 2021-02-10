@@ -4,7 +4,7 @@ import webviz_core_components as wcc
 import dash_bootstrap_components as dbc
 
 
-def parameter_selector_view(parent):
+def parameter_selector_view(parent, data_type="parameter"):
     return html.Div(
         [
             dbc.Row(
@@ -39,6 +39,11 @@ def parameter_selector_view(parent):
             ),
             dcc.Store(
                 id=parent.uuid("parameter-selection-store"), storage_type="session"
+            ),
+            dcc.Store(
+                id=parent.uuid("parameter-type-store"),
+                storage_type="session",
+                data=data_type,
             ),
         ],
     )
