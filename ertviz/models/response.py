@@ -1,49 +1,45 @@
+from datetime import datetime
+from typing import List, Optional, Union
 import pandas as pd
-from ertviz.data_loader import get_schema, get_response_url
-from ertviz.models import Realization, Observation, indexes_to_axis
+from ertviz.data_loader import DataLoader
+from ertviz.models import Realization, Observation
+from pydantic import BaseModel
 
 
-class Response:
-    def __init__(self, name, response_id, ensemble_id):
-        self._schema = None  # get_schema(api_url=ref_url)
-        self._id = response_id
-        self._ensemble_id = ensemble_id
-        self.name = name
-        self._axis = None
-        self._data = None
-        self._realizations = None
-        self._observations = None
+class Indices(BaseModel):
+    data: Union[List[float], List[datetime]]
 
-    def _update_schema(self):
-        if not self._schema:
-            self._schema = get_schema(
-                api_url=get_response_url(
-                    ensemble_id=self._ensemble_id, response_id=self._id
-                )
+
+class Response(BaseModel):
+    id: int
+    ensemble_id: int
+    name: str
+    axis: Indices
+
+    _data_loader: Optional[DataLoader] = None
+    _cached_data: Optional[pd.DataFrame] = None
+
+    @staticmethod
+    def from_data_loader(data_loader: DataLoader, ensemble_id: str, response_id: int) -> "Response":
+        model = Response(**data_loader.json(f"/ensembles/{ensemble_id}/responses/{response_id}"))
+        model._data_loader = data_loader
+        return model
+
+    @property
+    def data_loader(self) -> DataLoader:
+        if self._data_loader is None:
+            raise ValueError(
+                "No DataLoader provided: instantiate Response using from_data_loader"
             )
+        return self._data_loader
 
     @property
-    def ensemble_id(self):
-        return self._ensemble_id
-
-    @property
-    def axis(self):
-        if self._axis is None:
-            self._update_schema()
-            indexes = self._schema["axis"]["data"]
-            self._axis = indexes_to_axis(indexes)
-        return self._axis
-
-    @property
-    def data(self):
-        self._update_schema()
-        self._data_url = self._schema["alldata_url"]
-        if self._data is None and self._realizations is not None:
-            self._data = pd.read_csv(self._data_url, header=None).T
-            self._data.columns = [
-                realization.name for realization in self._realizations
-            ]
-        return self._data
+    def data(self) -> pd.DataFrame:
+        if self._cached_data is None:
+            path = f"/ensembles/{self.ensemble_id}/responses/{self.id}/data"
+            self._cached_data = self.data_loader.csv(path).T
+            self._cached_data.columns = [real.name for real in self.realizations]
+        return self._cached_data
 
     def univariate_misfits_df(self, selection=None):
         if selection is not None:
@@ -118,17 +114,3 @@ class Response:
                     Realization(realization_schema=realization_schema)
                 )
         return self._realizations
-
-    @property
-    def observations(self):
-        self._update_schema()
-        if "observations" not in self._schema:
-            return []
-        _observations_schema = self._schema["observations"]
-        if self._observations is None and _observations_schema is not None:
-            self._observations = []
-            for observation_schema in _observations_schema:
-                self._observations.append(
-                    Observation(observation_schema=observation_schema)
-                )
-        return self._observations

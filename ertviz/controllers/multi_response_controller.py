@@ -3,7 +3,7 @@ import plotly.graph_objects as go
 from copy import deepcopy
 from dash.dependencies import Input, Output, State, ALL, MATCH
 from dash.exceptions import PreventUpdate
-from ertviz.models import ResponsePlotModel, PlotModel, EnsembleModel, load_ensemble
+from ertviz.models import ResponsePlotModel, PlotModel, load_ensemble
 from ertviz.controllers.controller_functions import response_options
 import ertviz.assets as assets
 

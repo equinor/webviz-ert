@@ -4,7 +4,7 @@ from ertviz.plugins._parameter_comparison import ParameterComparison
 
 
 def test_parameter_selector(
-    mock_data,
+    data_loader,
     dash_duo,
 ):
     app = dash.Dash(__name__)

@@ -2,7 +2,7 @@ import dash
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State, MATCH
 import plotly.graph_objects as go
-from ertviz.models import EnsembleModel, MultiHistogramPlotModel, load_ensemble
+from ertviz.models import MultiHistogramPlotModel, load_ensemble
 import ertviz.assets as assets
 
 

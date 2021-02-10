@@ -1,81 +1,45 @@
 import os
 import requests
 import logging
-import pandas
+
+from pathlib import Path
+from typing import Any, Union
+import pandas as pd
+
+from ert_shared.storage.connection import get_info
+from ert_shared.storage import paths
 
 
-def _requests_get(*args, **kwargs):
-    return requests.get(*args, **kwargs)
+DATA_LOADERS = {}
 
 
-def get_info(project_id=None):
-    from ert_shared.storage.connection import get_info
+class DataLoader:
+    def __init__(self, project: Union[Path, str]) -> None:
+        sys.exit(1)
+        self._cache = {}
 
-    return get_info(project_id)
+        conn_info = get_info(project)
+        self._baseurl = conn_info["baseurl"]
+        self._auth = conn_info["auth"]
 
+    def get(self, path: str, **kwargs) -> requests.Response:
+        resp = requests.get(f"{self._baseurl}/{path}", auth=self._auth, **kwargs)
+        resp.raise_for_status()
+        return resp
 
-os.environ["NO_PROXY"] = "localhost,127.0.0.1"
-data_cache = {}
+    def csv(self, path: str) -> pd.DataFrame:
+        resp = self.get(path, stream=True)
+        return pd.read_csv(resp.raw, names=["value"])
 
-
-def get_url(project_id=None):
-    return get_info(project_id)["baseurl"]
-
-
-def get_auth(project_id=None):
-    return get_info(project_id)["auth"]
-
-
-def get_csv_data(data_url, project_id=None):
-    response = _requests_get(data_url, auth=get_auth(project_id), stream=True)
-    response.raise_for_status()
-    return pandas.read_csv(response.raw, names=["value"])
+    def json(self, path: str) -> Any:
+        return self.get(path).json()
 
 
-def get_ensembles(project_id=None):
-    server_url = get_url(project_id)
-    data_cache["ensembles"] = get_schema(f"{server_url}/ensembles", project_id)[
-        "ensembles"
-    ]
-    return data_cache["ensembles"]
-
-
-def get_ensemble_url(ensemble_id, project_id=None):
-    from ert_shared.storage.paths import ensemble
-
-    server_url = get_url(project_id)
-    ensemble_url = ensemble(ensemble_id)
-    return f"{server_url}{ensemble_url}"
-
-
-def get_response_url(ensemble_id, response_id, project_id=None):
-    from ert_shared.storage.paths import response
-
-    server_url = get_url(project_id)
-    response_url = response(ensemble_id, response_id)
-    return f"{server_url}{response_url}"
-
-
-def get_parameter_url(ensemble_id, parameter_id, project_id=None):
-    from ert_shared.storage.paths import parameter
-
-    server_url = get_url(project_id)
-    parameter_url = parameter(ensemble_id, parameter_id)
-    return f"{server_url}{parameter_url}"
-
-
-def get_parameter_data_url(ensemble_id, parameter_id, project_id=None):
-    from ert_shared.storage.paths import parameter_data
-
-    server_url = get_url(project_id)
-    parameter_url = parameter_data(ensemble_id, parameter_id)
-    return f"{server_url}{parameter_url}"
-
-
-def get_schema(api_url, project_id=None):
-    logging.info(f"Getting json from {api_url}...")
-    http_response = _requests_get(api_url, auth=get_auth(project_id))
-    http_response.raise_for_status()
-
-    logging.info(" done!")
-    return http_response.json()
+def data_loader(project: str) -> DataLoader:
+    """
+    Cached DataLoader
+    """
+    if project in DATA_LOADERS:
+        return DATA_LOADERS[project]
+    DATA_LOADERS[project] = DataLoader(project)
+    return DATA_LOADERS[project]

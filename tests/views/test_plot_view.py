@@ -4,7 +4,7 @@ from ertviz.plugins._response_comparison import ResponseComparison
 
 
 def test_plot_view(
-    mock_data,
+    data_loader,
     dash_duo,
 ):
     # This test selects an ensemble from the ensemble-selector

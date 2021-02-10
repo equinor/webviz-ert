@@ -15,26 +15,16 @@ def pytest_setup_options():
     return options
 
 
+class MockDataLoader():
+    def json(self, path: str) -> pd.DataFrame:
+        return ensembles_response[path]
+
+
 @pytest.fixture
-def mock_data(mocker):
-    mocker.patch(
-        "ertviz.data_loader.get_info",
-        side_effect=lambda _: {"baseurl": "http://127.0.0.1:5000", "auth": ""},
-    )
-    mocker.patch(
-        "ertviz.data_loader.get_url", side_effect=lambda _: "http://127.0.0.1:5000"
-    )
-    mocker.patch("ertviz.data_loader.get_auth", side_effect=lambda _: "")
-    mocker.patch("ertviz.data_loader.pandas.read_csv", side_effect=_pandas_read_csv)
-    mocker.patch("ertviz.data_loader._requests_get", side_effect=_requests_get)
-    mocker.patch(
-        "ertviz.models.ensemble_model.get_ensemble_url", side_effect=_ensemble_url
-    )
-    mocker.patch("ertviz.models.response.get_response_url", side_effect=_response_url)
-    mocker.patch(
-        "ertviz.models.parameter_model.get_parameter_data_url",
-        side_effect=_parameter_data_url,
-    )
+def data_loader(mocker):
+    dl = MockDataLoader()
+    mocker.patch("ertviz.data_loader.data_loader", side_effect=lambda _: dl)
+    return dl
 
 
 def _pandas_read_csv(*args, **kwargs):
@@ -71,10 +61,6 @@ def _requests_get(url, **kwargs):
     if url in ensembles_response:
         return MockResponse(ensembles_response[url], 200)
     return MockResponse({}, 400)
-
-
-def _ensemble_url(ensemble_id, project_id=None):
-    return f"http://127.0.0.1:5000/ensembles/{ensemble_id}"
 
 
 def _response_url(ensemble_id, response_id, project_id=None):

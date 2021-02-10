@@ -4,7 +4,7 @@ from ertviz.plugins._ensemble_overview import EnsembleOverview
 
 
 def test_ensemble_overview(
-    mock_data,
+    data_loader,
     dash_duo,
 ):
     app = dash.Dash(__name__)

@@ -9,13 +9,15 @@ from ertviz.controllers.observation_response_controller import (
     _get_univariate_misfits_boxplots,
 )
 from ertviz.controllers.ensemble_selector_controller import _construct_graph
-from ertviz.data_loader import get_ensembles
-from ertviz.models import EnsembleModel, PriorModel
+from ertviz.data_loader import data_loader
 from ertviz.models import (
+    Ensemble,
+    PriorModel,
     HistogramPlotModel,
     MultiHistogramPlotModel,
     BoxPlotModel,
     ParallelCoordinatesPlotModel,
+    list_ensembles,
 )
 import ertviz.assets as assets
 
@@ -72,10 +74,10 @@ def test_realizations_statistics_plot_representation():
     np.testing.assert_equal(plots[2].repr.y, np.quantile(data, 0.9, axis=1))
 
 
-def test_ensemble_selector_graph_constructor(mock_data):
-    ensemble_dict = get_ensembles(project_id=None)
+def test_ensemble_selector_graph_constructor(data_loader):
+    ensemble_dict = list_ensembles()
     ensemble_models = {
-        schema["id"]: EnsembleModel(schema["id"], project_id=None)
+        schema["id"]: Ensemble.from_data_loader(data_loader, schema["id"], project_id=None)
         for schema in ensemble_dict
     }
     graph_data = _construct_graph(ensemble_models)

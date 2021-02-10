@@ -1,9 +1,8 @@
-from ertviz.models import EnsembleModel
-from ertviz.data_loader import get_url
+from ertviz.models import Ensemble
 
 
-def test_ensemble_model(mock_data):
-    ens_model = EnsembleModel(ensemble_id=1, project_id=None)
+def test_ensemble_model(data_loader):
+    ens_model = Ensemble.from_data_loader(data_loader, ensemble_id=1)
     assert len(ens_model.children) == 1
     assert ens_model.children[0]._name == "default_smoother_update"
     assert ens_model._name == "default"

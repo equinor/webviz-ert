@@ -1,30 +1,29 @@
+from datetime import datetime
+from typing import List, Union
 import pandas as pd
-from ertviz.models import indexes_to_axis
+from pydantic import BaseModel
 
 
-class Observation:
-    def __init__(self, observation_schema):
-        self.name = str(observation_schema["name"])
-        self._data_indexes = []
-        self._key_indexes = []
-        self._std = []
-        self._values = []
-        if "data" in observation_schema:
-            data = observation_schema["data"]
-            self.data_indexes = data["data_indexes"]["data"]
-            self.key_indexes = data["key_indexes"]["data"]
-            self.std = data["std"]["data"]
-            self.values = data["values"]["data"]
+class Indices(BaseModel):
+    data: Union[List[int], List[datetime]]
 
-    def data_df(self):
+
+class Data(BaseModel):
+    data: List[float]
+
+
+class Observation(BaseModel):
+    name: str
+    data_indexes: Indices
+    key_indexes: Indices
+    std: Data
+    values: Data
+
+    def data_df(self) -> pd.DataFrame:
         return pd.DataFrame(
             data={
                 "values": self.values,
                 "std": self.std,
-                "x_axis": indexes_to_axis(self.key_indexes),
+                "x_axis": self.key_indexes,
             }
         )
-
-    @property
-    def data_indexes_as_axis(self):
-        return indexes_to_axis(self.data_indexes)

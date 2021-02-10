@@ -6,7 +6,6 @@ from ertviz.controllers.controller_functions import response_options
 from ertviz.models import (
     ResponsePlotModel,
     BoxPlotModel,
-    EnsembleModel,
     MultiHistogramPlotModel,
     load_ensemble,
 )

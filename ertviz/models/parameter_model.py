@@ -1,9 +1,6 @@
-from ertviz.data_loader import (
-    get_schema,
-    get_csv_data,
-    get_parameter_url,
-    get_parameter_data_url,
-)
+from ert_shared.storage import paths
+
+from ertviz.data_loader import DataLoader
 
 
 class PriorModel:
@@ -15,8 +12,8 @@ class PriorModel:
 
 
 class ParametersModel:
-    def __init__(self, **kwargs):
-        self._project_id = kwargs["project_id"]
+    def __init__(self, data_loader: DataLoader, **kwargs):
+        self.data_loader = data_loader
         self.group = kwargs["group"]
         self.key = kwargs["key"]
         self.priors = kwargs["prior"]
@@ -27,11 +24,10 @@ class ParametersModel:
 
     def data_df(self):
         if self._data_df is None:
-            self._data_df = get_csv_data(
-                get_parameter_data_url(
+            self._data_df = self.data_loader.csv(
+                paths.parameter_data(
                     ensemble_id=self._ensemble_id, parameter_id=self._id
-                ),
-                project_id=self._project_id,
+                )
             ).T
             self._data_df.index.name = self.key
         return self._data_df
