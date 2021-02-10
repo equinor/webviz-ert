@@ -17,3 +17,7 @@ pages:
  - title: Parameter Comparison Viewer
    content:
     - ParameterComparison:
+
+ - title: Response Correlation Viewer
+   content:
+    - ResponseCorrelation:
