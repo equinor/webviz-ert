@@ -1,8 +1,13 @@
 def _valid_response_option(response_filters, response):
     if "obs" in response_filters:
-        return response.observations
-    else:
-        return True
+        if response.observations is None or len(response.observations) == 0:
+            return False
+
+    if "historical" in response_filters:
+        if response.name.split(":")[0][-1] == "H":
+            return False
+
+    return True
 
 
 def response_options(response_filters, ensembles):
