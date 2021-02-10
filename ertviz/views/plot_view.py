@@ -22,6 +22,11 @@ def plot_view_header(parent):
                                     "label": "Show only responses with observations",
                                     "value": "obs",
                                 },
+                                {
+                                    "label": "Remove all key-names ending with 'H' ( "
+                                    "probably historical vectors )",
+                                    "value": "historical",
+                                },
                             ],
                             value=[],
                         ),
