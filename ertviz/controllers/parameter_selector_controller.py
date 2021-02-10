@@ -27,8 +27,11 @@ def parameter_selector_controller(parent, app):
             Input(parent.uuid("parameter-selector-filter"), "value"),
             Input(parent.uuid("parameter-deactivator"), "value"),
         ],
+        [State(parent.uuid("parameter-type-store"), "data")],
     )
-    def update_parameters_options(selected_ensembles, filter_search, selected):
+    def update_parameters_options(
+        selected_ensembles, filter_search, selected, store_type
+    ):
         if not selected_ensembles:
             raise PreventUpdate
         selected = [] if not selected else selected
@@ -36,11 +39,15 @@ def parameter_selector_controller(parent, app):
         params_included = None
         for ensemble_id, _ in selected_ensembles.items():
             ensemble = load_ensemble(parent, ensemble_id)
+            key_list = ensemble.responses
+            if store_type == "parameter":
+                key_list = ensemble.parameters
+
             if bool(filter_search):
                 parameters = set(
                     [
                         parameter_key
-                        for parameter_key in ensemble.parameters
+                        for parameter_key in key_list
                         if _filter_match(filter_search, parameter_key)
                         and parameter_key not in selected
                     ]
@@ -49,7 +56,7 @@ def parameter_selector_controller(parent, app):
                 parameters = set(
                     [
                         parameter_key
-                        for parameter_key in ensemble.parameters
+                        for parameter_key in key_list
                         if parameter_key not in selected
                     ]
                 )

@@ -32,7 +32,7 @@ class ParameterComparison(WebvizPluginABC):
                     id=self.uuid("parallel-coor-content"),
                     children=[
                         html.H5("Multi parameter selector:"),
-                        parameter_selector_view(parent=self),
+                        parameter_selector_view(parent=self, data_type="parameter"),
                         parallel_coordinates_view(parent=self),
                     ],
                 ),
