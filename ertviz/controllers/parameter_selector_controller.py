@@ -6,79 +6,83 @@ from ertviz.models import (
     load_ensemble,
 )
 
+from ertviz.controllers import parameter_options, response_options
+
 
 def _filter_match(filter, key):
     reg_exp = ".*" + ".*".join(filter.split())
     try:
-        match = bool(re.match(reg_exp, key))
+        match = bool(re.match(reg_exp, key, re.IGNORECASE))
     except:
         return False
     return match
 
 
-def parameter_selector_controller(parent, app):
+def parameter_selector_controller(
+    parent, app, suffix="", union_keys=True, extra_input=False
+):
+    parameter_selector_multi_id = parent.uuid(f"parameter-selector-multi-{suffix}")
+    parameter_type_store_id = parent.uuid(f"parameter-type-store-{suffix}")
+    parameter_selector_filter_id = parent.uuid(f"parameter-selector-filter-{suffix}")
+    parameter_deactivator_id = parent.uuid(f"parameter-deactivator-{suffix}")
+    parameter_selection_store_id = parent.uuid(f"parameter-selection-store-{suffix}")
+    options_inputs = [
+        Input(parent.uuid("ensemble-selection-store"), "data"),
+        Input(parameter_selector_filter_id, "value"),
+        Input(parameter_deactivator_id, "value"),
+    ]
+    if extra_input:
+        options_inputs.extend(
+            [Input(parent.uuid("response-observations-check"), "value")]
+        )
+
     @app.callback(
         [
-            Output(parent.uuid("parameter-selector-multi"), "options"),
-            Output(parent.uuid("parameter-selector-multi"), "value"),
+            Output(parameter_selector_multi_id, "options"),
+            Output(parameter_selector_multi_id, "value"),
         ],
-        [
-            Input(parent.uuid("ensemble-selection-store"), "data"),
-            Input(parent.uuid("parameter-selector-filter"), "value"),
-            Input(parent.uuid("parameter-deactivator"), "value"),
-        ],
-        [State(parent.uuid("parameter-type-store"), "data")],
+        options_inputs,
+        [State(parameter_type_store_id, "data")],
     )
-    def update_parameters_options(
-        selected_ensembles, filter_search, selected, store_type
-    ):
+    def update_parameters_options(selected_ensembles, filter_search, selected, *args):
         if not selected_ensembles:
             raise PreventUpdate
+        store_type = args[0]
+        response_filter = []
+        if extra_input:
+            store_type = args[1]
+            response_filter = args[0]
         selected = [] if not selected else selected
-
-        params_included = None
-        for ensemble_id, _ in selected_ensembles.items():
-            ensemble = load_ensemble(parent, ensemble_id)
-            key_list = ensemble.responses
-            if store_type == "parameter":
-                key_list = ensemble.parameters
-
-            if bool(filter_search):
-                parameters = set(
-                    [
-                        parameter_key
-                        for parameter_key in key_list
-                        if _filter_match(filter_search, parameter_key)
-                        and parameter_key not in selected
-                    ]
-                )
-            else:
-                parameters = set(
-                    [
-                        parameter_key
-                        for parameter_key in key_list
-                        if parameter_key not in selected
-                    ]
-                )
-            if params_included is None:
-                params_included = parameters
-            else:
-                params_included = params_included.intersection(parameters)
-        options = [
-            {"label": parameter_key, "value": parameter_key}
-            for parameter_key in params_included
+        ensembles = [
+            load_ensemble(parent, ensemble_id) for ensemble_id in selected_ensembles
         ]
+        options = None
+        if store_type == "parameter":
+            options = parameter_options(ensembles, union_keys=union_keys)
+        elif store_type == "response":
+            options = response_options(response_filter, ensembles)
+        else:
+            raise ValueError(f"Undefined parameter type {store_type}")
+
+        options = [option for option in options if option["value"] not in selected]
+        if bool(filter_search):
+            options = [
+                option
+                for option in options
+                if _filter_match(filter_search, option["value"])
+            ]
+
         return options, selected
 
     @app.callback(
-        Output(parent.uuid("parameter-selection-store"), "data"),
+        Output(parameter_selection_store_id, "data"),
         [
-            Input(parent.uuid("parameter-selector-multi"), "value"),
-            Input(parent.uuid("parameter-selector-filter"), "n_submit"),
+            Input(parameter_selector_multi_id, "value"),
+            Input(parameter_selector_filter_id, "n_submit"),
         ],
         [
-            State(parent.uuid("parameter-deactivator"), "value"),
-            State(parent.uuid("parameter-selector-multi"), "options"),
+            State(parameter_deactivator_id, "value"),
+            State(parameter_selector_multi_id, "options"),
         ],
     )
     def update_parameter_selection(parameters, _, selected_params, par_opts):
@@ -91,7 +95,7 @@ def parameter_selector_controller(parent, app):
 
         ctx = dash.callback_context
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
-        if triggered_id == parent.uuid("parameter-selector-filter"):
+        if triggered_id == parameter_selector_filter_id:
             parameters = [
                 parm["value"]
                 for parm in par_opts
@@ -100,7 +104,7 @@ def parameter_selector_controller(parent, app):
             if not bool(parameters):
                 raise PreventUpdate
             return selected_params + parameters
-        elif triggered_id == parent.uuid("parameter-selector-multi"):
+        elif triggered_id == parameter_selector_multi_id:
             parameters = [
                 parameter
                 for parameter in parameters
@@ -110,17 +114,41 @@ def parameter_selector_controller(parent, app):
 
     @app.callback(
         [
-            Output(parent.uuid("parameter-deactivator"), "options"),
-            Output(parent.uuid("parameter-deactivator"), "value"),
+            Output(parameter_deactivator_id, "options"),
+            Output(parameter_deactivator_id, "value"),
         ],
         [
-            Input(parent.uuid("parameter-selection-store"), "modified_timestamp"),
+            Input(parameter_selection_store_id, "modified_timestamp"),
         ],
         [
-            State(parent.uuid("parameter-selection-store"), "data"),
+            State(parameter_selection_store_id, "data"),
         ],
     )
     def update_parameter_selection(_, shown_parameters):
         shown_parameters = [] if shown_parameters is None else shown_parameters
         selected_opts = [{"label": param, "value": param} for param in shown_parameters]
         return selected_opts, shown_parameters
+
+    container_parameter_selector_multi_id = parent.uuid(
+        f"container-parameter-selector-multi-{suffix}"
+    )
+    parameter_selector_button_id = parent.uuid(f"parameter-selector-button-{suffix}")
+
+    @app.callback(
+        Output(container_parameter_selector_multi_id, "className"),
+        [
+            Input(parameter_selector_button_id, "n_clicks"),
+        ],
+        [
+            State(container_parameter_selector_multi_id, "className"),
+        ],
+    )
+    def toggle_selector_visibility(_, class_name):
+        ctx = dash.callback_context
+        triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+        if triggered_id == parameter_selector_button_id:
+            if class_name == "ert-parameter-selector-container-hide":
+                class_name = "ert-parameter-selector-container-show"
+            else:
+                class_name = "ert-parameter-selector-container-hide"
+        return class_name

@@ -1,6 +1,7 @@
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
+from .selector_view import parameter_selector_view
 
 
 def plot_view_header(parent):
@@ -10,10 +11,8 @@ def plot_view_header(parent):
                 dbc.Col(
                     [
                         html.Label("Responses", className="ert-label"),
-                        dcc.Dropdown(
-                            id=parent.uuid("response-selector"),
-                            className="ert-dropdown",
-                            multi=True,
+                        parameter_selector_view(
+                            parent, data_type="response", suffix="resp"
                         ),
                         dcc.Checklist(
                             id=parent.uuid("response-observations-check"),
@@ -36,10 +35,8 @@ def plot_view_header(parent):
                 dbc.Col(
                     [
                         html.Label("Parameters", className="ert-label"),
-                        dcc.Dropdown(
-                            id=parent.uuid("parameter-selector"),
-                            className="ert-dropdown",
-                            multi=True,
+                        parameter_selector_view(
+                            parent, data_type="parameter", suffix="param"
                         ),
                     ],
                     width=6,

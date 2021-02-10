@@ -37,3 +37,9 @@
     position: relative;
     width: 250px;
 }
+.ert-parameter-selector-container-hide {
+    display: none;
+}
+.ert-parameter-selector-container-show {
+    display: block;
+}

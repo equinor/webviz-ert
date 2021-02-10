@@ -32,7 +32,9 @@ class ParameterComparison(WebvizPluginABC):
                     id=self.uuid("parallel-coor-content"),
                     children=[
                         html.H5("Multi parameter selector:"),
-                        parameter_selector_view(parent=self, data_type="parameter"),
+                        parameter_selector_view(
+                            parent=self, data_type="parameter", suffix="params"
+                        ),
                         parallel_coordinates_view(parent=self),
                     ],
                 ),
@@ -41,5 +43,5 @@ class ParameterComparison(WebvizPluginABC):
 
     def set_callbacks(self, app):
         ensemble_selector_controller(self, app)
-        parameter_comparison_controller(self, app)
-        parameter_selector_controller(self, app)
+        parameter_comparison_controller(self, app, suffix="params")
+        parameter_selector_controller(self, app, suffix="params", union_keys=False)

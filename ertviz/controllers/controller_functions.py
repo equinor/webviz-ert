@@ -20,3 +20,16 @@ def response_options(response_filters, ensembles):
             ):
                 options.append({"label": response, "value": response})
     return options
+
+
+def parameter_options(ensembles, union_keys=True):
+    params_included = None
+    for ensemble in ensembles:
+        parameters = set([parameter for parameter in ensemble.parameters])
+        if params_included is None:
+            params_included = parameters
+        elif union_keys:
+            params_included = params_included.union(parameters)
+        else:
+            params_included = params_included.intersection(parameters)
+    return [{"label": parameter, "value": parameter} for parameter in params_included]
