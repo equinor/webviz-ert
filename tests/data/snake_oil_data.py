@@ -246,8 +246,7 @@ ensembles_response = {
         "observations": [
             {
                 "data": {
-                    "data_indexes": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
-                    "key_indexes": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+                    "x_axis": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
                     "std": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
                     "values": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
                 },
@@ -308,8 +307,7 @@ ensembles_response = {
         "observations": [
             {
                 "data": {
-                    "data_indexes": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
-                    "key_indexes": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+                    "x_axis": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
                     "std": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
                     "values": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
                 },
@@ -333,8 +331,7 @@ ensembles_response = {
         "observations": [
             {
                 "data": {
-                    "data_indexes": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
-                    "key_indexes": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+                    "x_axis": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
                     "std": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
                     "values": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
                 },
