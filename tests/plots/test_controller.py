@@ -16,6 +16,7 @@ from ertviz.models import (
     MultiHistogramPlotModel,
     BoxPlotModel,
     ParallelCoordinatesPlotModel,
+    BarChartPlotModel,
 )
 import ertviz.assets as assets
 
@@ -218,3 +219,35 @@ def test_boxplot_representation():
     np.testing.assert_equal(plot.y.flatten(), data)
     assert plot.boxpoints == "all"
     assert plot.name == "Boxplot@Location5"
+
+
+def test_barchart_representation():
+    data_dict = {}
+    colors_dict = {}
+
+    ensemble_names = ["default", "update_1", "update_2"]
+    colors = assets.ERTSTYLE["ensemble-selector"]["color_wheel"]
+    param_num = 5
+    for idx, (ensemble_name, color) in enumerate(
+        zip(ensemble_names, colors[: len(ensemble_names)])
+    ):
+        key = f"{idx}, {ensemble_name}"
+        data = np.random.rand(param_num)
+        data_df = pd.DataFrame(
+            data=data, index=[f"PARAM_{i}" for i in range(param_num)]
+        )
+        data_dict[key] = data_df
+        colors_dict[key] = color
+
+    plot = BarChartPlotModel(data_dict, colors_dict)
+    plot = plot.repr
+
+    for idx, ensemble_name in enumerate(ensemble_names):
+        key = f"{idx}, {ensemble_name}"
+        assert plot.data[idx].name == key
+        np.testing.assert_equal(
+            plot.data[idx].y, [f"PARAM_{i}" for i in range(param_num)]
+        )
+        assert plot.data[idx].orientation == "h"
+        assert plot.data[idx].x.shape == (param_num, 1)
+        assert plot.data[idx].marker.color == colors[idx]
