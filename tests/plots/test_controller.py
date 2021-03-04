@@ -28,6 +28,7 @@ def test_observation_plot_representation():
             "std": [0.1, 1.1, 4.1, 9.1, 16.1],
             "x_axis": [0, 2, 4, 6, 8],
             "attributes": "Key1 Value1<br>Key2 Value2<br>",
+            "active": [True, False, True, False, False],
         }
     )
     x_axis = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -42,6 +43,16 @@ def test_observation_plot_representation():
     np.testing.assert_equal(plots[0].repr.y, observation_df["values"].values)
     np.testing.assert_equal(plots[0].repr.error_y.array, observation_df["std"].values)
     np.testing.assert_equal(plots[0].repr.text, observation_df["attributes"].values)
+    np.testing.assert_equal(
+        plots[0].repr.marker.color,
+        (
+            "rgb(176, 28, 52)",
+            "rgb(0, 0, 0)",
+            "rgb(176, 28, 52)",
+            "rgb(0, 0, 0)",
+            "rgb(0, 0, 0)",
+        ),
+    )
 
 
 def test_realizations_plot_representation():
