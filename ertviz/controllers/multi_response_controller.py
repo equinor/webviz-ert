@@ -50,6 +50,11 @@ def _get_observation_plots(observation_df, x_axis):
     stds = observation_df["std"]
     x_axis = observation_df["x_axis"]
     attributes = observation_df["attributes"]
+    active_mask = observation_df["active"]
+
+    style = assets.ERTSTYLE["response-plot"]["observation"]
+    color = [style["color"] if active else "rgb(0, 0, 0)" for active in active_mask]
+    style["marker"]["color"] = color
 
     observation_data = PlotModel(
         x_axis=x_axis,
@@ -61,9 +66,8 @@ def _get_observation_plots(observation_df, x_axis):
             array=stds.values,
             visible=True,
         ),
-        **assets.ERTSTYLE["response-plot"]["observation"],
+        **style,
     )
-
     return [observation_data]
 
 

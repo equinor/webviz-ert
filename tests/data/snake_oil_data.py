@@ -249,6 +249,20 @@ ensembles_response = {
                     "x_axis": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
                     "std": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
                     "values": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+                    "active": {
+                        "data": [
+                            True,
+                            True,
+                            False,
+                            False,
+                            True,
+                            True,
+                            True,
+                            True,
+                            True,
+                            False,
+                        ]
+                    },
                 },
                 "name": "FOPR",
             }
@@ -310,6 +324,20 @@ ensembles_response = {
                     "x_axis": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
                     "std": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
                     "values": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+                    "active": {
+                        "data": [
+                            True,
+                            True,
+                            False,
+                            False,
+                            True,
+                            True,
+                            True,
+                            True,
+                            True,
+                            False,
+                        ]
+                    },
                 },
                 "name": "WOPR:OP1",
             }
@@ -334,6 +362,20 @@ ensembles_response = {
                     "x_axis": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
                     "std": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
                     "values": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+                    "active": {
+                        "data": [
+                            True,
+                            True,
+                            False,
+                            False,
+                            True,
+                            True,
+                            True,
+                            True,
+                            True,
+                            False,
+                        ]
+                    },
                 },
                 "name": "FOPR",
             }
