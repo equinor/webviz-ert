@@ -18,7 +18,7 @@ def _get_realizations_plots(realizations_df, x_axis, color):
             y_axis=realizations_df[realization].values,
             text=realization,
             name=realization,
-            **style
+            **style,
         )
         realizations_data.append(plot)
     return realizations_data
@@ -49,19 +49,21 @@ def _get_observation_plots(observation_df, x_axis):
     data = observation_df["values"]
     stds = observation_df["std"]
     x_axis = observation_df["x_axis"]
+    attributes = observation_df["attributes"]
 
     observation_data = PlotModel(
         x_axis=x_axis,
         y_axis=data,
-        text="Observations",
-        name="Observations",
+        text=attributes,
+        name="Observation",
         error_y=dict(
             type="data",  # value of error bar given in data coordinates
             array=stds.values,
             visible=True,
         ),
-        **assets.ERTSTYLE["response-plot"]["observation"]
+        **assets.ERTSTYLE["response-plot"]["observation"],
     )
+
     return [observation_data]
 
 
