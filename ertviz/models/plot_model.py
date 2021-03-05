@@ -141,8 +141,8 @@ class PlotModel:
         repr_dict = dict(
             x=self._x_axis,
             y=self._y_axis,
-            text=self.display_name,
             name=self.display_name,
+            text=self._text,
             mode=self._mode,
             error_y=self._error_y,
         )
