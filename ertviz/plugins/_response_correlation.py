@@ -22,6 +22,57 @@ class ResponseCorrelation(WebvizPluginABC):
         self.set_callbacks(app)
 
     @property
+    def tour_steps(self):
+        steps = [
+            {
+                "id": self.uuid("correlation-metric"),
+                "content": (
+                    "Which metric to use, all views are automatically updated. "
+                ),
+            },
+            {
+                "id": self.uuid("response-overview"),
+                "content": (
+                    "Visualization of the currently selected response "
+                    "where by clicking we can select a new index / timestep for correlation analysis."
+                ),
+            },
+            {
+                "id": self.uuid("response-scatterplot"),
+                "content": (
+                    "Scatterplot visualization of function values between currently selected "
+                    "response and currently selected parameter. "
+                    "It is accompanied by distribution plots for both selections. "
+                ),
+            },
+            {
+                "id": self.uuid("response-heatmap"),
+                "content": (
+                    "Heatmap based representation of correlation (-1, 1) among all selected responses "
+                    "and parameters, for currently active ensembles in column-wise fashion."
+                    "One can select a currently active response and parameter "
+                    "by clicking directly on a heatmap. "
+                ),
+            },
+            {
+                "id": self.uuid("response-correlation"),
+                "content": (
+                    "Correlation BarChart for the single selected response (from heatmap) "
+                    "and parameters in a descending order. "
+                ),
+            },
+            {
+                "id": self.uuid("response-info-text"),
+                "content": (
+                    "All reponses with selected their x_index / timestep; "
+                    "the currently active response and parameter are made bold. "
+                ),
+            },
+        ]
+
+        return steps
+
+    @property
     def layout(self):
         return html.Div(
             [

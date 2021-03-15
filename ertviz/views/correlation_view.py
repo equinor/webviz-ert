@@ -4,6 +4,7 @@ import dash_core_components as dcc
 
 def correlation_view(parent, id_view):
     return html.Div(
+        id=id_view,
         className="ert-view-container",
         children=[
             dcc.Graph(
