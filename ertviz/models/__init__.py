@@ -1,20 +1,27 @@
+from typing import List, Union, Optional, TYPE_CHECKING
+import datetime
 import dateutil.parser
 
 
-def _convertdate(dstring):
-    return dateutil.parser.isoparse(dstring)
-
-
-def indexes_to_axis(indexes):
+def indexes_to_axis(
+    indexes: Optional[List[Union[int, str, datetime.datetime]]]
+) -> Optional[List[Union[int, str, datetime.datetime]]]:
     try:
         if indexes and type(indexes[0]) is str:
-            return list(map(_convertdate, indexes))
+            return list(map(lambda dt: dateutil.parser.isoparse(str(dt)), indexes))
         return indexes
     except ValueError as e:
         raise ValueError("Could not parse indexes as either int or dates", e)
 
 
-def load_ensemble(parent_page, ensemble_id):
+if TYPE_CHECKING:
+    from .ensemble_model import EnsembleModel
+    from ertviz.plugins._webviz_ert import WebvizErtPluginABC
+
+
+def load_ensemble(
+    parent_page: "WebvizErtPluginABC", ensemble_id: int
+) -> "EnsembleModel":
     ensemble = parent_page.ensembles.get(
         ensemble_id,
         EnsembleModel(

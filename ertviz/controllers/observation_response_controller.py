@@ -1,18 +1,24 @@
+import dash
+import pandas as pd
+from typing import List, Dict, Union, Optional, Mapping
 import plotly.graph_objects as go
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from copy import deepcopy
 from ertviz.controllers.controller_functions import response_options
+from ertviz.plugins._webviz_ert import WebvizErtPluginABC
 from ertviz.models import (
     ResponsePlotModel,
     BoxPlotModel,
-    EnsembleModel,
+    Response,
     MultiHistogramPlotModel,
     load_ensemble,
 )
 
 
-def _get_univariate_misfits_boxplots(misfits_df, color):
+def _get_univariate_misfits_boxplots(
+    misfits_df: Optional[pd.DataFrame], color: str
+) -> List[BoxPlotModel]:
     if misfits_df is None:
         return []
 
@@ -28,7 +34,9 @@ def _get_univariate_misfits_boxplots(misfits_df, color):
     return misfits_data
 
 
-def _create_misfits_plot(response, selected_realizations, color):
+def _create_misfits_plot(
+    response: Response, selected_realizations: List[int], color: str
+) -> ResponsePlotModel:
 
     realizations = _get_univariate_misfits_boxplots(
         response.univariate_misfits_df(selected_realizations),
@@ -45,12 +53,14 @@ def _create_misfits_plot(response, selected_realizations, color):
     return ensemble_plot
 
 
-def observation_response_controller(parent, app):
+def observation_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:
     @app.callback(
         Output(parent.uuid("response-selector"), "options"),
         [Input(parent.uuid("ensemble-selection-store"), "data")],
     )
-    def set_response_options(selected_ensembles):
+    def set_response_options(
+        selected_ensembles: Optional[Mapping[int, Dict]]
+    ) -> List[Dict]:
         if not selected_ensembles:
             raise PreventUpdate
         ensembles = [
@@ -63,7 +73,9 @@ def observation_response_controller(parent, app):
         [Input(parent.uuid("response-selector"), "options")],
         [State(parent.uuid("response-selector"), "value")],
     )
-    def set_responses_value(available_options, previous_selected_response):
+    def set_responses_value(
+        available_options: List[Dict], previous_selected_response: str
+    ) -> str:
         if available_options and previous_selected_response in [
             opt["value"] for opt in available_options
         ]:
@@ -84,8 +96,13 @@ def observation_response_controller(parent, app):
         ],
         [State(parent.uuid("ensemble-selection-store"), "data")],
     )
-    def update_graph(response, yaxis_type, misfits_type, selected_ensembles):
-        if response in [None, ""] or not selected_ensembles:
+    def update_graph(
+        response: Optional[str],
+        yaxis_type: List[str],
+        misfits_type: str,
+        selected_ensembles: Optional[Mapping[int, Dict]],
+    ) -> go.Figure:
+        if not response or response == "" or not selected_ensembles:
             raise PreventUpdate
 
         if misfits_type == "Summary":
@@ -99,18 +116,19 @@ def observation_response_controller(parent, app):
                 if summary_df is not None:
                     data_dict[parent.ensembles[ensemble_id]._name] = summary_df
                 colors[parent.ensembles[ensemble_id]._name] = color["color"]
-            if bool(data_dict):
+            if data_dict:
                 plot = MultiHistogramPlotModel(
                     data_dict,
+                    names={name: name for name in data_dict},
                     colors=colors,
                     hist=True,
                     kde=False,
                 )
                 return plot.repr
 
-        def _generate_plot(ensemble_id, color):
+        def _generate_plot(ensemble_id: int, color: str) -> ResponsePlotModel:
             ensemble = load_ensemble(parent, ensemble_id)
-            plot = _create_misfits_plot(ensemble.responses[response], None, color)
+            plot = _create_misfits_plot(ensemble.responses[response], [], color)
             return plot
 
         response_plots = [
@@ -119,8 +137,8 @@ def observation_response_controller(parent, app):
         ]
 
         fig = go.Figure()
-        for plot in response_plots:
-            for trace in plot.repr.data:
+        for plt in response_plots:
+            for trace in plt.repr.data:
                 fig.add_trace(trace)
         fig.update_yaxes(type=yaxis_type)
         return fig

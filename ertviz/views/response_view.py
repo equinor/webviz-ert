@@ -1,9 +1,13 @@
+from typing import List
+from dash.development.base_component import Component
+from webviz_config import WebvizPluginABC
+
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 
 
-def response_view(parent, index=0):
+def response_view(parent: WebvizPluginABC, index: int = 0) -> List[Component]:
     return [
         dcc.Store(
             id={"index": index, "type": parent.uuid("response-id-store")}, data=index

@@ -1,10 +1,14 @@
+from typing import List
+from dash.development.base_component import Component
+from webviz_config import WebvizPluginABC
+
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 from .selector_view import parameter_selector_view
 
 
-def plot_view_header(parent):
+def plot_view_header(parent: WebvizPluginABC) -> List[Component]:
     return [
         dbc.Row(
             [
@@ -47,14 +51,14 @@ def plot_view_header(parent):
     ]
 
 
-def plot_view_body(parent):
+def plot_view_body(parent: WebvizPluginABC) -> List[Component]:
     return [
         html.Div(id=parent.uuid("plotting-content")),
         dcc.Store(id=parent.uuid("plotting-content-store"), storage_type="session"),
     ]
 
 
-def plot_view_menu(parent):
+def plot_view_menu(parent: WebvizPluginABC) -> List[Component]:
     return [
         html.Div(
             dcc.Checklist(

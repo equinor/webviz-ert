@@ -1,21 +1,26 @@
+import dash
+from webviz_config import WebvizPluginABC
+from typing import List, Union, Any, Dict, Tuple, Optional, Mapping
+from dash.development.base_component import Component
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 from ertviz.views import response_view, parameter_view
-from ertviz.controllers import multi_response_controller, multi_parameter_controller
+import ertviz.controllers
+from ertviz.plugins._webviz_ert import WebvizErtPluginABC
 
 
-def _get_child(response, children):
+def _get_child(response: str, children: List[Component]) -> Optional[Component]:
     for child in children:
         if child["props"]["children"][0]["props"]["data"] == response:
             return child
     return None
 
 
-def plot_view_controller(parent, app):
-    multi_response_controller(parent, app)
-    multi_parameter_controller(parent, app)
+def plot_view_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:
+    ertviz.controllers.multi_response_controller(parent, app)
+    ertviz.controllers.multi_parameter_controller(parent, app)
 
     @app.callback(
         Output(parent.uuid("plot-selection-store"), "data"),
@@ -29,7 +34,13 @@ def plot_view_controller(parent, app):
             State(parent.uuid("plot-selection-store"), "data"),
         ],
     )
-    def update_plot_selection(_, __, parameters, responses, current_selection):
+    def update_plot_selection(
+        _: Any,
+        __: Any,
+        parameters: Optional[List[str]],
+        responses: Optional[List[str]],
+        current_selection: Optional[List[Mapping[str, str]]],
+    ) -> List[Mapping[str, str]]:
         parameters = [] if not parameters else parameters
         responses = [] if not responses else responses
         current_selection = [] if not current_selection else current_selection
@@ -57,7 +68,9 @@ def plot_view_controller(parent, app):
         ],
         [State(parent.uuid("plotting-content-store"), "data")],
     )
-    def create_grid(plots, children):
+    def create_grid(
+        plots: List[Dict], children: Union[None, Component, List[Component]]
+    ) -> Tuple[dbc.Row, List[Component]]:
         if not plots:
             return [], []
         if children is None:

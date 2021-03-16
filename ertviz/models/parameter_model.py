@@ -1,13 +1,18 @@
+import pandas as pd
+from typing import List, Any, Optional
 from ertviz.data_loader import (
-    get_schema,
     get_csv_data,
-    get_parameter_url,
     get_parameter_data_url,
 )
 
 
 class PriorModel:
-    def __init__(self, function, function_parameter_names, function_parameter_values):
+    def __init__(
+        self,
+        function: str,
+        function_parameter_names: List[str],
+        function_parameter_values: List[str],
+    ):
 
         self.function = function
         self.function_parameter_names = function_parameter_names
@@ -15,7 +20,7 @@ class PriorModel:
 
 
 class ParametersModel:
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         self._project_id = kwargs["project_id"]
         self.group = kwargs["group"]
         self.key = kwargs["key"]
@@ -23,15 +28,18 @@ class ParametersModel:
         self._id = kwargs["param_id"]
         self._ensemble_id = kwargs["ensemble_id"]
         self._realizations = kwargs.get("realizations")
-        self._data_df = None
+        self._data_df = pd.DataFrame()
 
-    def data_df(self):
-        if self._data_df is None:
-            self._data_df = get_csv_data(
+    def data_df(self) -> pd.DataFrame:
+        if self._data_df.empty:
+            _data_df = get_csv_data(
                 get_parameter_data_url(
                     ensemble_id=self._ensemble_id, parameter_id=self._id
                 ),
                 project_id=self._project_id,
-            ).T
-            self._data_df.index.name = self.key
+            )
+            if _data_df is not None:
+                _data_df = _data_df.transpose()
+                _data_df.index.name = self.key
+                self._data_df = _data_df
         return self._data_df

@@ -1,5 +1,7 @@
 import re
 import dash
+from typing import List, Any, Tuple, Dict, Optional, Mapping
+from ertviz.plugins._webviz_ert import WebvizErtPluginABC
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 from ertviz.models import (
@@ -9,7 +11,7 @@ from ertviz.models import (
 from ertviz.controllers import parameter_options, response_options
 
 
-def _filter_match(filter, key):
+def _filter_match(filter: str, key: str) -> bool:
     reg_exp = ".*" + ".*".join(filter.split())
     try:
         match = bool(re.match(reg_exp, key, re.IGNORECASE))
@@ -19,8 +21,12 @@ def _filter_match(filter, key):
 
 
 def parameter_selector_controller(
-    parent, app, suffix="", union_keys=True, extra_input=False
-):
+    parent: WebvizErtPluginABC,
+    app: dash.Dash,
+    suffix: str = "",
+    union_keys: bool = True,
+    extra_input: bool = False,
+) -> None:
     parameter_selector_multi_id = parent.uuid(f"parameter-selector-multi-{suffix}")
     parameter_type_store_id = parent.uuid(f"parameter-type-store-{suffix}")
     parameter_selector_filter_id = parent.uuid(f"parameter-selector-filter-{suffix}")
@@ -44,7 +50,12 @@ def parameter_selector_controller(
         options_inputs,
         [State(parameter_type_store_id, "data")],
     )
-    def update_parameters_options(selected_ensembles, filter_search, selected, *args):
+    def update_parameters_options(
+        selected_ensembles: Optional[Mapping[int, Dict]],
+        filter_search: str,
+        selected: Optional[List[str]],
+        *args: List[str],
+    ) -> Tuple[List[Dict], List[str]]:
         if not selected_ensembles:
             raise PreventUpdate
         store_type = args[0]
@@ -85,13 +96,14 @@ def parameter_selector_controller(
             State(parameter_selector_multi_id, "options"),
         ],
     )
-    def update_parameter_selection(parameters, _, selected_params, par_opts):
-        selected_params = [] if selected_params is None else selected_params
-        selected_params = (
-            [selected_params] if type(selected_params) == str else selected_params
-        )
-
-        parameters = [parameters] if type(parameters) == str else parameters
+    def update_parameter_selection(
+        parameters: List[str],
+        _: int,
+        selected_params: Optional[List[str]],
+        par_opts: List[Dict],
+    ) -> Optional[List[str]]:
+        selected_params = [] if not selected_params else selected_params
+        parameters = [] if not parameters else parameters
 
         ctx = dash.callback_context
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
@@ -101,16 +113,15 @@ def parameter_selector_controller(
                 for parm in par_opts
                 if parm["value"] not in selected_params
             ]
-            if not bool(parameters):
+            if not parameters:
                 raise PreventUpdate
-            return selected_params + parameters
         elif triggered_id == parameter_selector_multi_id:
             parameters = [
                 parameter
                 for parameter in parameters
                 if parameter not in selected_params
             ]
-            return selected_params + parameters
+        return selected_params + parameters
 
     @app.callback(
         [
@@ -124,8 +135,10 @@ def parameter_selector_controller(
             State(parameter_selection_store_id, "data"),
         ],
     )
-    def update_parameter_selection(_, shown_parameters):
-        shown_parameters = [] if shown_parameters is None else shown_parameters
+    def update_parameter_options(
+        _: Any, shown_parameters: Optional[List[str]]
+    ) -> Tuple[List[Dict], List[str]]:
+        shown_parameters = [] if not shown_parameters else shown_parameters
         selected_opts = [{"label": param, "value": param} for param in shown_parameters]
         return selected_opts, shown_parameters
 
@@ -143,7 +156,7 @@ def parameter_selector_controller(
             State(container_parameter_selector_multi_id, "className"),
         ],
     )
-    def toggle_selector_visibility(_, class_name):
+    def toggle_selector_visibility(_: int, class_name: str) -> str:
         ctx = dash.callback_context
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
         if triggered_id == parameter_selector_button_id:

@@ -1,3 +1,7 @@
+import dash
+import plotly.graph_objects as go
+from typing import Any, List, Optional, Mapping, Dict
+
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 from ertviz.models import (
@@ -5,8 +9,12 @@ from ertviz.models import (
     ParallelCoordinatesPlotModel,
 )
 
+from ertviz.plugins._webviz_ert import WebvizErtPluginABC
 
-def parameter_comparison_controller(parent, app, suffix=""):
+
+def parameter_comparison_controller(
+    parent: WebvizErtPluginABC, app: dash.Dash, suffix: str = ""
+) -> None:
     @app.callback(
         Output(
             {"id": parent.uuid("parallel-coor"), "type": parent.uuid("graph")},
@@ -23,8 +31,13 @@ def parameter_comparison_controller(parent, app, suffix=""):
             State(parent.uuid("ensemble-selection-store"), "data"),
         ],
     )
-    def update_parallel_coor(_, __, selected_parameters, selected_ensembles):
-        if selected_ensembles is None:
+    def update_parallel_coor(
+        _: Any,
+        __: Any,
+        selected_parameters: Optional[List[str]],
+        selected_ensembles: Optional[Mapping[int, Dict]],
+    ) -> go.Figure:
+        if not selected_ensembles or not selected_parameters:
             raise PreventUpdate
         selected_parameters = [] if not selected_parameters else selected_parameters
 
@@ -37,6 +50,6 @@ def parameter_comparison_controller(parent, app, suffix=""):
             df["ensemble_id"] = idx
             data[ens_key] = df.copy()
             colors[ens_key] = color["color"]
-        parent.parallel_plot = ParallelCoordinatesPlotModel(data, colors)
+        parallel_plot = ParallelCoordinatesPlotModel(data, colors)
 
-        return parent.parallel_plot.repr
+        return parallel_plot.repr
