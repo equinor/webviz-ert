@@ -1,28 +1,28 @@
+import dash
+from dash.development.base_component import Component
+from typing import List, Dict
+
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
-from webviz_config import WebvizPluginABC
 from ertviz.views import (
     ensemble_selector_view,
     correlation_view,
     parameter_selector_view,
 )
-from ertviz.controllers import (
-    ensemble_selector_controller,
-    response_correlation_controller,
-    parameter_selector_controller,
-)
+
+import ertviz.models
+from ertviz.plugins._webviz_ert import WebvizErtPluginABC
+import ertviz.controllers
 
 
-class ResponseCorrelation(WebvizPluginABC):
-    def __init__(self, app, project_identifier: str):
-        super().__init__()
-        self.project_identifier = project_identifier
-        self.ensembles = {}
+class ResponseCorrelation(WebvizErtPluginABC):
+    def __init__(self, app: dash.Dash, project_identifier: str):
+        super().__init__(app, project_identifier)
         self.set_callbacks(app)
 
     @property
-    def tour_steps(self):
+    def tour_steps(self) -> List[Dict[str, str]]:
         steps = [
             {
                 "id": self.uuid("correlation-metric"),
@@ -73,7 +73,7 @@ class ResponseCorrelation(WebvizPluginABC):
         return steps
 
     @property
-    def layout(self):
+    def layout(self) -> Component:
         return html.Div(
             [
                 dcc.Store(
@@ -159,8 +159,10 @@ class ResponseCorrelation(WebvizPluginABC):
             ]
         )
 
-    def set_callbacks(self, app):
-        ensemble_selector_controller(self, app)
-        response_correlation_controller(self, app)
-        parameter_selector_controller(self, app, suffix="param", union_keys=False)
-        parameter_selector_controller(self, app, suffix="resp")
+    def set_callbacks(self, app: dash.Dash) -> None:
+        ertviz.controllers.ensemble_selector_controller(self, app)
+        ertviz.controllers.response_correlation_controller(self, app)
+        ertviz.controllers.parameter_selector_controller(
+            self, app, suffix="param", union_keys=False
+        )
+        ertviz.controllers.parameter_selector_controller(self, app, suffix="resp")

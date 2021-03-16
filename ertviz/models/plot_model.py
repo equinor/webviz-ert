@@ -1,3 +1,5 @@
+from typing import List, Any, Dict, Mapping, Optional, TYPE_CHECKING
+import numpy as np
 import math
 import pandas as pd
 import logging
@@ -6,6 +8,8 @@ import plotly.figure_factory as ff
 from scipy.stats import norm, lognorm, truncnorm, uniform, loguniform, triang
 import ertviz.assets as assets
 
+if TYPE_CHECKING:
+    from ertviz.models.parameter_model import PriorModel
 """
 Unsupported priors
 CONST
@@ -20,48 +24,52 @@ WARNING_MSG = """Plotting {prior_type} is not yet fully supported.
 Please contact us on slack channel #ert-users if this is a desired feature."""
 
 
-def _TRIANGULAR(xaxis, xmin, xmode, xmax):
+def _TRIANGULAR(
+    xaxis: List[float], xmin: float, xmode: float, xmax: float
+) -> np.ndarray:
     loc = xmin
     scale = xmax - xmin
     c = (xmode - xmin) / scale
     return triang.pdf(xaxis, c, loc, scale)
 
 
-def _TRUNC_NORMAL(xaxis, mean, std, _min, _max):
+def _TRUNC_NORMAL(
+    xaxis: List[float], mean: float, std: float, _min: float, _max: float
+) -> np.ndarray:
     logger.warning(WARNING_MSG.format(prior_type="TRUNCATED_NORMAL"))
     a = (_min - mean) / std
     b = (_max - mean) / std
     return truncnorm.pdf(xaxis, a, b, mean, std)
 
 
-def _CONST(xaxis, value):
+def _CONST(xaxis: List[float], value: float) -> List[float]:
     logger.warning(WARNING_MSG.format(prior_type="CONST"))
     return [value for x in xaxis]
 
 
-def _UNIFORM(xaxis, _min, _max):
+def _UNIFORM(xaxis: List[float], _min: float, _max: float) -> np.ndarray:
     loc = _min
     scale = _max - _min
     return uniform.pdf(xaxis, loc, scale)
 
 
-def _DUNIFORM(xaxis, _steps, _min, _max):
+def _DUNIFORM(xaxis: List[float], _min: float, _max: float) -> np.ndarray:
     logger.warning(WARNING_MSG.format(prior_type="DUNIF"))
     loc = _min
     scale = _max - _min
     return uniform.pdf(xaxis, loc, scale)
 
 
-def _RAW(xaxis):
+def _RAW(xaxis: List[float]) -> np.ndarray:
     return norm.pdf(xaxis, 0, 1)
 
 
-def _ERRF(*args):
+def _ERRF(*args: Any) -> List:
     logger.warning(WARNING_MSG.format(prior_type="ERRF"))
     return []
 
 
-def _DERRF(*args):
+def _DERRF(*args: Any) -> List:
     logger.warning(WARNING_MSG.format(prior_type="DERRF"))
     return []
 
@@ -81,7 +89,9 @@ PRIOR_FUNCTIONS = {
 }
 
 
-def _create_prior_plot(name, prior, _min, _max, color):
+def _create_prior_plot(
+    name: str, prior: "PriorModel", _min: float, _max: float, color: str
+) -> go.Scattergl:
     n = 100
     diff = (_max - _min) / n
     xaxis = [_min + i * diff for i in range(n)]
@@ -93,14 +103,14 @@ def _create_prior_plot(name, prior, _min, _max, color):
 
 
 class BoxPlotModel:
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         self.selected = True
         self._y_axis = kwargs["y_axis"]
         self._name = kwargs["name"]
         self._color = kwargs["color"]
 
     @property
-    def repr(self):
+    def repr(self) -> go.Box:
         repr_dict = dict(
             y=self._y_axis,
             name=self.display_name,
@@ -113,11 +123,11 @@ class BoxPlotModel:
         return go.Box(repr_dict)
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
     @property
-    def display_name(self):
+    def display_name(self) -> str:
         if isinstance(self._name, int):
             return f"Value {self._name}"
         else:
@@ -125,21 +135,23 @@ class BoxPlotModel:
 
 
 class BarChartPlotModel:
-    def __init__(self, data_df_dict, colors):
+    def __init__(
+        self, data_df_dict: Mapping[str, pd.DataFrame], colors: Mapping[str, str]
+    ):
         self._data_df_dict = data_df_dict
         self._colors = colors
-        self.selection = []
+        self.selection: List[int] = []
 
     @property
-    def plot_ids(self):
+    def plot_ids(self) -> Mapping[int, str]:
         return {plot_idx: ens_name for plot_idx, ens_name in enumerate(self.data)}
 
     @property
-    def data(self):
+    def data(self) -> Mapping[str, pd.DataFrame]:
         return self._data_df_dict
 
     @property
-    def repr(self):
+    def repr(self) -> go.Figure:
         fig = go.Figure()
         for ens_name in self.data:
             fig.add_trace(
@@ -168,7 +180,7 @@ class BarChartPlotModel:
 
 
 class PlotModel:
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         self._x_axis = kwargs["x_axis"]
         self._y_axis = kwargs["y_axis"]
         self._text = kwargs["text"]
@@ -180,7 +192,7 @@ class PlotModel:
         self.selected = True
 
     @property
-    def repr(self):
+    def repr(self) -> go.Scattergl:
         repr_dict = dict(
             x=self._x_axis,
             y=self._y_axis,
@@ -200,11 +212,11 @@ class PlotModel:
         return go.Scattergl(repr_dict)
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
     @property
-    def display_name(self):
+    def display_name(self) -> str:
         if isinstance(self._name, int):
             return f"Realization {self._name}"
         else:
@@ -212,14 +224,19 @@ class PlotModel:
 
 
 class ResponsePlotModel:
-    def __init__(self, realization_plots, observations, layout):
+    def __init__(
+        self,
+        realization_plots: List[Any],
+        observations: List[Any],
+        layout: Dict,
+    ):
         self._realization_plots = realization_plots
         self._observations = observations
         self._layout = layout
-        self.selection = []
+        self.selection: List[int] = []
 
     @property
-    def repr(self):
+    def repr(self) -> go.Figure:
         if self.selection:
             for real in self._realization_plots:
                 real.selected = real.name in self.selection
@@ -235,46 +252,46 @@ class ResponsePlotModel:
         return fig
 
     @property
-    def plot_ids(self):
+    def plot_ids(self) -> Mapping[int, str]:
         return {idx: rel.name for idx, rel in enumerate(self._realization_plots)}
 
 
 class MultiHistogramPlotModel:
     def __init__(
         self,
-        data_df_dict,
-        names,
-        colors,
-        hist=True,
-        kde=True,
-        priors={},
-        bin_count=None,
+        data_df_dict: Mapping[str, pd.DataFrame],
+        names: Mapping[str, str],
+        colors: Mapping[str, str],
+        hist: bool = True,
+        kde: bool = True,
+        priors: Dict = {},
+        bin_count: Optional[int] = None,
     ):
         self._hist_enabled = hist
         self._kde_enabled = kde
         self._data_df_dict = data_df_dict
-        self.selection = []
+        self.selection: List[int] = []
         self._colors = colors
         self._priors = priors
         self._bin_count = bin_count
         self._names = names
 
     @property
-    def data_df(self):
+    def data_df(self) -> Mapping[str, pd.DataFrame]:
         if self.selection:
-            return [
-                {response_name: self._data_df_dict[response_name][self.selection]}
+            return {
+                response_name: self._data_df_dict[response_name][self.selection]
                 for response_name in self._data_df_dict
-            ]
+            }
         return self._data_df_dict
 
     @property
-    def plot_ids(self):
-        df = self._data_df_dict.values()[0]
+    def plot_ids(self) -> Mapping[int, str]:
+        df = list(self._data_df_dict.values())[0]
         return {plot_idx: real.name for plot_idx, real in enumerate(df)}
 
     @property
-    def bin_count(self):
+    def bin_count(self) -> int:
         if self._bin_count is None:
             # get any dict response data_frame, so the first is a good choice
             data = list(self._data_df_dict.values())[0].values.flatten()
@@ -282,7 +299,7 @@ class MultiHistogramPlotModel:
         return self._bin_count
 
     @property
-    def repr(self):
+    def repr(self) -> go.Figure:
         colors = []
         data = []
         names = []
@@ -294,9 +311,8 @@ class MultiHistogramPlotModel:
             realization_nums.append(
                 [f"Realization {num}" for num in self._data_df_dict[name].columns]
             )
-
-        _max = max(map(max, data))
-        _min = min(map(min, data))
+        _max = float(np.hstack(data).max())
+        _min = float(np.hstack(data).min())
         bin_size = float((_max - _min) / self.bin_count)
         fig = ff.create_distplot(
             data,
@@ -318,21 +334,23 @@ class MultiHistogramPlotModel:
 
 
 class ParallelCoordinatesPlotModel:
-    def __init__(self, data_df_dict, colors):
+    def __init__(
+        self, data_df_dict: Mapping[str, pd.DataFrame], colors: Mapping[str, str]
+    ):
         self._data_df_dict = data_df_dict
         self._colors = colors
-        self.selection = []
+        self.selection: List[int] = []
 
     @property
-    def plot_ids(self):
+    def plot_ids(self) -> Mapping[int, str]:
         return {plot_idx: parameter for plot_idx, parameter in enumerate(self.data)}
 
     @property
-    def data(self):
+    def data(self) -> Mapping[str, pd.DataFrame]:
         return self._data_df_dict
 
     @property
-    def repr(self):
+    def repr(self) -> go.Figure:
         fig = go.Figure()
         # rearange colors
         colors = []
@@ -373,24 +391,24 @@ class ParallelCoordinatesPlotModel:
 
 
 class HistogramPlotModel:
-    def __init__(self, data_df, hist=True, kde=True):
+    def __init__(self, data_df: pd.DataFrame, hist: bool = True, kde: bool = True):
         self._hist_enabled = hist
         self._kde_enabled = kde
         self._data_df = data_df
-        self.selection = []
+        self.selection: List[int] = []
 
     @property
-    def data_df(self):
+    def data_df(self) -> pd.DataFrame:
         if self.selection:
             return self._data_df[self.selection]
         return self._data_df
 
     @property
-    def plot_ids(self):
+    def plot_ids(self) -> Mapping[int, str]:
         return {plot_idx: real.name for plot_idx, real in enumerate(self._data_df)}
 
     @property
-    def repr(self):
+    def repr(self) -> go.Figure:
         bin_count = int(math.ceil(math.sqrt(len(self.data_df.values.flatten()))))
         bin_size = float(
             (self.data_df.max(axis=1).values - self.data_df.min(axis=1).values)

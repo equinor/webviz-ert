@@ -1,12 +1,17 @@
+from typing import List, Dict, Mapping, Union, Optional, TYPE_CHECKING
+from ertviz.plugins._webviz_ert import WebvizErtPluginABC
 import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from ertviz.data_loader import get_ensembles
-from ertviz.models import EnsembleModel, load_ensemble
+from ertviz.models import load_ensemble
 import ertviz.assets as assets
 
+if TYPE_CHECKING:
+    from ertviz.models import EnsembleModel
 
-def _construct_graph(ensembles):
+
+def _construct_graph(ensembles: Mapping[int, "EnsembleModel"]) -> List[Dict]:
 
     queue = [
         ensemble
@@ -16,7 +21,7 @@ def _construct_graph(ensembles):
 
     datas = []
 
-    def _construct_node(ensemble):
+    def _construct_node(ensemble: "EnsembleModel") -> Dict:
         return {
             "data": {
                 "id": str(ensemble.id),
@@ -25,7 +30,9 @@ def _construct_graph(ensembles):
             },
         }
 
-    def _construct_edge(ensemble_src, ensemble_target):
+    def _construct_edge(
+        ensemble_src: "EnsembleModel", ensemble_target: "EnsembleModel"
+    ) -> Dict:
         return {
             "data": {
                 "source": str(ensemble_src.id),
@@ -36,13 +43,14 @@ def _construct_graph(ensembles):
     while queue:
         ensemble = queue.pop(-1)
         datas.append(_construct_node(ensemble))
-        for child in ensemble.children:
-            datas.append(_construct_edge(ensemble, child))
-            queue.append(child)
+        if ensemble.children:
+            for child in ensemble.children:
+                datas.append(_construct_edge(ensemble, child))
+                queue.append(child)
     return datas
 
 
-def ensemble_selector_controller(parent, app):
+def ensemble_selector_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:
     @app.callback(
         Output(parent.uuid("ensemble-selector"), "elements"),
         [
@@ -53,8 +61,12 @@ def ensemble_selector_controller(parent, app):
             State(parent.uuid("ensemble-selector"), "elements"),
         ],
     )
-    def update_ensemble_selector_graph(selected_ensembles, _, elements):
-        selected_ensembles = {} if selected_ensembles is None else selected_ensembles
+    def update_ensemble_selector_graph(
+        selected_ensembles: Optional[Mapping[int, Dict]],
+        _: int,
+        elements: Optional[List[Dict]],
+    ) -> List[Dict]:
+        selected_ensembles = {} if not selected_ensembles else selected_ensembles
         ctx = dash.callback_context
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
@@ -85,9 +97,11 @@ def ensemble_selector_controller(parent, app):
             Input(parent.uuid("ensemble-selector"), "selectedNodeData"),
         ],
     )
-    def update_ensemble_selection(selected_nodes):
+    def update_ensemble_selection(
+        selected_nodes: Optional[List[Dict]],
+    ) -> Mapping[int, Dict]:
         color_wheel = assets.ERTSTYLE["ensemble-selector"]["color_wheel"]
-        if selected_nodes is None:
+        if not selected_nodes:
             raise PreventUpdate
         data = {
             ensemble["id"]: {
@@ -115,8 +129,8 @@ def ensemble_selector_controller(parent, app):
         ],
     )
     def update_ensemble_selector_view_size(
-        _, class_name, class_name_container, maximized
-    ):
+        _: int, class_name: str, class_name_container: str, maximized: bool
+    ) -> List[Union[str, str, str, bool]]:
 
         ctx = dash.callback_context
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]

@@ -4,6 +4,7 @@ with open("README.md", "r") as fh:
     LONG_DESCRIPTION = fh.read()
 
 TESTS_REQUIRE = [
+    "mypy",
     "bandit",
     "black",
     "dash[testing]",

@@ -1,18 +1,20 @@
+from typing import List, Optional
 import pandas as pd
 import math
 
 
 class Realization:
-    def __init__(self, realization_schema):
+    def __init__(self, realization_schema: dict):
         self._name = realization_schema["name"]
         self._data = realization_schema["data"]
         self._univariate_misfits_df = self._extract_univariate_misfits(
             realization_schema.get("univariate_misfits")
         )
 
-    def _extract_univariate_misfits(self, schema):
-        # this account for not None and empty dict
-        if not bool(schema):
+    def _extract_univariate_misfits(
+        self, schema: Optional[dict]
+    ) -> Optional[pd.DataFrame]:
+        if not schema:
             return None
 
         misfits_list = []
@@ -28,17 +30,17 @@ class Realization:
         return df
 
     @property
-    def summarized_misfits_value(self):
+    def summarized_misfits_value(self) -> float:
         return self.univariate_misfits_df["value"].sum()
 
     @property
-    def univariate_misfits_df(self):
+    def univariate_misfits_df(self) -> pd.DataFrame:
         return self._univariate_misfits_df
 
     @property
-    def data(self):
+    def data(self) -> List[float]:
         return self._data
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name

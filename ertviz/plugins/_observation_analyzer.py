@@ -1,22 +1,25 @@
+import dash
+from dash.development.base_component import Component
 import dash_html_components as html
 from webviz_config import WebvizPluginABC
+from typing import Mapping
+
+# from ertviz.models import EnsembleModel, ParametersModel
+import ertviz.models
+
 from ertviz.views import ensemble_selector_view, response_obs_view
-from ertviz.controllers import (
-    ensemble_selector_controller,
-    observation_response_controller,
-)
+
+from ertviz.plugins._webviz_ert import WebvizErtPluginABC
+import ertviz.controllers
 
 
-class ObservationAnalyzer(WebvizPluginABC):
-    def __init__(self, app, project_identifier: str):
-        super().__init__()
-        self.project_identifier = project_identifier
-        self.ensembles = {}
-        self.parameter_models = {}
+class ObservationAnalyzer(WebvizErtPluginABC):
+    def __init__(self, app: dash.Dash, project_identifier: str):
+        super().__init__(app, project_identifier)
         self.set_callbacks(app)
 
     @property
-    def layout(self):
+    def layout(self) -> Component:
         return html.Div(
             [
                 html.Div(
@@ -30,6 +33,6 @@ class ObservationAnalyzer(WebvizPluginABC):
             ]
         )
 
-    def set_callbacks(self, app):
-        ensemble_selector_controller(self, app)
-        observation_response_controller(self, app)
+    def set_callbacks(self, app: dash.Dash) -> None:
+        ertviz.controllers.ensemble_selector_controller(self, app)
+        ertviz.controllers.observation_response_controller(self, app)

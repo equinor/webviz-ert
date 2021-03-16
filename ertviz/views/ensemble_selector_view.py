@@ -1,3 +1,7 @@
+from typing import List
+from dash.development.base_component import Component
+from webviz_config import WebvizPluginABC
+
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_cytoscape as cyto
@@ -7,7 +11,7 @@ import ertviz.assets as assets
 cyto.load_extra_layouts()
 
 
-def ensemble_selector_view(parent):
+def ensemble_selector_view(parent: WebvizPluginABC) -> List[Component]:
     return [
         html.Div(
             [

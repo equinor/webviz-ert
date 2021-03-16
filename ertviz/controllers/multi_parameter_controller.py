@@ -1,18 +1,19 @@
 import dash
+from typing import List, Tuple, Any, Optional, Mapping, Dict
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State, MATCH
 import plotly.graph_objects as go
-from ertviz.models import EnsembleModel, MultiHistogramPlotModel, load_ensemble
-import ertviz.assets as assets
+from ertviz.models import MultiHistogramPlotModel, load_ensemble
+from ertviz.plugins._webviz_ert import WebvizErtPluginABC
 
 
-def multi_parameter_controller(parent, app):
+def multi_parameter_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:
     @app.callback(
         Output({"index": MATCH, "type": parent.uuid("bincount-store")}, "data"),
         [Input({"index": MATCH, "type": parent.uuid("hist-bincount")}, "value")],
         [State({"index": MATCH, "type": parent.uuid("bincount-store")}, "data")],
     )
-    def update_bincount(hist_bincount, store_bincount):
+    def update_bincount(hist_bincount: int, store_bincount: int) -> int:
         if hist_bincount == store_bincount:
             raise PreventUpdate
         return hist_bincount
@@ -45,8 +46,14 @@ def multi_parameter_controller(parent, app):
         ],
     )
     def update_histogram(
-        hist_check_values, _, __, legend, selected_ensembles, parameter, bin_count
-    ):
+        hist_check_values: List[str],
+        _: Any,
+        __: Any,
+        legend: List[str],
+        selected_ensembles: Optional[Mapping[int, Dict]],
+        parameter: str,
+        bin_count: int,
+    ) -> Tuple[go.Figure, int]:
         if not selected_ensembles:
             raise PreventUpdate
 
@@ -56,7 +63,7 @@ def multi_parameter_controller(parent, app):
         priors = {}
         for ensemble_id, color in selected_ensembles.items():
             ensemble = load_ensemble(parent, ensemble_id)
-            if parameter in ensemble.parameters:
+            if ensemble.parameters and parameter in ensemble.parameters:
                 key = str(ensemble)
                 parameter_model = ensemble.parameters[parameter]
                 data[key] = parameter_model.data_df()
@@ -66,7 +73,7 @@ def multi_parameter_controller(parent, app):
                 if parameter_model.priors and "prior" in hist_check_values:
                     priors[names[key]] = (parameter_model.priors, colors[key])
 
-        parent.parameter_plot = MultiHistogramPlotModel(
+        parameter_plot = MultiHistogramPlotModel(
             data,
             names=names,
             colors=colors,
@@ -75,7 +82,7 @@ def multi_parameter_controller(parent, app):
             priors=priors,
             bin_count=bin_count,
         )
-        return parent.parameter_plot.repr, parent.parameter_plot.bin_count
+        return parameter_plot.repr, parameter_plot.bin_count
 
     @app.callback(
         Output({"index": MATCH, "type": parent.uuid("hist-check")}, "options"),
@@ -87,11 +94,17 @@ def multi_parameter_controller(parent, app):
             State(parent.uuid("ensemble-selection-store"), "data"),
         ],
     )
-    def set_parameter_from_btn(parameter, plotting_options, selected_ensembles):
+    def set_parameter_from_btn(
+        parameter: str,
+        plotting_options: List[Mapping[str, str]],
+        selected_ensembles: Optional[Mapping[int, Dict]],
+    ) -> List[Mapping[str, str]]:
+        if not selected_ensembles:
+            raise PreventUpdate
         has_priors = False
         for ensemble_id, _ in selected_ensembles.items():
             ensemble = load_ensemble(parent, ensemble_id)
-            if parameter in ensemble.parameters:
+            if ensemble.parameters and parameter in ensemble.parameters:
                 parameter_model = ensemble.parameters[parameter]
                 if parameter_model.priors:
                     has_priors = True

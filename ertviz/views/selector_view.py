@@ -1,10 +1,15 @@
+from dash.development.base_component import Component
+from webviz_config import WebvizPluginABC
+
 import dash_html_components as html
 import dash_core_components as dcc
 import webviz_core_components as wcc
 import dash_bootstrap_components as dbc
 
 
-def parameter_selector_view(parent, data_type="parameter", suffix=""):
+def parameter_selector_view(
+    parent: WebvizPluginABC, data_type: str = "parameter", suffix: str = ""
+) -> Component:
     return html.Div(
         [
             dbc.Row(

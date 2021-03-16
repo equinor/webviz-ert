@@ -1,18 +1,34 @@
 import dash
+from ertviz.plugins._webviz_ert import WebvizErtPluginABC
+import pandas as pd
+import datetime
+from typing import List, Dict, Tuple, Union, Any, Optional, Mapping
 import plotly.graph_objects as go
 from copy import deepcopy
 from dash.dependencies import Input, Output, State, ALL, MATCH
 from dash.exceptions import PreventUpdate
-from ertviz.models import ResponsePlotModel, PlotModel, EnsembleModel, load_ensemble
+from ertviz.models import (
+    ResponsePlotModel,
+    Response,
+    PlotModel,
+    load_ensemble,
+)
 from ertviz.controllers.controller_functions import response_options
 import ertviz.assets as assets
 
 
-def _get_realizations_plots(realizations_df, x_axis, color, style=None):
-    if not style:
-        style = assets.ERTSTYLE["response-plot"]["response"].copy()
-    style.update({"line": {"color": color}})
-    style.update({"marker": {"color": color}})
+def _get_realizations_plots(
+    realizations_df: pd.DataFrame,
+    x_axis: Optional[List[Union[int, str, datetime.datetime]]],
+    color: str,
+    style: Optional[Dict] = None,
+) -> List[PlotModel]:
+    if style:
+        _style = style
+    else:
+        _style = assets.ERTSTYLE["response-plot"]["response"].copy()
+    _style.update({"line": {"color": color}})
+    _style.update({"marker": {"color": color}})
     realizations_data = list()
     for realization in realizations_df:
         plot = PlotModel(
@@ -20,13 +36,17 @@ def _get_realizations_plots(realizations_df, x_axis, color, style=None):
             y_axis=realizations_df[realization].values,
             text=realization,
             name=realization,
-            **style,
+            **_style,
         )
         realizations_data.append(plot)
     return realizations_data
 
 
-def _get_realizations_statistics_plots(df_response, x_axis, color):
+def _get_realizations_statistics_plots(
+    df_response: pd.DataFrame,
+    x_axis: Optional[List[Union[int, str, datetime.datetime]]],
+    color: str,
+) -> List[PlotModel]:
     data = df_response
     p10 = data.quantile(0.1, axis=1)
     p90 = data.quantile(0.9, axis=1)
@@ -47,7 +67,7 @@ def _get_realizations_statistics_plots(df_response, x_axis, color):
     return [mean_data, lower_std_data, upper_std_data]
 
 
-def _get_observation_plots(observation_df, x_axis):
+def _get_observation_plots(observation_df: pd.DataFrame) -> PlotModel:
     data = observation_df["values"]
     stds = observation_df["std"]
     x_axis = observation_df["x_axis"]
@@ -70,12 +90,16 @@ def _get_observation_plots(observation_df, x_axis):
         ),
         **style,
     )
-    return [observation_data]
+    return observation_data
 
 
 def _create_response_plot(
-    response, plot_type, selected_realizations, color, style=None
-):
+    response: Response,
+    plot_type: str,
+    selected_realizations: List[int],
+    color: str,
+    style: Optional[Dict] = None,
+) -> ResponsePlotModel:
 
     x_axis = response.axis
     if plot_type == "Statistics":
@@ -86,10 +110,12 @@ def _create_response_plot(
         realizations = _get_realizations_plots(
             response.data_df(selected_realizations), x_axis, color=color, style=style
         )
-    observations = []
-
-    for obs in response.observations:
-        observations += _get_observation_plots(obs.data_df(), x_axis)
+    if response.observations:
+        observations = [
+            _get_observation_plots(obs.data_df()) for obs in response.observations
+        ]
+    else:
+        observations = []
 
     ensemble_plot = ResponsePlotModel(
         realizations,
@@ -102,7 +128,7 @@ def _create_response_plot(
     return ensemble_plot
 
 
-def multi_response_controller(parent, app):
+def multi_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:
     @app.callback(
         Output(
             {
@@ -121,16 +147,21 @@ def multi_response_controller(parent, app):
             State({"index": MATCH, "type": parent.uuid("response-id-store")}, "data"),
         ],
     )
-    def update_graph(plot_type, _, selected_ensembles, response):
+    def update_graph(
+        plot_type: str,
+        _: Any,
+        selected_ensembles: Optional[Mapping[int, Dict]],
+        response: Optional[str],
+    ) -> go.Figure:
         if response in [None, ""] or not selected_ensembles:
             raise PreventUpdate
 
-        def _generate_plot(ensemble_id, color):
+        def _generate_plot(ensemble_id: int, color: str) -> Optional[ResponsePlotModel]:
             ensemble = load_ensemble(parent, ensemble_id)
             if response not in ensemble.responses:
                 return None
             plot = _create_response_plot(
-                ensemble.responses[response], plot_type, None, color
+                ensemble.responses[response], plot_type, [], color
             )
             return plot
 

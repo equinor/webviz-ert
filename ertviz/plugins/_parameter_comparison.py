@@ -1,27 +1,26 @@
+import dash
+from dash.development.base_component import Component
 import dash_html_components as html
-from webviz_config import WebvizPluginABC
+
+import ertviz.models
+
 from ertviz.views import (
     ensemble_selector_view,
     parallel_coordinates_view,
     parameter_selector_view,
 )
-from ertviz.controllers import (
-    ensemble_selector_controller,
-    parameter_comparison_controller,
-    parameter_selector_controller,
-)
+
+import ertviz.controllers
+from ertviz.plugins._webviz_ert import WebvizErtPluginABC
 
 
-class ParameterComparison(WebvizPluginABC):
-    def __init__(self, app, project_identifier: str):
-        super().__init__()
-        self.project_identifier = project_identifier
-        self.ensembles = {}
-        self.parameter_models = {}
+class ParameterComparison(WebvizErtPluginABC):
+    def __init__(self, app: dash.Dash, project_identifier: str):
+        super().__init__(app, project_identifier)
         self.set_callbacks(app)
 
     @property
-    def layout(self):
+    def layout(self) -> Component:
         return html.Div(
             [
                 html.Div(
@@ -41,7 +40,9 @@ class ParameterComparison(WebvizPluginABC):
             ]
         )
 
-    def set_callbacks(self, app):
-        ensemble_selector_controller(self, app)
-        parameter_comparison_controller(self, app, suffix="params")
-        parameter_selector_controller(self, app, suffix="params", union_keys=False)
+    def set_callbacks(self, app: dash.Dash) -> None:
+        ertviz.controllers.ensemble_selector_controller(self, app)
+        ertviz.controllers.parameter_comparison_controller(self, app, suffix="params")
+        ertviz.controllers.parameter_selector_controller(
+            self, app, suffix="params", union_keys=False
+        )

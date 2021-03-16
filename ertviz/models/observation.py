@@ -1,9 +1,10 @@
+from typing import Dict
 import pandas as pd
 from ertviz.models import indexes_to_axis
 
 
 class Observation:
-    def __init__(self, observation_schema):
+    def __init__(self, observation_schema: Dict):
         self.name = str(observation_schema["name"])
         self._x_axis = []
         self._std = []
@@ -22,7 +23,7 @@ class Observation:
             for k, v in observation_schema["attributes"].items():
                 self._attributes += f"{k}: {v}<br>"
 
-    def data_df(self):
+    def data_df(self) -> pd.DataFrame:
         return pd.DataFrame(
             data={
                 "values": self._values,

@@ -1,3 +1,8 @@
+from typing import List, Optional, Dict, Mapping, Tuple, Any
+
+from dash.development.base_component import Component
+from ertviz.plugins._webviz_ert import WebvizErtPluginABC
+
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from copy import deepcopy
@@ -6,6 +11,7 @@ from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
 import dash
+
 from ertviz.models import (
     load_ensemble,
     BarChartPlotModel,
@@ -17,7 +23,7 @@ from ertviz.controllers.multi_response_controller import (
 import ertviz.assets as assets
 
 
-def response_correlation_controller(parent, app):
+def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:
     @app.callback(
         [
             Output(
@@ -47,13 +53,13 @@ def response_correlation_controller(parent, app):
         ],
     )
     def update_correlation_plot(
-        corr_xindex,
-        corr_param_resp,
-        correlation_metric,
-        parameters,
-        responses,
-        ensembles,
-    ):
+        corr_xindex: Dict,
+        corr_param_resp: Dict,
+        correlation_metric: str,
+        parameters: List[str],
+        responses: List[str],
+        ensembles: Optional[Mapping[int, Dict]],
+    ) -> Optional[Tuple[go.Figure, go.Figure]]:
         if not (
             ensembles
             and parameters
@@ -101,20 +107,16 @@ def response_correlation_controller(parent, app):
             data[ens_key].index.name = selected_response
             colors[ens_key] = color["color"]
         if data and heatmaps:
-            parent.correlation_plot = BarChartPlotModel(data, colors)
-            parent.heatmap_plot = make_subplots(
+            correlation_plot = BarChartPlotModel(data, colors)
+            heatmap_plot = make_subplots(
                 rows=1,
                 cols=len(heatmaps),
                 subplot_titles=[f"ENS_{idx + 1}" for idx, _ in enumerate(heatmaps)],
             )
             for idx, heatmap in enumerate(heatmaps):
-                parent.heatmap_plot.add_trace(heatmap, 1, 1 + idx)
-                parent.heatmap_plot.update_yaxes(
-                    showticklabels=False, row=1, col=1 + idx
-                )
-                parent.heatmap_plot.update_xaxes(
-                    showticklabels=False, row=1, col=1 + idx
-                )
+                heatmap_plot.add_trace(heatmap, 1, 1 + idx)
+                heatmap_plot.update_yaxes(showticklabels=False, row=1, col=1 + idx)
+                heatmap_plot.update_xaxes(showticklabels=False, row=1, col=1 + idx)
             _layout = assets.ERTSTYLE["figure"]["layout"].copy()
             _layout.update(
                 {
@@ -123,8 +125,9 @@ def response_correlation_controller(parent, app):
                     "annotations": [{"font": {"color": colors[ens]}} for ens in colors],
                 }
             )
-            parent.heatmap_plot.update_layout(_layout)
-            return parent.correlation_plot.repr, parent.heatmap_plot
+            heatmap_plot.update_layout(_layout)
+            return correlation_plot.repr, heatmap_plot
+        raise PreventUpdate
 
     @app.callback(
         Output(
@@ -145,23 +148,30 @@ def response_correlation_controller(parent, app):
         ],
     )
     def update_response_overview_plot(
-        _, __, ___, ____, responses, ensembles, corr_xindex, corr_param_resp
-    ):
+        _: Any,
+        __: Any,
+        ___: Any,
+        ____: Any,
+        responses: Optional[List[str]],
+        ensembles: Optional[Mapping[int, Dict]],
+        corr_xindex: Dict,
+        corr_param_resp: Dict,
+    ) -> Optional[go.Figure]:
         if not (ensembles and responses and corr_param_resp["response"] in responses):
             raise PreventUpdate
-
         selected_response = corr_param_resp["response"]
         _plots = []
-        _obs_plots = []
+        _obs_plots: List[PlotModel] = []
 
         for ensemble_id, data in ensembles.items():
             ensemble = load_ensemble(parent, ensemble_id)
             response = ensemble.responses[selected_response]
             x_axis = response.axis
-            if str(x_axis[0]).isnumeric():
-                style = deepcopy(assets.ERTSTYLE["response-plot"]["response-index"])
-            else:
-                style = deepcopy(assets.ERTSTYLE["response-plot"]["response"])
+            if x_axis:
+                if str(x_axis[0]).isnumeric():
+                    style = deepcopy(assets.ERTSTYLE["response-plot"]["response-index"])
+                else:
+                    style = deepcopy(assets.ERTSTYLE["response-plot"]["response"])
             data_df = response.data_df().copy()
 
             style.update({"marker": {"color": data["color"]}})
@@ -177,8 +187,9 @@ def response_correlation_controller(parent, app):
                 for realization in data_df
             ]
 
-            for obs in response.observations:
-                _obs_plots += _get_observation_plots(obs.data_df(), x_axis)
+            if response.observations:
+                for obs in response.observations:
+                    _obs_plots.append(_get_observation_plots(obs.data_df()))
 
         fig = go.Figure()
         for plot in _plots:
@@ -189,15 +200,16 @@ def response_correlation_controller(parent, app):
         fig.update_layout(_layout)
 
         x_index = corr_xindex.get(selected_response, 0)
-        fig.add_shape(
-            type="line",
-            x0=x_axis[x_index],
-            y0=0,
-            x1=x_axis[x_index],
-            y1=1,
-            yref="paper",
-            line=dict(color="rgb(30, 30, 30)", dash="dash", width=3),
-        )
+        if x_axis:
+            fig.add_shape(
+                type="line",
+                x0=x_axis[x_index],
+                y0=0,
+                x1=x_axis[x_index],
+                y1=1,
+                yref="paper",
+                line=dict(color="rgb(30, 30, 30)", dash="dash", width=3),
+            )
         # draw observations on top
         for plot in _obs_plots:
             fig.add_trace(plot.repr)
@@ -227,12 +239,12 @@ def response_correlation_controller(parent, app):
         ],
     )
     def update_response_parameter_scatterplot(
-        corr_xindex,
-        corr_param_resp,
-        parameters,
-        responses,
-        ensembles,
-    ):
+        corr_xindex: Dict,
+        corr_param_resp: Dict,
+        parameters: List[str],
+        responses: List[str],
+        ensembles: Optional[Mapping[int, Dict]],
+    ) -> Optional[Tuple[go.Figure, Component]]:
 
         if not (
             parameters
@@ -252,24 +264,28 @@ def response_correlation_controller(parent, app):
 
         for ensemble_id, data in ensembles.items():
             ensemble = load_ensemble(parent, ensemble_id)
-            y_data = ensemble.parameters[selected_parameter].data_df()
-            response = ensemble.responses[selected_response]
-            x_index = corr_xindex.get(selected_response, 0)
-            x_data = response.data_df().iloc[x_index]
-            style = deepcopy(assets.ERTSTYLE["response-plot"]["response-index"])
-            style["marker"]["color"] = data["color"]
-            _colors[str(ensemble)] = data["color"]
-            _plots += [
-                PlotModel(
-                    x_axis=x_data.values.flatten(),
-                    y_axis=y_data.values.flatten(),
-                    text="Mean",
-                    name=f"{repr(ensemble)}: {selected_response}x{selected_parameter}@{response.axis[x_index]}",
-                    **style,
-                )
-            ]
-            _resp_plots[str(ensemble)] = x_data.values.flatten()
-            _param_plots[str(ensemble)] = y_data.values.flatten()
+
+            if ensemble.parameters and ensemble.responses:
+                y_data = ensemble.parameters[selected_parameter].data_df()
+                response = ensemble.responses[selected_response]
+
+                if response.axis:
+                    x_index = corr_xindex.get(selected_response, 0)
+                    x_data = response.data_df().iloc[x_index]
+                    style = deepcopy(assets.ERTSTYLE["response-plot"]["response-index"])
+                    style["marker"]["color"] = data["color"]
+                    _colors[str(ensemble)] = data["color"]
+                    _plots += [
+                        PlotModel(
+                            x_axis=x_data.values.flatten(),
+                            y_axis=y_data.values.flatten(),
+                            text="Mean",
+                            name=f"{repr(ensemble)}: {selected_response}x{selected_parameter}@{response.axis[x_index]}",
+                            **style,
+                        )
+                    ]
+                    _resp_plots[str(ensemble)] = x_data.values.flatten()
+                    _param_plots[str(ensemble)] = y_data.values.flatten()
 
         fig = make_subplots(
             rows=4,
@@ -308,17 +324,18 @@ def response_correlation_controller(parent, app):
             )
         fig.update_layout(assets.ERTSTYLE["figure"]["layout"])
         fig.update_layout(showlegend=False)
-        res_text = ""
-        for response in responses:
-            x_axis = ensemble.responses[response].axis
-            x_value = x_axis[corr_xindex.get(response, 0)]
-            if response == selected_response:
-                res_text += f"**{response} @ {x_value}**, "
-            else:
-                res_text += f"{response} @ {x_value}, "
-        res_text = [dcc.Markdown(res_text)]
-        res_text += [dcc.Markdown(f"parameter: **{corr_param_resp['parameter']}**")]
-        return fig, html.Div(res_text)
+        final_text = []
+        for response_name in responses:
+            x_axis = ensemble.responses[response_name].axis
+            if x_axis:
+                x_value = x_axis[corr_xindex.get(response_name, 0)]
+                if response_name == selected_response:
+                    res_text = f"**{response_name} @ {x_value}**, "
+                else:
+                    res_text = f"{response_name} @ {x_value}, "
+                final_text.append(dcc.Markdown(res_text))
+        final_text += [dcc.Markdown(f"parameter: **{corr_param_resp['parameter']}**")]
+        return fig, html.Div(final_text)
 
     @app.callback(
         Output(parent.uuid("correlation-store-xindex"), "data"),
@@ -334,7 +351,9 @@ def response_correlation_controller(parent, app):
             State(parent.uuid("correlation-store-selection"), "data"),
         ],
     )
-    def update_corr_index(click_data, responses, corr_xindex, corr_param_resp):
+    def update_corr_index(
+        click_data: Dict, responses: List[str], corr_xindex: Dict, corr_param_resp: Dict
+    ) -> Optional[Dict]:
         if not responses:
             raise PreventUpdate
 
@@ -366,7 +385,12 @@ def response_correlation_controller(parent, app):
             State(parent.uuid("correlation-store-selection"), "data"),
         ],
     )
-    def update_corr_param_resp(click_data, responses, parameters, corr_param_resp):
+    def update_corr_param_resp(
+        click_data: Dict,
+        responses: List[str],
+        parameters: List[str],
+        corr_param_resp: Dict,
+    ) -> Optional[Dict]:
         ctx = dash.callback_context
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
         if triggered_id == parent.uuid("parameter-selection-store-resp") and responses:

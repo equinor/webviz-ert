@@ -1,18 +1,19 @@
+import dash
+from dash.development.base_component import Component
+
 import dash_html_components as html
-from webviz_config import WebvizPluginABC
+from ertviz.plugins._webviz_ert import WebvizErtPluginABC
 from ertviz.views import ensemble_selector_view
-from ertviz.controllers import ensemble_selector_controller
+import ertviz.controllers
 
 
-class EnsembleOverview(WebvizPluginABC):
-    def __init__(self, app, project_identifier: str):
-        super().__init__()
-        self.project_identifier = project_identifier
-        self.ensembles = {}
+class EnsembleOverview(WebvizErtPluginABC):
+    def __init__(self, app: dash.Dash, project_identifier: str):
+        super().__init__(app, project_identifier)
         self.set_callbacks(app)
 
     @property
-    def layout(self):
+    def layout(self) -> Component:
         return html.Div(
             [
                 html.P(
@@ -22,6 +23,5 @@ class EnsembleOverview(WebvizPluginABC):
             ]
         )
 
-    def set_callbacks(self, app):
-        ensemble_selector_controller(self, app)
-        pass
+    def set_callbacks(self, app: dash.Dash) -> None:
+        ertviz.controllers.ensemble_selector_controller(self, app)
