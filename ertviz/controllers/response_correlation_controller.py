@@ -162,18 +162,19 @@ def response_correlation_controller(parent, app):
                 style = deepcopy(assets.ERTSTYLE["response-plot"]["response-index"])
             else:
                 style = deepcopy(assets.ERTSTYLE["response-plot"]["response"])
-            data_df = response.data_df()
+            data_df = response.data_df().copy()
 
-            style["marker"]["color"] = data["color"]
+            style.update({"marker": {"color": data["color"]}})
+            style.update({"line": {"color": data["color"]}})
             _plots += [
                 PlotModel(
                     x_axis=x_axis,
-                    y_axis=data_df[x_val],
-                    text="Mean",
-                    name=f"Mean {repr(ensemble)}",
+                    y_axis=data_df[realization],
+                    text=realization,
+                    name=realization,
                     **style,
                 )
-                for x_val in data_df
+                for realization in data_df
             ]
 
             for obs in response.observations:
