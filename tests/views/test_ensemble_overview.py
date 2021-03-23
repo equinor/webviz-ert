@@ -1,6 +1,5 @@
 import dash
-import ertviz
-from ertviz.plugins._ensemble_overview import EnsembleOverview
+from ertviz.plugins import EnsembleOverview
 
 
 def test_ensemble_overview(
@@ -9,7 +8,7 @@ def test_ensemble_overview(
 ):
     app = dash.Dash(__name__)
 
-    plugin = EnsembleOverview(app, project_identifier=None)
+    plugin = EnsembleOverview(app, project_identifier="test")
     layout = plugin.layout
     app.layout = layout
     dash_duo.start_server(app)
