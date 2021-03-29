@@ -9,6 +9,7 @@ import dash_html_components as html
 from ertviz.views import response_view, parameter_view
 import ertviz.controllers
 from ertviz.plugins._webviz_ert import WebvizErtPluginABC
+import ertviz.assets as assets
 
 
 def _get_child(response: str, children: List[Component]) -> Optional[Component]:
@@ -93,11 +94,7 @@ def plot_view_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:
 
         col_width = max(6, 12 // max(1, len(new_children)))
         bootstrapped_children = [
-            dbc.Col(
-                child,
-                xl=col_width,
-                lg=12,
-            )
+            dbc.Col(child, xl=col_width, lg=12, style=assets.ERTSTYLE["dbc-column"])
             for child in new_children
         ]
         return dbc.Row(bootstrapped_children), new_children
