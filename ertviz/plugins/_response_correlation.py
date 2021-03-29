@@ -10,7 +10,7 @@ from ertviz.views import (
     correlation_view,
     parameter_selector_view,
 )
-
+import ertviz.assets as assets
 import ertviz.models
 from ertviz.plugins._webviz_ert import WebvizErtPluginABC
 import ertviz.controllers
@@ -127,6 +127,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
                                 id_view=self.uuid("response-overview"),
                             ),
                             width=3,
+                            style=assets.ERTSTYLE["dbc-column"],
                         ),
                         dbc.Col(
                             correlation_view(
@@ -134,6 +135,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
                                 id_view=self.uuid("response-scatterplot"),
                             ),
                             width=3,
+                            style=assets.ERTSTYLE["dbc-column"],
                         ),
                         dbc.Col(
                             correlation_view(
@@ -141,6 +143,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
                                 id_view=self.uuid("response-correlation"),
                             ),
                             width=3,
+                            style=assets.ERTSTYLE["dbc-column"],
                         ),
                         dbc.Col(
                             correlation_view(
@@ -148,6 +151,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
                                 id_view=self.uuid("response-heatmap"),
                             ),
                             width=3,
+                            style=assets.ERTSTYLE["dbc-column"],
                         ),
                     ]
                 ),

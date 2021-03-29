@@ -1,4 +1,7 @@
 {
+    "dbc-column": {
+        "min-height": "500px"
+    },
     "ensemble-selector": {
         "stylesheet": [
             {
