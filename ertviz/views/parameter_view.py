@@ -77,6 +77,8 @@ def parameter_view(parent: WebvizPluginABC, index: int = 0) -> List[Component]:
                                             type="number",
                                             placeholder="# bins",
                                             min=2,
+                                            max=100,
+                                            debounce=True,
                                         ),
                                     ]
                                 ),
