@@ -14,6 +14,10 @@ def multi_parameter_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> No
         [State({"index": MATCH, "type": parent.uuid("bincount-store")}, "data")],
     )
     def update_bincount(hist_bincount: int, store_bincount: int) -> int:
+        if not isinstance(hist_bincount, int):
+            raise PreventUpdate
+        if hist_bincount < 2:
+            raise PreventUpdate
         if hist_bincount == store_bincount:
             raise PreventUpdate
         return hist_bincount
