@@ -1,5 +1,5 @@
-from ertviz.data_loader import get_ensemble_url
-from ertviz.models import Response
+from webviz_ert.data_loader import get_ensemble_url
+from webviz_ert.models import Response
 
 
 def test_ensemble_model(mock_data):

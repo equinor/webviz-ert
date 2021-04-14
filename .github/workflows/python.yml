@@ -22,7 +22,7 @@ jobs:
         pip install -r test_requirements.txt
     - name: Test with mypy typing
       run: |
-        mypy --config-file mypy.ini --package ertviz
+        mypy --config-file mypy.ini --package webviz_ert
     - name: Test with pytest
       run: |
         pytest

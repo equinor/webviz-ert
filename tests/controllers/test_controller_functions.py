@@ -1,5 +1,5 @@
-from ertviz.models.ensemble_model import EnsembleModel
-from ertviz.controllers.controller_functions import (
+from webviz_ert.models.ensemble_model import EnsembleModel
+from webviz_ert.controllers.controller_functions import (
     response_options,
     _valid_response_option,
 )

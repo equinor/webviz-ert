@@ -1,6 +1,6 @@
 import dash
-import ertviz
-from ertviz.plugins._response_comparison import ResponseComparison
+import webviz_ert
+from webviz_ert.plugins._response_comparison import ResponseComparison
 
 
 def test_plot_view(
