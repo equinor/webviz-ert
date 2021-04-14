@@ -1,24 +1,24 @@
 import pandas as pd
 import numpy as np
-from ertviz.controllers.multi_response_controller import (
+from webviz_ert.controllers.multi_response_controller import (
     _get_observation_plots,
     _get_realizations_plots,
     _get_realizations_statistics_plots,
 )
-from ertviz.controllers.observation_response_controller import (
+from webviz_ert.controllers.observation_response_controller import (
     _get_univariate_misfits_boxplots,
 )
-from ertviz.controllers.ensemble_selector_controller import _construct_graph
-from ertviz.data_loader import get_ensembles
-from ertviz.models import EnsembleModel, PriorModel
-from ertviz.models import (
+from webviz_ert.controllers.ensemble_selector_controller import _construct_graph
+from webviz_ert.data_loader import get_ensembles
+from webviz_ert.models import EnsembleModel, PriorModel
+from webviz_ert.models import (
     HistogramPlotModel,
     MultiHistogramPlotModel,
     BoxPlotModel,
     ParallelCoordinatesPlotModel,
     BarChartPlotModel,
 )
-import ertviz.assets as assets
+import webviz_ert.assets as assets
 
 
 def test_observation_plot_representation():

@@ -1,5 +1,5 @@
 import dash
-from ertviz.plugins._response_correlation import ResponseCorrelation
+from webviz_ert.plugins._response_correlation import ResponseCorrelation
 
 
 def test_response_correlation_view(

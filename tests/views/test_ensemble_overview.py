@@ -1,5 +1,5 @@
 import dash
-from ertviz.plugins import EnsembleOverview
+from webviz_ert.plugins import EnsembleOverview
 
 
 def test_ensemble_overview(

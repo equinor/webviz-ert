@@ -18,21 +18,23 @@ def pytest_setup_options():
 @pytest.fixture
 def mock_data(mocker):
     mocker.patch(
-        "ertviz.data_loader.get_info",
+        "webviz_ert.data_loader.get_info",
         side_effect=lambda _: {"baseurl": "http://127.0.0.1:5000", "auth": ""},
     )
     mocker.patch(
-        "ertviz.data_loader.get_url", side_effect=lambda _: "http://127.0.0.1:5000"
+        "webviz_ert.data_loader.get_url", side_effect=lambda _: "http://127.0.0.1:5000"
     )
-    mocker.patch("ertviz.data_loader.get_auth", side_effect=lambda _: "")
-    mocker.patch("ertviz.data_loader.pandas.read_csv", side_effect=_pandas_read_csv)
-    mocker.patch("ertviz.data_loader._requests_get", side_effect=_requests_get)
+    mocker.patch("webviz_ert.data_loader.get_auth", side_effect=lambda _: "")
+    mocker.patch("webviz_ert.data_loader.pandas.read_csv", side_effect=_pandas_read_csv)
+    mocker.patch("webviz_ert.data_loader._requests_get", side_effect=_requests_get)
     mocker.patch(
-        "ertviz.models.ensemble_model.get_ensemble_url", side_effect=_ensemble_url
+        "webviz_ert.models.ensemble_model.get_ensemble_url", side_effect=_ensemble_url
     )
-    mocker.patch("ertviz.models.response.get_response_url", side_effect=_response_url)
     mocker.patch(
-        "ertviz.models.parameter_model.get_parameter_data_url",
+        "webviz_ert.models.response.get_response_url", side_effect=_response_url
+    )
+    mocker.patch(
+        "webviz_ert.models.parameter_model.get_parameter_data_url",
         side_effect=_parameter_data_url,
     )
 

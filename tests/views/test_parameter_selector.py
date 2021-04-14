@@ -1,6 +1,6 @@
 import dash
-import ertviz
-from ertviz.plugins._parameter_comparison import ParameterComparison
+import webviz_ert
+from webviz_ert.plugins._parameter_comparison import ParameterComparison
 
 
 def test_parameter_selector(

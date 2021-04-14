@@ -20,18 +20,18 @@ setup(
     long_description_content_type="text/markdown",
     author="Equinor",
     packages=find_packages(exclude=["tests"]),
-    package_data={"ertviz.assets": ["*"]},
+    package_data={"webviz_ert.assets": ["*"]},
     include_package_data=True,
     entry_points={
         "webviz_config_plugins": [
-            "EnsembleOverview = ertviz.plugins:EnsembleOverview",
-            "ResponseComparison = ertviz.plugins:ResponseComparison",
-            "ObservationAnalyzer = ertviz.plugins:ObservationAnalyzer",
-            "ParameterComparison = ertviz.plugins:ParameterComparison",
-            "ResponseCorrelation = ertviz.plugins:ResponseCorrelation",
+            "EnsembleOverview = webviz_ert.plugins:EnsembleOverview",
+            "ResponseComparison = webviz_ert.plugins:ResponseComparison",
+            "ObservationAnalyzer = webviz_ert.plugins:ObservationAnalyzer",
+            "ParameterComparison = webviz_ert.plugins:ParameterComparison",
+            "ResponseCorrelation = webviz_ert.plugins:ResponseCorrelation",
         ],
         "ert": [
-            "ertviz = ertviz.ert_hooks",
+            "webviz_ert = webviz_ert.ert_hooks",
         ],
     },
     install_requires=[

@@ -132,4 +132,4 @@ dmypy.json
 .vscode
 .idea
 
-/ertviz/__version__.py
+/webviz_ert/__version__.py
