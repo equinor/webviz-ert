@@ -54,7 +54,7 @@ def multi_parameter_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> No
         _: Any,
         __: Any,
         legend: List[str],
-        selected_ensembles: Optional[Mapping[int, Dict]],
+        selected_ensembles: Optional[Mapping[str, Dict]],
         parameter: str,
         bin_count: int,
     ) -> Tuple[go.Figure, int]:
@@ -101,7 +101,7 @@ def multi_parameter_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> No
     def set_parameter_from_btn(
         parameter: str,
         plotting_options: List[Mapping[str, str]],
-        selected_ensembles: Optional[Mapping[int, Dict]],
+        selected_ensembles: Optional[Mapping[str, Dict]],
     ) -> List[Mapping[str, str]]:
         if not selected_ensembles:
             raise PreventUpdate

@@ -21,13 +21,12 @@ def _get_univariate_misfits_boxplots(
 ) -> List[BoxPlotModel]:
     if misfits_df is None:
         return []
-
-    x_axis = misfits_df.pop("x_axis")
+    x_axis = misfits_df.columns
     misfits_data = list()
-    for misfits in misfits_df.T:
+    for misfits in misfits_df:
         plot = BoxPlotModel(
-            y_axis=misfits_df.T[misfits].values,
-            name=f"{x_axis.loc[misfits]}",
+            y_axis=misfits_df[misfits].values,
+            name=f"{misfits}",
             color=color,
         )
         misfits_data.append(plot)
@@ -59,7 +58,7 @@ def observation_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         [Input(parent.uuid("ensemble-selection-store"), "data")],
     )
     def set_response_options(
-        selected_ensembles: Optional[Mapping[int, Dict]]
+        selected_ensembles: Optional[Mapping[str, Dict]]
     ) -> List[Dict]:
         if not selected_ensembles:
             raise PreventUpdate
@@ -100,7 +99,7 @@ def observation_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         response: Optional[str],
         yaxis_type: List[str],
         misfits_type: str,
-        selected_ensembles: Optional[Mapping[int, Dict]],
+        selected_ensembles: Optional[Mapping[str, Dict]],
     ) -> go.Figure:
         if not response or response == "" or not selected_ensembles:
             raise PreventUpdate
@@ -126,7 +125,7 @@ def observation_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                 )
                 return plot.repr
 
-        def _generate_plot(ensemble_id: int, color: str) -> ResponsePlotModel:
+        def _generate_plot(ensemble_id: str, color: str) -> ResponsePlotModel:
             ensemble = load_ensemble(parent, ensemble_id)
             plot = _create_misfits_plot(ensemble.responses[response], [], color)
             return plot

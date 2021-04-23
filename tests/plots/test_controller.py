@@ -141,7 +141,7 @@ def test_multi_histogram_plot_representation():
         name_dict[key] = f"{ensemble_name}"
         colors_dict[key] = color
     priors = {
-        (0, "default"): (PriorModel("UNIFORM", ["STD", "MEAN"], [0, 1]), colors[0])
+        (0, "default"): (PriorModel("uniform", ["std", "mean"], [0, 1]), colors[0])
     }
 
     plot = MultiHistogramPlotModel(
@@ -202,16 +202,12 @@ def test_parallel_coordinates_representation():
 def test_univariate_misfits_boxplot_representation():
     data = np.random.rand(200).reshape(-1, 20)
     missfits_df = pd.DataFrame(data=data, index=range(10), columns=range(20))
-    missfits_df["x_axis"] = np.arange(10)
-    plots = _get_univariate_misfits_boxplots(
-        missfits_df.copy(), assets.ERTSTYLE["ensemble-selector"]["color_wheel"][0]
-    )
-
-    assert len(plots) == 10
+    plots = _get_univariate_misfits_boxplots(missfits_df.copy(), color="rgb(255,0,0)")
+    assert len(plots) == 20
     for id_plot, plot in enumerate(plots):
         np.testing.assert_equal(0.3, plot.repr.jitter)
         np.testing.assert_equal("all", plot.repr.boxpoints)
-        x_pos = int(missfits_df["x_axis"][id_plot])
+        x_pos = missfits_df.columns[id_plot]
         name = f"{x_pos}"
         assert name == plot.repr.name
 

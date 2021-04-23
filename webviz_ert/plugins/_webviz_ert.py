@@ -10,5 +10,5 @@ class WebvizErtPluginABC(WebvizPluginABC):
     def __init__(self, app: dash.Dash, project_identifier: str):
         super().__init__()
         self.project_identifier = project_identifier
-        self.ensembles: MutableMapping[int, "EnsembleModel"] = {}
+        self.ensembles: MutableMapping[str, "EnsembleModel"] = {}
         self.parameter_models: MutableMapping[str, "ParametersModel"] = {}

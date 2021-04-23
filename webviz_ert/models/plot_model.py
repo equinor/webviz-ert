@@ -75,17 +75,17 @@ def _DERRF(*args: Any) -> List:
 
 
 PRIOR_FUNCTIONS = {
-    "NORMAL": norm.pdf,
-    "LOGNORMAL": lognorm.pdf,
-    "TRUNCATED_NORMAL": _TRUNC_NORMAL,
-    "UNIFORM": _UNIFORM,
+    "normal": norm.pdf,
+    "lognormal": lognorm.pdf,
+    "ert_truncnormal": _TRUNC_NORMAL,
+    "uniform": _UNIFORM,
     "DUNIF": _DUNIFORM,
-    "LOGUNIF": loguniform.pdf,
-    "TRIANGULAR": _TRIANGULAR,
-    "CONST": _CONST,
-    "RAW": _RAW,
-    "ERRF": _ERRF,
-    "DERRF": _DERRF,
+    "loguniform": loguniform.pdf,
+    "trig": _TRIANGULAR,
+    "const": _CONST,
+    "stdnormal": _RAW,
+    "ert_ert": _ERRF,
+    "ert_derf": _DERRF,
 }
 
 

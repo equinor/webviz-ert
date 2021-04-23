@@ -1,5 +1,4 @@
 from webviz_ert.models import EnsembleModel
-from webviz_ert.data_loader import get_url
 
 
 def test_ensemble_model(mock_data):

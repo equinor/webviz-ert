@@ -1,29 +1,33 @@
+import json
 import pandas as pd
 from typing import Mapping, List, Dict, Union, Any, Optional
-from webviz_ert.data_loader import get_ensemble_url, get_schema
+from webviz_ert.data_loader import (
+    get_data_loader,
+)
 
 from webviz_ert.models import Response, PriorModel, ParametersModel
 
 
-def get_parameter_models(
-    parameters_schema: Dict, ensemble_id: int, project_id: str
+def _create_parameter_models(
+    parameters_names: list, priors: dict, ensemble_id: str, project_id: str
 ) -> Optional[Mapping[str, ParametersModel]]:
     parameters = {}
-    for param in parameters_schema:
-        group = param["group"]
-        key = param["key"]
+    for param in parameters_names:
+        key = param
+        prior_schema = priors.get(key, None)
         prior = None
-        if param["prior"]:
+        if prior_schema:
             prior = PriorModel(
-                param["prior"]["function"],
-                param["prior"]["parameter_names"],
-                param["prior"]["parameter_values"],
+                prior_schema["function"],
+                [x[0] for x in prior_schema.items() if isinstance(x[1], (float, int))],
+                [x[1] for x in prior_schema.items() if isinstance(x[1], (float, int))],
             )
+
         parameters[key] = ParametersModel(
-            group=group,
+            group="",  # TODO?
             key=key,
             prior=prior,
-            param_id=param["id"],
+            param_id="",  # TODO?
             project_id=project_id,
             ensemble_id=ensemble_id,
         )
@@ -31,21 +35,29 @@ def get_parameter_models(
 
 
 class EnsembleModel:
-    def __init__(self, ensemble_id: int, project_id: str):
-        self._schema = get_schema(get_ensemble_url(ensemble_id))
+    def __init__(self, ensemble_id: str, project_id: str):
+        self._data_loader = get_data_loader(project_id)
+        self._schema = self._data_loader.get_ensemble(ensemble_id)
+        self._experiment_id = self._schema["experiment"]["id"]
         self._project_id = project_id
-        self._name = self._schema["name"]
+        self._metadata = json.loads(self._schema["Metadata"])
+        self._name = self._metadata["name"]
         self._id = ensemble_id
         self._children = self._schema["children"]
         self._parent = self._schema["parent"]
-        self._time_created = self._schema["time_created"]
+        self._size = self._schema["size"]
+        self._time_created = self._schema["timeCreated"]
         self.responses = {
-            resp_schema["name"]: Response(
-                name=resp_schema["name"],
+            resp_name: Response(
+                name=resp_name,
                 response_id=resp_schema["id"],
                 ensemble_id=ensemble_id,
+                project_id=project_id,
+                ensemble_size=self._size,
             )
-            for resp_schema in self._schema["responses"]
+            for resp_name, resp_schema in self._data_loader.get_ensemble_responses(
+                ensemble_id
+            ).items()
         }
         self._parameters: Optional[Mapping[str, ParametersModel]] = None
         self._cached_children: Optional[List["EnsembleModel"]] = None
@@ -55,7 +67,10 @@ class EnsembleModel:
     def children(self) -> Optional[List["EnsembleModel"]]:
         if not self._cached_children:
             self._cached_children = [
-                EnsembleModel(ensemble_id=child["id"], project_id=self._project_id)
+                EnsembleModel(
+                    ensemble_id=child["ensembleResult"]["id"],
+                    project_id=self._project_id,
+                )
                 for child in self._children
             ]
         return self._cached_children
@@ -66,7 +81,8 @@ class EnsembleModel:
             return None
         if not self._cached_parent:
             self._cached_parent = EnsembleModel(
-                ensemble_id=self._parent["id"], project_id=self._project_id
+                ensemble_id=self._parent["ensembleReference"]["id"],
+                project_id=self._project_id,
             )
         return self._cached_parent
 
@@ -75,8 +91,15 @@ class EnsembleModel:
         self,
     ) -> Optional[Mapping[str, ParametersModel]]:
         if not self._parameters:
-            self._parameters = get_parameter_models(
-                self._schema["parameters"],
+            parameter_names = self._data_loader.get_ensemble_parameters(self._id)
+            parameter_priors = (
+                self._data_loader.get_experiment_priors(self._experiment_id)
+                if not self._parent
+                else {}
+            )
+            self._parameters = _create_parameter_models(
+                parameter_names,
+                parameter_priors,
                 ensemble_id=self._id,
                 project_id=self._project_id,
             )
@@ -92,7 +115,7 @@ class EnsembleModel:
         return pd.DataFrame(data=data)
 
     @property
-    def id(self) -> int:
+    def id(self) -> str:
         return self._id
 
     def __str__(self) -> str:

@@ -51,7 +51,7 @@ def parameter_selector_controller(
         [State(parameter_type_store_id, "data")],
     )
     def update_parameters_options(
-        selected_ensembles: Optional[Mapping[int, Dict]],
+        selected_ensembles: Optional[Mapping[str, Dict]],
         filter_search: str,
         selected: Optional[List[str]],
         *args: List[str],

@@ -1,9 +1,6 @@
 import pandas as pd
-from typing import List, Any, Optional
-from webviz_ert.data_loader import (
-    get_csv_data,
-    get_parameter_data_url,
-)
+from typing import List, Any, Optional, Union
+from webviz_ert.data_loader import get_data_loader
 
 
 class PriorModel:
@@ -11,9 +8,8 @@ class PriorModel:
         self,
         function: str,
         function_parameter_names: List[str],
-        function_parameter_values: List[str],
+        function_parameter_values: List[Union[float, int]],
     ):
-
         self.function = function
         self.function_parameter_names = function_parameter_names
         self.function_parameter_values = function_parameter_values
@@ -29,14 +25,12 @@ class ParametersModel:
         self._ensemble_id = kwargs["ensemble_id"]
         self._realizations = kwargs.get("realizations")
         self._data_df = pd.DataFrame()
+        self._data_loader = get_data_loader(self._project_id)
 
     def data_df(self) -> pd.DataFrame:
         if self._data_df.empty:
-            _data_df = get_csv_data(
-                get_parameter_data_url(
-                    ensemble_id=self._ensemble_id, parameter_id=self._id
-                ),
-                project_id=self._project_id,
+            _data_df = self._data_loader.get_ensemble_parameter_data(
+                ensemble_id=self._ensemble_id, parameter_name=self.key
             )
             if _data_df is not None:
                 _data_df = _data_df.transpose()

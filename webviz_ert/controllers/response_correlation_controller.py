@@ -58,7 +58,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         correlation_metric: str,
         parameters: List[str],
         responses: List[str],
-        ensembles: Optional[Mapping[int, Dict]],
+        ensembles: Optional[Mapping[str, Dict]],
     ) -> Optional[Tuple[go.Figure, go.Figure]]:
         if not (
             ensembles
@@ -153,7 +153,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         ___: Any,
         ____: Any,
         responses: Optional[List[str]],
-        ensembles: Optional[Mapping[int, Dict]],
+        ensembles: Optional[Mapping[str, Dict]],
         corr_xindex: Dict,
         corr_param_resp: Dict,
     ) -> Optional[go.Figure]:
@@ -167,7 +167,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             ensemble = load_ensemble(parent, ensemble_id)
             response = ensemble.responses[selected_response]
             x_axis = response.axis
-            if x_axis:
+            if x_axis is not None:
                 if str(x_axis[0]).isnumeric():
                     style = deepcopy(assets.ERTSTYLE["response-plot"]["response-index"])
                 else:
@@ -200,7 +200,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         fig.update_layout(_layout)
 
         x_index = corr_xindex.get(selected_response, 0)
-        if x_axis:
+        if x_axis is not None:
             fig.add_shape(
                 type="line",
                 x0=x_axis[x_index],
@@ -243,7 +243,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         corr_param_resp: Dict,
         parameters: List[str],
         responses: List[str],
-        ensembles: Optional[Mapping[int, Dict]],
+        ensembles: Optional[Mapping[str, Dict]],
     ) -> Optional[Tuple[go.Figure, Component]]:
 
         if not (
@@ -269,7 +269,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                 y_data = ensemble.parameters[selected_parameter].data_df()
                 response = ensemble.responses[selected_response]
 
-                if response.axis:
+                if response.axis is not None:
                     x_index = corr_xindex.get(selected_response, 0)
                     x_data = response.data_df().iloc[x_index]
                     style = deepcopy(assets.ERTSTYLE["response-plot"]["response-index"])
@@ -327,7 +327,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         final_text = []
         for response_name in responses:
             x_axis = ensemble.responses[response_name].axis
-            if x_axis:
+            if x_axis is not None:
                 x_value = x_axis[corr_xindex.get(response_name, 0)]
                 if response_name == selected_response:
                     res_text = f"**{response_name} @ {x_value}**, "
