@@ -6,18 +6,11 @@ from webviz_ert.models import indexes_to_axis
 class Observation:
     def __init__(self, observation_schema: Dict):
         self.name = str(observation_schema["name"])
-        self._x_axis = []
-        self._std = []
-        self._values = []
+        self._x_axis = observation_schema["x_axis"]
+        self._std = observation_schema["errors"]
+        self._values = observation_schema["values"]
         self._attributes = ""
-        self._active = []
-
-        if "data" in observation_schema:
-            data = observation_schema["data"]
-            self._x_axis = data["x_axis"]["data"]
-            self._std = data["std"]["data"]
-            self._values = data["values"]["data"]
-            self._active = data["active"]["data"]
+        self._active = [True for _ in self._x_axis]
 
         if "attributes" in observation_schema:
             for k, v in observation_schema["attributes"].items():

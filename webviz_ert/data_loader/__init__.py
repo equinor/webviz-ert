@@ -1,12 +1,14 @@
-from typing import Mapping, Any, Union, Mapping, Optional, List
 import os
+import json
+from typing import Any, Union, Mapping, Optional, List, MutableMapping, Tuple
+from collections import defaultdict
+from pprint import pformat
 import requests
 import logging
-import pandas
+import pandas as pd
+import io
 
-
-def _requests_get(*args: Union[str, bytes], **kwargs: Any) -> requests.models.Response:
-    return requests.get(*args, **kwargs)
+logger = logging.getLogger()
 
 
 def get_info(project_id: str = None) -> Mapping[str, str]:
@@ -15,74 +17,228 @@ def get_info(project_id: str = None) -> Mapping[str, str]:
     return get_info(project_id)
 
 
-os.environ["NO_PROXY"] = "localhost,127.0.0.1"
-data_cache = {}
+# these are needed to mock for testing
+def _requests_get(*args: Union[str, bytes], **kwargs: Any) -> requests.models.Response:
+    return requests.get(*args, **kwargs)
 
 
-def get_url(project_id: str = None) -> str:
-    return get_info(project_id)["baseurl"]
+def _requests_post(*args: Union[str, bytes], **kwargs: Any) -> requests.models.Response:
+    return requests.post(*args, **kwargs)
 
 
-def get_auth(project_id: str = None) -> str:
-    return get_info(project_id)["auth"]
+GET_REALIZATION = """\
+query($ensembleId: ID!) {
+  ensemble(id: $ensembleId) {
+    name
+    responses {
+      name
+      data_uri
+    }
+    parameters {
+      name
+      data_uri
+    }
+  }
+}
+"""
+
+GET_ALL_ENSEMBLES = """\
+query {
+  experiments {
+    name
+    ensembles {
+      id
+      timeCreated
+      parentEnsemble {
+        id
+      }
+      childEnsembles {
+        id
+      }
+    }
+  }
+}
+"""
+
+GET_ENSEMBLE = """\
+query ($id: ID!) {
+  ensemble(id: $id) {
+    id
+    size
+    timeCreated
+    children {
+      ensembleResult{
+        id
+      }
+    }
+    Metadata
+    parent {
+      ensembleReference{
+        id
+      }
+    }
+    experiment {
+      id
+    }
+  }
+}
+"""
 
 
-def get_csv_data(data_url: str, project_id: str = None) -> Optional[pandas.DataFrame]:
-    response = _requests_get(data_url, auth=get_auth(project_id), stream=True)
-    response.raise_for_status()
-    return pandas.read_csv(response.raw, names=["value"])
+data_cache: dict = {}
+ServerIdentifier = Tuple[str, Optional[str]]  # (baseurl, optional token)
 
 
-def get_ensembles(project_id: str = None) -> List[Mapping[str, Any]]:
-    server_url = get_url(project_id)
-    data_cache["ensembles"] = get_schema(f"{server_url}/ensembles", project_id)[
-        "ensembles"
-    ]
-    return data_cache["ensembles"]
+class DataLoaderException(Exception):
+    pass
 
 
-def get_ensemble_url(ensemble_id: int, project_id: Optional[str] = None) -> str:
-    from ert_shared.storage.paths import ensemble
+class DataLoader:
+    _instances: MutableMapping[ServerIdentifier, "DataLoader"] = {}
 
-    server_url = get_url(project_id)
-    ensemble_url = ensemble(ensemble_id)
-    return f"{server_url}{ensemble_url}"
+    baseurl: str
+    token: str
+    _graphql_cache: MutableMapping[str, MutableMapping[dict, Any]]
+
+    def __new__(cls, baseurl: str, token: Optional[str] = None) -> "DataLoader":
+        if (baseurl, token) in cls._instances:
+            return cls._instances[(baseurl, token)]
+
+        loader = super().__new__(cls)
+        loader.baseurl = baseurl
+        loader.token = token
+        loader._graphql_cache = defaultdict(dict)
+        cls._instances[(baseurl, token)] = loader
+        return loader
+
+    def _query(self, query: str, **kwargs: Any) -> dict:
+        """
+        Cachable GraphQL helper
+        """
+        # query_cache = self._graphql_cache[query].get(kwargs)
+        # if query_cache is not None:
+        #     return query_cache
+        resp = _requests_post(
+            f"{self.baseurl}/gql",
+            json={
+                "query": query,
+                "variables": kwargs,
+            },
+        )
+        try:
+            doc = resp.json()
+        except json.JSONDecodeError:
+            doc = resp.content
+        if resp.status_code != 200 or isinstance(doc, bytes):
+            raise RuntimeError(
+                f"ERT Storage query returned with '{resp.status_code}':\n{pformat(doc)}"
+            )
+
+        # self._graphql_cache[query][kwargs] = doc
+        # print(f"--- Query ---\n{query}\n--- Response ---\n{pformat(doc)}\n---------\n")
+        return doc["data"]
+
+    def _get(
+        self, url: str, headers: dict = None, params: dict = None
+    ) -> requests.Response:
+        resp = _requests_get(f"{self.baseurl}/{url}", headers=headers, params=params)
+        if resp.status_code != 200:
+            raise DataLoaderException(
+                f"""Error fetching data from {self.baseurl}/{url}
+                The request return with status code: {resp.status_code}
+                {str(resp.content)}
+                """
+            )
+        return resp
+
+    def get_all_ensembles(self) -> list:
+        experiments = self._query(GET_ALL_ENSEMBLES)["experiments"]
+        return [
+            {"name": exp["name"], **ens}
+            for exp in experiments
+            for ens in exp["ensembles"]
+        ]
+
+    def get_ensemble(self, ensemble_id: str) -> dict:
+        return self._query(GET_ENSEMBLE, id=ensemble_id)["ensemble"]
+
+    def get_ensemble_responses(self, ensemble_id: str) -> dict:
+        return self._get(url=f"ensembles/{ensemble_id}/responses").json()
+
+    def get_ensemble_metadata(self, ensemble_id: str) -> dict:
+        return self._get(url=f"ensembles/{ensemble_id}/metadata").json()
+
+    def get_ensemble_parameters(self, ensemble_id: str) -> list:
+        return self._get(url=f"ensembles/{ensemble_id}/parameters").json()
+
+    def get_experiment_priors(self, experiment_id: str) -> dict:
+        return self._get(url=f"experiments/{experiment_id}/priors").json()
+
+    def get_ensemble_parameter_data(
+        self, ensemble_id: str, parameter_name: str
+    ) -> pd.DataFrame:
+        resp = self._get(
+            url=f"ensembles/{ensemble_id}/records/{parameter_name}",
+            headers={"accept": "application/x-dataframe"},
+        )
+        stream = io.BytesIO(resp.content)
+        df = pd.read_csv(stream, index_col=0, float_precision="round_trip")
+        return df
+
+    def get_ensemble_record_data(
+        self, ensemble_id: str, record_name: str, ensemble_size: int
+    ) -> pd.DataFrame:
+        dfs = []
+        for rel_idx in range(ensemble_size):
+            try:
+                resp = self._get(
+                    url=f"ensembles/{ensemble_id}/records/{record_name}",
+                    headers={"accept": "application/x-dataframe"},
+                    params={"realization_index": rel_idx},
+                )
+                stream = io.BytesIO(resp.content)
+                df = pd.read_csv(
+                    stream, index_col=0, float_precision="round_trip"
+                ).transpose()
+                df.columns = [rel_idx]
+                dfs.append(df)
+
+            except DataLoaderException as e:
+                logger.error(e)
+
+        if dfs == []:
+            raise DataLoaderException(f"No data found for {record_name}")
+
+        return pd.concat(dfs, axis=1)
+
+    def get_ensemble_record_observations(
+        self, ensemble_id: str, record_name: str
+    ) -> List[dict]:
+        return self._get(
+            url=f"ensembles/{ensemble_id}/records/{record_name}/observations",
+            # Hard coded to zero, as all realizations are connected to the same observations
+            params={"realization_index": 0},
+        ).json()
+
+    def compute_misfit(
+        self, ensemble_id: str, response_name: str, summary: bool
+    ) -> pd.DataFrame:
+        resp = self._get(
+            "compute/misfits",
+            params={
+                "ensemble_id": ensemble_id,
+                "response_name": response_name,
+                "summary_misfits": summary,
+            },
+        )
+        stream = io.BytesIO(resp.content)
+        df = pd.read_csv(stream, index_col=0, float_precision="round_trip")
+        return df
 
 
-def get_response_url(
-    ensemble_id: int, response_id: int, project_id: Optional[str] = None
-) -> str:
-    from ert_shared.storage.paths import response
-
-    server_url = get_url(project_id)
-    response_url = response(ensemble_id, response_id)
-    return f"{server_url}{response_url}"
+def get_data_loader(project_id: Optional[str] = None) -> DataLoader:
+    return DataLoader(*(get_info(project_id).values()))
 
 
-def get_parameter_url(
-    ensemble_id: int, parameter_id: int, project_id: Optional[str] = None
-) -> str:
-    from ert_shared.storage.paths import parameter
-
-    server_url = get_url(project_id)
-    parameter_url = parameter(ensemble_id, parameter_id)
-    return f"{server_url}{parameter_url}"
-
-
-def get_parameter_data_url(
-    ensemble_id: int, parameter_id: int, project_id: Optional[str] = None
-) -> str:
-    from ert_shared.storage.paths import parameter_data
-
-    server_url = get_url(project_id)
-    parameter_url = parameter_data(ensemble_id, parameter_id)
-    return f"{server_url}{parameter_url}"
-
-
-def get_schema(api_url: str, project_id: Optional[str] = None) -> Mapping[str, Any]:
-    logging.info(f"Getting json from {api_url}...")
-    http_response = _requests_get(api_url, auth=get_auth(project_id))
-    http_response.raise_for_status()
-
-    logging.info(" done!")
-    return http_response.json()
+def get_ensembles(project_id: Optional[str] = None) -> list:
+    return get_data_loader(project_id).get_all_ensembles()

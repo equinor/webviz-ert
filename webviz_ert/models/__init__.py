@@ -7,7 +7,7 @@ def indexes_to_axis(
     indexes: Optional[List[Union[int, str, datetime.datetime]]]
 ) -> Optional[List[Union[int, str, datetime.datetime]]]:
     try:
-        if indexes and type(indexes[0]) is str:
+        if indexes and type(indexes[0]) is str and not str(indexes[0]).isnumeric():
             return list(map(lambda dt: dateutil.parser.isoparse(str(dt)), indexes))
         return indexes
     except ValueError as e:
@@ -20,12 +20,12 @@ if TYPE_CHECKING:
 
 
 def load_ensemble(
-    parent_page: "WebvizErtPluginABC", ensemble_id: int
+    parent_page: "WebvizErtPluginABC", ensemble_id: str
 ) -> "EnsembleModel":
     ensemble = parent_page.ensembles.get(
         ensemble_id,
         EnsembleModel(
-            ensemble_id=int(ensemble_id), project_id=parent_page.project_identifier
+            ensemble_id=ensemble_id, project_id=parent_page.project_identifier
         ),
     )
     parent_page.ensembles[ensemble_id] = ensemble

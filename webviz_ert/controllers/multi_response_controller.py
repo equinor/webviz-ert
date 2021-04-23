@@ -150,13 +150,13 @@ def multi_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> Non
     def update_graph(
         plot_type: str,
         _: Any,
-        selected_ensembles: Optional[Mapping[int, Dict]],
+        selected_ensembles: Optional[Mapping[str, Dict]],
         response: Optional[str],
     ) -> go.Figure:
         if response in [None, ""] or not selected_ensembles:
             raise PreventUpdate
 
-        def _generate_plot(ensemble_id: int, color: str) -> Optional[ResponsePlotModel]:
+        def _generate_plot(ensemble_id: str, color: str) -> Optional[ResponsePlotModel]:
             ensemble = load_ensemble(parent, ensemble_id)
             if response not in ensemble.responses:
                 return None

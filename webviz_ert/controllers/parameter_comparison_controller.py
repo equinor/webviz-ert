@@ -35,7 +35,7 @@ def parameter_comparison_controller(
         _: Any,
         __: Any,
         selected_parameters: Optional[List[str]],
-        selected_ensembles: Optional[Mapping[int, Dict]],
+        selected_ensembles: Optional[Mapping[str, Dict]],
     ) -> go.Figure:
         if not selected_ensembles or not selected_parameters:
             raise PreventUpdate

@@ -1,4 +1,4 @@
-from typing import List, Dict, Mapping, Union, Optional, TYPE_CHECKING
+from typing import List, Dict, Mapping, Union, Optional, TYPE_CHECKING, MutableMapping
 from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
 import dash
 from dash.dependencies import Input, Output, State
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from webviz_ert.models import EnsembleModel
 
 
-def _construct_graph(ensembles: Mapping[int, "EnsembleModel"]) -> List[Dict]:
+def _construct_graph(ensembles: MutableMapping[str, "EnsembleModel"]) -> List[Dict]:
 
     queue = [
         ensemble
@@ -62,7 +62,7 @@ def ensemble_selector_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> 
         ],
     )
     def update_ensemble_selector_graph(
-        selected_ensembles: Optional[Mapping[int, Dict]],
+        selected_ensembles: Optional[Mapping[str, Dict]],
         _: int,
         elements: Optional[List[Dict]],
     ) -> List[Dict]:

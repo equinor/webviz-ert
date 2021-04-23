@@ -21,69 +21,59 @@ def mock_data(mocker):
         "webviz_ert.data_loader.get_info",
         side_effect=lambda _: {"baseurl": "http://127.0.0.1:5000", "auth": ""},
     )
-    mocker.patch(
-        "webviz_ert.data_loader.get_url", side_effect=lambda _: "http://127.0.0.1:5000"
-    )
-    mocker.patch("webviz_ert.data_loader.get_auth", side_effect=lambda _: "")
-    mocker.patch("webviz_ert.data_loader.pandas.read_csv", side_effect=_pandas_read_csv)
+
     mocker.patch("webviz_ert.data_loader._requests_get", side_effect=_requests_get)
-    mocker.patch(
-        "webviz_ert.models.ensemble_model.get_ensemble_url", side_effect=_ensemble_url
-    )
-    mocker.patch(
-        "webviz_ert.models.response.get_response_url", side_effect=_response_url
-    )
-    mocker.patch(
-        "webviz_ert.models.parameter_model.get_parameter_data_url",
-        side_effect=_parameter_data_url,
-    )
+    mocker.patch("webviz_ert.data_loader._requests_post", side_effect=_requests_post)
 
 
-def _pandas_read_csv(*args, **kwargs):
-    data = args[0]
-    if "header" in kwargs:
-        return pd.DataFrame(data=list(data), columns=kwargs["header"])
-    return pd.DataFrame(data=list(data), columns=["value"])
+class _MockResponse:
+    def __init__(self, url, data, status_code):
+        self.data = data
+        self.status_code = status_code
+
+    def json(self):
+        return self.data
+
+    @property
+    def text(self):
+        return self.data
+
+    @property
+    def raw(self):
+        return self.data
+
+    @property
+    def content(self):
+        return self.data
+
+    def raise_for_status(self):
+        if self.status_code == 400:
+            raise HTTPError(
+                "Mocked requests raised HTTPError 400 due to missing data in test-data set!\n"
+                f"{url}"
+            )
 
 
 def _requests_get(url, **kwargs):
-    class MockResponse:
-        def __init__(self, data, status_code):
-            self.data = data
-            self.status_code = status_code
+    if kwargs.get("params") is not None:
+        url += "?"
+        for param, value in kwargs["params"].items():
+            url += f"{param}={value}"
+    if url in ensembles_response:
+        return _MockResponse(url, ensembles_response[url], 200)
+    return _MockResponse(url, {}, 400)
 
-        def json(self):
-            return self.data
 
-        @property
-        def text(self):
-            return self.data
+from webviz_ert.data_loader import GET_ENSEMBLE
 
-        @property
-        def raw(self):
-            return self.data
 
-        def raise_for_status(self):
-            if self.status_code == 400:
-                raise HTTPError(
-                    "Mocked requests raised HTTPError 400 due to missing data in test-data set!\n"
-                    f"{args[0]}"
-                )
+def _requests_post(url, **kwargs):
+    payload = kwargs["json"]
+    if payload["query"] == GET_ENSEMBLE:
+        variables = payload["variables"]
+        ensemble_id = variables["id"]
+        url = f"http://127.0.0.1:5000/ensembles/{ensemble_id}"
 
     if url in ensembles_response:
-        return MockResponse(ensembles_response[url], 200)
-    return MockResponse({}, 400)
-
-
-def _ensemble_url(ensemble_id, project_id=None):
-    return f"http://127.0.0.1:5000/ensembles/{ensemble_id}"
-
-
-def _response_url(ensemble_id, response_id, project_id=None):
-    return f"http://127.0.0.1:5000/ensembles/{ensemble_id}/responses/{response_id}"
-
-
-def _parameter_data_url(ensemble_id, parameter_id, project_id=None):
-    return (
-        f"http://127.0.0.1:5000/ensembles/{ensemble_id}/parameters/{parameter_id}/data"
-    )
+        return _MockResponse(url, ensembles_response[url], 200)
+    return _MockResponse(url, {}, 400)
