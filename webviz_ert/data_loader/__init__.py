@@ -84,6 +84,14 @@ query ($id: ID!) {
 }
 """
 
+GET_PRIORS = """\
+query($id: ID!) {
+  experiment(id: $id) {
+    priors
+  }
+}
+"""
+
 
 data_cache: dict = {}
 ServerIdentifier = Tuple[str, Optional[str]]  # (baseurl, optional token)
@@ -172,7 +180,9 @@ class DataLoader:
         return self._get(url=f"ensembles/{ensemble_id}/parameters").json()
 
     def get_experiment_priors(self, experiment_id: str) -> dict:
-        return self._get(url=f"experiments/{experiment_id}/priors").json()
+        return json.loads(
+            self._query(GET_PRIORS, id=experiment_id)["experiment"]["priors"]
+        )
 
     def get_ensemble_parameter_data(
         self, ensemble_id: str, parameter_name: str
