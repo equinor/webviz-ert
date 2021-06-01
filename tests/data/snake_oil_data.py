@@ -1,3 +1,4 @@
+import json
 import pandas as pd
 
 
@@ -38,20 +39,24 @@ ensembles_response = {
                         },
                     ],
                 }
-            ]
+            ],
+            "experiment": {
+                "priors": json.dumps(
+                    {
+                        "BPR_138_PERSISTENCE": {
+                            "function": "UNIFORM",
+                            "parameter_names": ["MIN", "MAX"],
+                            "parameter_values": [0.2, 0.7],
+                        },
+                        "OP1_DIVERGENCE_SCALE": {
+                            "function": "UNIFORM",
+                            "parameter_names": ["MIN", "MAX"],
+                            "parameter_values": [0.2, 0.7],
+                        },
+                    }
+                ),
+            },
         }
-    },
-    "http://127.0.0.1:5000/experiments/exp1_id/priors": {
-        "BPR_138_PERSISTENCE": {
-            "function": "UNIFORM",
-            "parameter_names": ["MIN", "MAX"],
-            "parameter_values": [0.2, 0.7],
-        },
-        "OP1_DIVERGENCE_SCALE": {
-            "function": "UNIFORM",
-            "parameter_names": ["MIN", "MAX"],
-            "parameter_values": [0.2, 0.7],
-        },
     },
     "http://127.0.0.1:5000/ensembles/1": {
         "data": {
