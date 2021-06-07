@@ -40,9 +40,7 @@ class EnsembleModel:
         self._schema = self._data_loader.get_ensemble(ensemble_id)
         self._experiment_id = self._schema["experiment"]["id"]
         self._project_id = project_id
-        self._metadata = {}
-        if self._schema["Metadata"] is not None:
-            self._metadata = json.loads(self._schema["Metadata"])
+        self._metadata = json.loads(self._schema["userdata"])
         if "name" in self._schema:
             self._name = self._metadata["name"]
         else:
