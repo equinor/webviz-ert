@@ -71,7 +71,7 @@ query ($id: ID!) {
         id
       }
     }
-    Metadata
+    userdata
     parent {
       ensembleReference{
         id
@@ -173,8 +173,8 @@ class DataLoader:
     def get_ensemble_responses(self, ensemble_id: str) -> dict:
         return self._get(url=f"ensembles/{ensemble_id}/responses").json()
 
-    def get_ensemble_metadata(self, ensemble_id: str) -> dict:
-        return self._get(url=f"ensembles/{ensemble_id}/metadata").json()
+    def get_ensemble_userdata(self, ensemble_id: str) -> dict:
+        return self._get(url=f"ensembles/{ensemble_id}/userdata").json()
 
     def get_ensemble_parameters(self, ensemble_id: str) -> list:
         return self._get(url=f"ensembles/{ensemble_id}/parameters").json()
