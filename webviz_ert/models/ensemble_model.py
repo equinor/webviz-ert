@@ -40,8 +40,15 @@ class EnsembleModel:
         self._schema = self._data_loader.get_ensemble(ensemble_id)
         self._experiment_id = self._schema["experiment"]["id"]
         self._project_id = project_id
-        self._metadata = json.loads(self._schema["Metadata"])
-        self._name = self._metadata["name"]
+        self._metadata = {}
+        if self._schema["Metadata"] is not None:
+            self._metadata = json.loads(self._schema["Metadata"])
+        if "name" in self._schema:
+            self._name = self._metadata["name"]
+        else:
+            self._name = (
+                f"{self._schema['experiment']['name']}-{self._schema['timeCreated']}"
+            )
         self._id = ensemble_id
         self._children = self._schema["children"]
         self._parent = self._schema["parent"]

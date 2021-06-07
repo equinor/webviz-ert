@@ -79,6 +79,7 @@ query ($id: ID!) {
     }
     experiment {
       id
+      name
     }
   }
 }
