@@ -41,7 +41,7 @@ class EnsembleModel:
         self._experiment_id = self._schema["experiment"]["id"]
         self._project_id = project_id
         self._metadata = json.loads(self._schema["userdata"])
-        if "name" in self._schema:
+        if "name" in self._metadata:
             self._name = self._metadata["name"]
         else:
             self._name = (
