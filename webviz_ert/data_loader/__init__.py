@@ -14,15 +14,17 @@ logger = logging.getLogger()
 def get_info(project_id: str = None) -> Mapping[str, str]:
     from ert_shared.storage.connection import get_info
 
-    return get_info(project_id)
+    info = get_info(project_id)
+    info["auth"] = info["auth"][1]
+    return info
 
 
 # these are needed to mock for testing
-def _requests_get(*args: Union[str, bytes], **kwargs: Any) -> requests.models.Response:
+def _requests_get(*args: Any, **kwargs: Any) -> requests.models.Response:
     return requests.get(*args, **kwargs)
 
 
-def _requests_post(*args: Union[str, bytes], **kwargs: Any) -> requests.models.Response:
+def _requests_post(*args: Any, **kwargs: Any) -> requests.models.Response:
     return requests.post(*args, **kwargs)
 
 
@@ -133,6 +135,7 @@ class DataLoader:
                 "query": query,
                 "variables": kwargs,
             },
+            headers={"Token": self.token},
         )
         try:
             doc = resp.json()
@@ -150,6 +153,11 @@ class DataLoader:
     def _get(
         self, url: str, headers: dict = None, params: dict = None
     ) -> requests.Response:
+        if headers is None:
+            headers = {"Token": self.token}
+        else:
+            headers.update({"Token": self.token})
+
         resp = _requests_get(f"{self.baseurl}/{url}", headers=headers, params=params)
         if resp.status_code != 200:
             raise DataLoaderException(
