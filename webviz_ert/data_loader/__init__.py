@@ -154,11 +154,13 @@ class DataLoader:
         self, url: str, headers: dict = None, params: dict = None
     ) -> requests.Response:
         if headers is None:
-            headers = {"Token": self.token}
-        else:
-            headers.update({"Token": self.token})
+            headers = {}
 
-        resp = _requests_get(f"{self.baseurl}/{url}", headers=headers, params=params)
+        resp = _requests_get(
+            f"{self.baseurl}/{url}",
+            headers={**headers, "Token": self.token},
+            params=params,
+        )
         if resp.status_code != 200:
             raise DataLoaderException(
                 f"""Error fetching data from {self.baseurl}/{url}

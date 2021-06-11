@@ -6,3 +6,7 @@ black
 scipy
 dash[testing]
 selenium
+types-requests
+types-pkg_resources
+types-PyYAML
+types-python-dateutil
