@@ -74,7 +74,7 @@ def _get_observation_plots(observation_df: pd.DataFrame) -> PlotModel:
     attributes = observation_df["attributes"]
     active_mask = observation_df["active"]
 
-    style = assets.ERTSTYLE["response-plot"]["observation"]
+    style = deepcopy(assets.ERTSTYLE["response-plot"]["observation"])
     color = [style["color"] if active else "rgb(0, 0, 0)" for active in active_mask]
     style["marker"]["color"] = color
 
