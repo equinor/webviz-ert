@@ -72,7 +72,7 @@ def multi_parameter_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> No
                 parameter_model = ensemble.parameters[parameter]
                 data[key] = parameter_model.data_df()
                 colors[key] = color["color"]
-                names[key] = repr(ensemble) if "label" in legend else ""
+                names[key] = key if "label" in legend else ""
 
                 if parameter_model.priors and "prior" in hist_check_values:
                     priors[names[key]] = (parameter_model.priors, colors[key])
