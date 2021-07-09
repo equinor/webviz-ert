@@ -200,6 +200,7 @@ class PlotModel:
             name=self.display_name,
             mode=self._mode,
             error_y=self._error_y,
+            connectgaps=True,
         )
         if self._line:
             repr_dict["line"] = self._line
