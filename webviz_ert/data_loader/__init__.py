@@ -218,9 +218,11 @@ class DataLoader:
                     params={"realization_index": rel_idx},
                 )
                 stream = io.BytesIO(resp.content)
-                df = pd.read_csv(
-                    stream, index_col=0, float_precision="round_trip"
-                ).transpose()
+                df = (
+                    pd.read_csv(stream, index_col=0, float_precision="round_trip")
+                    .transpose()
+                    .sort_index()
+                )
                 df.columns = [rel_idx]
                 dfs.append(df)
 
