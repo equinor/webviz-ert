@@ -1,2 +1,5 @@
 [build-system]
 requires = ["setuptools", "setuptools_scm", "wheel"]
+
+[tool.pytest.ini_options]
+addopts = "-k 'not spe1'"
