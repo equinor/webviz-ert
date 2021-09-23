@@ -4,7 +4,7 @@ from typing import Mapping
 
 # from webviz_ert.models import EnsembleModel, ParametersModel
 import webviz_ert.models
-import dash_html_components as html
+from dash import html
 
 from webviz_ert.views import (
     ensemble_selector_view,

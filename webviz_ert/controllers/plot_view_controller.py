@@ -5,7 +5,7 @@ from dash.development.base_component import Component
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
-import dash_html_components as html
+from dash import html
 from webviz_ert.views import response_view, parameter_view
 import webviz_ert.controllers
 from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC

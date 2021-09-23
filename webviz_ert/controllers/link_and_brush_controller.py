@@ -1,5 +1,5 @@
 import dash
-import dash_core_components as dcc
+from dash import dcc
 from typing import List, Dict, Union, Optional
 from dash.dependencies import Input, Output, ALL
 from dash.exceptions import PreventUpdate
