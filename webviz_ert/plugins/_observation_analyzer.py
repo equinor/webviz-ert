@@ -1,6 +1,6 @@
 import dash
 from dash.development.base_component import Component
-import dash_html_components as html
+from dash import html
 from webviz_config import WebvizPluginABC
 from typing import Mapping
 

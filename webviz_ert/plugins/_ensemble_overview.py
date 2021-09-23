@@ -1,7 +1,7 @@
 import dash
 from dash.development.base_component import Component
 
-import dash_html_components as html
+from dash import html
 from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
 from webviz_ert.views import ensemble_selector_view
 import webviz_ert.controllers

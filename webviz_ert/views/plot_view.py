@@ -2,8 +2,8 @@ from typing import List
 from dash.development.base_component import Component
 from webviz_config import WebvizPluginABC
 
-import dash_html_components as html
-import dash_core_components as dcc
+from dash import html
+from dash import dcc
 import dash_bootstrap_components as dbc
 from .selector_view import parameter_selector_view
 
