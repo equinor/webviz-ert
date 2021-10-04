@@ -200,10 +200,10 @@ class DataLoader:
     ) -> pd.DataFrame:
         resp = self._get(
             url=f"ensembles/{ensemble_id}/records/{parameter_name}",
-            headers={"accept": "application/x-dataframe"},
+            headers={"accept": "application/x-parquet"},
         )
         stream = io.BytesIO(resp.content)
-        df = pd.read_csv(stream, index_col=0, float_precision="round_trip")
+        df = pd.read_parquet(stream)
         return df
 
     def get_ensemble_record_data(
@@ -214,15 +214,11 @@ class DataLoader:
             try:
                 resp = self._get(
                     url=f"ensembles/{ensemble_id}/records/{record_name}",
-                    headers={"accept": "application/x-dataframe"},
+                    headers={"accept": "application/x-parquet"},
                     params={"realization_index": rel_idx},
                 )
                 stream = io.BytesIO(resp.content)
-                df = (
-                    pd.read_csv(stream, index_col=0, float_precision="round_trip")
-                    .transpose()
-                    .sort_index()
-                )
+                df = pd.read_parquet(stream).transpose().sort_index()
                 df.columns = [rel_idx]
                 dfs.append(df)
 
