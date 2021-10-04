@@ -1,3 +1,4 @@
+import io
 import json
 import pandas as pd
 
@@ -151,30 +152,6 @@ ensembles_response = {
             "id": "FOPR",
         },
     },
-    "http://127.0.0.1:5000/ensembles/1/records/BPR_138_PERSISTENCE": pd.DataFrame(
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        columns=[0],
-        index=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-    )
-    .transpose()
-    .to_csv()
-    .encode(),
-    "http://127.0.0.1:5000/ensembles/1/records/OP1_DIVERGENCE_SCALE": pd.DataFrame(
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        columns=[0],
-        index=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-    )
-    .transpose()
-    .to_csv()
-    .encode(),
-    "http://127.0.0.1:5000/ensembles/1/records/SNAKE_OIL_GPR_DIFF?realization_index=0": pd.DataFrame(
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        columns=[0],
-        index=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-    )
-    .transpose()
-    .to_csv()
-    .encode(),
     "http://127.0.0.1:5000/ensembles/1/records/SNAKE_OIL_GPR_DIFF/observations?realization_index=0": [],
     "http://127.0.0.1:5000/ensembles/3/records/SNAKE_OIL_GPR_DIFF?realization_index=0": pd.DataFrame(
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -236,3 +213,41 @@ ensembles_response = {
         }
     ],
 }
+
+
+def to_parquet_helper(dataframe: pd.DataFrame) -> bytes:
+    stream = io.BytesIO()
+    dataframe.to_parquet(stream)
+    return stream.getvalue()
+
+
+ensembles_response[
+    "http://127.0.0.1:5000/ensembles/1/records/SNAKE_OIL_GPR_DIFF?realization_index=0"
+] = to_parquet_helper(
+    pd.DataFrame(
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        columns=["0"],
+        index=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    ).transpose()
+)
+
+ensembles_response[
+    "http://127.0.0.1:5000/ensembles/1/records/OP1_DIVERGENCE_SCALE"
+] = to_parquet_helper(
+    pd.DataFrame(
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        columns=["0"],
+        index=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    ).transpose()
+)
+
+
+ensembles_response[
+    "http://127.0.0.1:5000/ensembles/1/records/BPR_138_PERSISTENCE"
+] = to_parquet_helper(
+    pd.DataFrame(
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        columns=["0"],
+        index=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    ).transpose()
+)
