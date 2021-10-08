@@ -4,11 +4,10 @@ import pytest
 
 @pytest.fixture(scope="session")
 def get_info():
-    from ert_shared.storage.connection import get_info
+    from ert_shared.services import Storage
 
-    info = get_info()
-    info["auth"] = info["auth"][1]
-    return info["baseurl"], info["auth"]
+    with Storage.start_server() as service:
+        yield service.fetch_url(), service.fetch_auth()[1]
 
 
 @pytest.fixture(scope="session")
