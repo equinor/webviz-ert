@@ -68,6 +68,7 @@ ensembles_response = {
                 "id": 1,
                 "timeCreated": "2020-04-29T09:36:26",
                 "size": 1,
+                "activeRealizations": [0],
                 "userdata": '{"name": "default"}',
             }
         }
@@ -91,6 +92,7 @@ ensembles_response = {
                 "id": 2,
                 "timeCreated": "2020-04-29T10:36:26",
                 "size": 1,
+                "activeRealizations": [0],
                 "userdata": '{"name": "default_smoother_update"}',
             }
         }
@@ -111,6 +113,7 @@ ensembles_response = {
                 "id": 3,
                 "timeCreated": "2020-04-29T10:57:47",
                 "size": 1,
+                "activeRealizations": [0],
                 "userdata": '{"name": "default3"}',
             }
         }
@@ -138,6 +141,7 @@ ensembles_response = {
                 "id": 4,
                 "timeCreated": "2020-04-29T10:59:37",
                 "size": 1,
+                "activeRealizations": [0],
                 "userdata": '{"name": "default4"}',
             }
         }

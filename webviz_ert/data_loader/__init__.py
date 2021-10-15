@@ -67,6 +67,7 @@ query ($id: ID!) {
   ensemble(id: $id) {
     id
     size
+    activeRealizations
     timeCreated
     children {
       ensembleResult{
@@ -207,10 +208,10 @@ class DataLoader:
         return df
 
     def get_ensemble_record_data(
-        self, ensemble_id: str, record_name: str, ensemble_size: int
+        self, ensemble_id: str, record_name: str, active_realizations: List[int]
     ) -> pd.DataFrame:
         dfs = []
-        for rel_idx in range(ensemble_size):
+        for rel_idx in active_realizations:
             try:
                 resp = self._get(
                     url=f"ensembles/{ensemble_id}/records/{record_name}",

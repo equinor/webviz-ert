@@ -51,6 +51,7 @@ class EnsembleModel:
         self._children = self._schema["children"]
         self._parent = self._schema["parent"]
         self._size = self._schema["size"]
+        self._active_realizations = self._schema["activeRealizations"]
         self._time_created = self._schema["timeCreated"]
         self.responses = {
             resp_name: Response(
@@ -59,6 +60,7 @@ class EnsembleModel:
                 ensemble_id=ensemble_id,
                 project_id=project_id,
                 ensemble_size=self._size,
+                active_realizations=self._active_realizations,
             )
             for resp_name, resp_schema in self._data_loader.get_ensemble_responses(
                 ensemble_id
