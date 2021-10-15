@@ -14,6 +14,7 @@ class Response:
         ensemble_id: str,
         project_id: str,
         ensemble_size: int,
+        active_realizations: List[int],
     ):
         self._data_loader: DataLoader = get_data_loader(project_id)
         self._document: Optional[Mapping[str, Any]] = None
@@ -25,6 +26,7 @@ class Response:
         self._univariate_misfits_df: Optional[pd.DataFrame] = None
         self._summary_misfits_df: Optional[pd.DataFrame] = None
         self._ensemble_size: int = ensemble_size
+        self._active_realizations: List[int] = active_realizations
 
     @property
     def ensemble_id(self) -> str:
@@ -38,7 +40,7 @@ class Response:
     def data(self) -> pd.DataFrame:
         if self._data is None:
             self._data = self._data_loader.get_ensemble_record_data(
-                self._ensemble_id, self.name, self._ensemble_size
+                self._ensemble_id, self.name, self._active_realizations
             )
         return self._data
 
