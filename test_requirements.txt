@@ -5,7 +5,7 @@ pylint
 black
 scipy
 dash[testing]
-selenium
+selenium==3.141.0
 types-requests
 types-pkg_resources
 types-PyYAML
