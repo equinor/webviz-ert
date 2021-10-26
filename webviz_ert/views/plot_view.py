@@ -32,6 +32,7 @@ def plot_view_header(parent: WebvizPluginABC) -> List[Component]:
                                 },
                             ],
                             value=[],
+                            labelStyle={"display": "block"},
                         ),
                     ],
                     width=6,
