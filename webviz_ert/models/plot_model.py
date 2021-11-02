@@ -306,12 +306,16 @@ class MultiHistogramPlotModel:
         names = []
         realization_nums = []
         for name in self._data_df_dict:
+            if self._data_df_dict[name].empty:
+                continue
             data.append(list(self._data_df_dict[name].values.flatten()))
             colors.append(self._colors[name])
             names.append(self._names[name])
             realization_nums.append(
                 [f"Realization {num}" for num in self._data_df_dict[name].columns]
             )
+        if data == []:
+            return go.Figure()
         _max = float(np.hstack(data).max())
         _min = float(np.hstack(data).min())
         bin_size = float((_max - _min) / self.bin_count)

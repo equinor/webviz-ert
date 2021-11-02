@@ -226,7 +226,7 @@ class DataLoader:
                 logger.error(e)
 
         if dfs == []:
-            raise DataLoaderException(f"No data found for {record_name}")
+            return pd.DataFrame()
 
         return pd.concat(dfs, axis=1)
 
