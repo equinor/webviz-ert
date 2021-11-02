@@ -45,4 +45,8 @@
 }
 .ert-parameter-label-checkbox {
     display: block;
+    position: fixed;
+    bottom: 321px;
+    z-index: 999;
+    left: 30px;
 }
