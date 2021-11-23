@@ -156,6 +156,8 @@ ensembles_response = {
             "id": "FOPR",
         },
     },
+    "http://127.0.0.1:5000/ensembles/1/records/OP1_DIVERGENCE_SCALE/labels": [],
+    "http://127.0.0.1:5000/ensembles/1/records/BPR_138_PERSISTENCE/labels": [],
     "http://127.0.0.1:5000/ensembles/1/records/SNAKE_OIL_GPR_DIFF/observations?realization_index=0": [],
     "http://127.0.0.1:5000/ensembles/3/records/SNAKE_OIL_GPR_DIFF?realization_index=0": pd.DataFrame(
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -227,6 +229,16 @@ def to_parquet_helper(dataframe: pd.DataFrame) -> bytes:
 
 ensembles_response[
     "http://127.0.0.1:5000/ensembles/1/records/SNAKE_OIL_GPR_DIFF?realization_index=0"
+] = to_parquet_helper(
+    pd.DataFrame(
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        columns=["0"],
+        index=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    ).transpose()
+)
+
+ensembles_response[
+    "http://127.0.0.1:5000/ensembles/1/records/SNAKE_OIL_GPR_DIFF"
 ] = to_parquet_helper(
     pd.DataFrame(
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],

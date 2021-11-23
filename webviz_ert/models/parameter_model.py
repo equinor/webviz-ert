@@ -30,10 +30,10 @@ class ParametersModel:
     def data_df(self) -> pd.DataFrame:
         if self._data_df.empty:
             _data_df = self._data_loader.get_ensemble_parameter_data(
-                ensemble_id=self._ensemble_id, parameter_name=self.key
+                ensemble_id=self._ensemble_id,
+                parameter_name=self.key,
             )
             if _data_df is not None:
-                _data_df = _data_df.transpose()
                 _data_df.index.name = self.key
                 self._data_df = _data_df
         return self._data_df

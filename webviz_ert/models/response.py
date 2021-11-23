@@ -40,7 +40,7 @@ class Response:
     def data(self) -> pd.DataFrame:
         if self._data is None:
             self._data = self._data_loader.get_ensemble_record_data(
-                self._ensemble_id, self.name, self._active_realizations
+                self._ensemble_id, self.name
             )
         return self._data
 

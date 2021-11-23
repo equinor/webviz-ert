@@ -1,15 +1,16 @@
 import json
 import pandas as pd
 from typing import Mapping, List, Dict, Union, Any, Optional
-from webviz_ert.data_loader import (
-    get_data_loader,
-)
+from webviz_ert.data_loader import get_data_loader, DataLoaderException
 
 from webviz_ert.models import Response, PriorModel, ParametersModel
 
 
 def _create_parameter_models(
-    parameters_names: list, priors: dict, ensemble_id: str, project_id: str
+    parameters_names: list,
+    priors: dict,
+    ensemble_id: str,
+    project_id: str,
 ) -> Optional[Mapping[str, ParametersModel]]:
     parameters = {}
     for param in parameters_names:
@@ -98,7 +99,14 @@ class EnsembleModel:
         self,
     ) -> Optional[Mapping[str, ParametersModel]]:
         if not self._parameters:
-            parameter_names = self._data_loader.get_ensemble_parameters(self._id)
+            parameter_names = []
+            for param_name in self._data_loader.get_ensemble_parameters(self._id):
+                labels = self._data_loader.get_record_labels(self._id, param_name)
+                if len(labels) > 0:
+                    for label in labels:
+                        parameter_names.append(f"{param_name}::{label}")
+                else:
+                    parameter_names.append(param_name)
             parameter_priors = (
                 self._data_loader.get_experiment_priors(self._experiment_id)
                 if not self._parent
