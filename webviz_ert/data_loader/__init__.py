@@ -1,5 +1,5 @@
 import json
-from typing import Any, Mapping, Optional, List, MutableMapping, Tuple
+from typing import Any, Mapping, Optional, List, MutableMapping, Tuple, Dict
 from collections import defaultdict
 from pprint import pformat
 import requests
@@ -113,7 +113,7 @@ class DataLoader:
     _instances: MutableMapping[ServerIdentifier, "DataLoader"] = {}
 
     baseurl: str
-    token: str
+    token: Optional[str]
     _graphql_cache: MutableMapping[str, MutableMapping[dict, Any]]
 
     def __new__(cls, baseurl: str, token: Optional[str] = None) -> "DataLoader":
@@ -195,45 +195,62 @@ class DataLoader:
     def get_ensemble_parameters(self, ensemble_id: str) -> list:
         return self._get(url=f"ensembles/{ensemble_id}/parameters").json()
 
+    def get_record_labels(self, ensemble_id: str, name: str) -> list:
+        return self._get(url=f"ensembles/{ensemble_id}/records/{name}/labels").json()
+
     def get_experiment_priors(self, experiment_id: str) -> dict:
         return json.loads(
             self._query(GET_PRIORS, id=experiment_id)["experiment"]["priors"]
         )
 
     def get_ensemble_parameter_data(
-        self, ensemble_id: str, parameter_name: str
+        self,
+        ensemble_id: str,
+        parameter_name: str,
     ) -> pd.DataFrame:
-        resp = self._get(
-            url=f"ensembles/{ensemble_id}/records/{parameter_name}",
-            headers={"accept": "application/x-parquet"},
-        )
-        stream = io.BytesIO(resp.content)
-        df = pd.read_parquet(stream)
-        return df
+        try:
+            if "::" in parameter_name:
+                name, label = parameter_name.split("::", 1)
+                params = {"label": label}
+            else:
+                name = parameter_name
+                params = {}
 
-    def get_ensemble_record_data(
-        self, ensemble_id: str, record_name: str, active_realizations: List[int]
-    ) -> pd.DataFrame:
-        dfs = []
-        for rel_idx in active_realizations:
-            try:
-                resp = self._get(
-                    url=f"ensembles/{ensemble_id}/records/{record_name}",
-                    headers={"accept": "application/x-parquet"},
-                    params={"realization_index": rel_idx},
-                )
-                stream = io.BytesIO(resp.content)
-                df = pd.read_parquet(stream).transpose()
-                df.columns = [rel_idx]
-                dfs.append(df)
-
-            except DataLoaderException as e:
-                logger.error(e)
-
-        if dfs == []:
+            resp = self._get(
+                url=f"ensembles/{ensemble_id}/records/{name}",
+                headers={"accept": "application/x-parquet"},
+                params=params,
+            )
+            stream = io.BytesIO(resp.content)
+            df = pd.read_parquet(stream).transpose()
+            return df
+        except DataLoaderException as e:
+            logger.error(e)
             return pd.DataFrame()
 
-        return pd.concat(dfs, axis=1)
+    def get_ensemble_record_data(
+        self,
+        ensemble_id: str,
+        record_name: str,
+    ) -> pd.DataFrame:
+        try:
+            resp = self._get(
+                url=f"ensembles/{ensemble_id}/records/{record_name}",
+                headers={"accept": "application/x-parquet"},
+            )
+            stream = io.BytesIO(resp.content)
+            df = pd.read_parquet(stream).transpose()
+
+        except DataLoaderException as e:
+            logger.error(e)
+            return pd.DataFrame()
+
+        try:
+            df.index = df.index.astype(int)
+        except TypeError:
+            pass
+        df = df.sort_index()
+        return df
 
     def get_ensemble_record_observations(
         self, ensemble_id: str, record_name: str
