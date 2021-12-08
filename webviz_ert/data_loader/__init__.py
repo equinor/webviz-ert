@@ -1,6 +1,5 @@
-import os
 import json
-from typing import Any, Union, Mapping, Optional, List, MutableMapping, Tuple
+from typing import Any, Mapping, Optional, List, MutableMapping, Tuple
 from collections import defaultdict
 from pprint import pformat
 import requests
@@ -10,13 +9,18 @@ import io
 
 logger = logging.getLogger()
 
+connection_info_map: dict = {}
 
-def get_info(project_id: str = None) -> Mapping[str, str]:
+
+def get_connection_info(project_id: str = None) -> Mapping[str, str]:
     from ert_shared.storage.connection import get_info
 
-    info = get_info(project_id)
-    info["auth"] = info["auth"][1]
-    return info
+    if project_id not in connection_info_map:
+        info = get_info(project_id)
+        info["auth"] = info["auth"][1]
+        connection_info_map[project_id] = info
+
+    return connection_info_map[project_id]
 
 
 # these are needed to mock for testing
@@ -257,7 +261,7 @@ class DataLoader:
 
 
 def get_data_loader(project_id: Optional[str] = None) -> DataLoader:
-    return DataLoader(*(get_info(project_id).values()))
+    return DataLoader(*(get_connection_info(project_id).values()))
 
 
 def get_ensembles(project_id: Optional[str] = None) -> list:

@@ -18,7 +18,7 @@ def pytest_setup_options():
 @pytest.fixture
 def mock_data(mocker):
     mocker.patch(
-        "webviz_ert.data_loader.get_info",
+        "webviz_ert.data_loader.get_connection_info",
         side_effect=lambda _: {"baseurl": "http://127.0.0.1:5000", "auth": ""},
     )
 
