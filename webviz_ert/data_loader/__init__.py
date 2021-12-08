@@ -219,7 +219,7 @@ class DataLoader:
                     params={"realization_index": rel_idx},
                 )
                 stream = io.BytesIO(resp.content)
-                df = pd.read_parquet(stream).transpose().sort_index()
+                df = pd.read_parquet(stream).transpose()
                 df.columns = [rel_idx]
                 dfs.append(df)
 
