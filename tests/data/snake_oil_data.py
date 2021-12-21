@@ -267,3 +267,69 @@ ensembles_response[
         index=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
     ).transpose()
 )
+
+ensembles_response.update(
+    {
+        "http://127.0.0.1:5000/ensembles/42": {
+            "data": {
+                "ensemble": {
+                    "children": [],
+                    "experiment": {"id": "exp1_id"},
+                    "parent": None,
+                    "id": 1,
+                    "timeCreated": "2020-04-29T09:36:26",
+                    "size": 1,
+                    "activeRealizations": [0],
+                    "userdata": '{"name": "default"}',
+                }
+            }
+        },
+        "http://127.0.0.1:5000/ensembles/42/parameters": [
+            "test_parameter_1",
+            "test_parameter_2",
+        ],
+        "http://127.0.0.1:5000/ensembles/42/responses": {
+            "test_resposne": {
+                "name": "name_test_response",
+                "id": "test_response_id_1",
+            },
+        },
+        "http://127.0.0.1:5000/ensembles/42/records/test_parameter_1/labels": [],
+        "http://127.0.0.1:5000/ensembles/42/records/test_parameter_2/labels": [
+            "a",
+            "b",
+        ],
+        "http://127.0.0.1:5000/ensembles/42/records/test_parameter_2/labels": [
+            "a",
+            "b",
+        ],
+    }
+)
+
+ensembles_response[
+    "" "http://127.0.0.1:5000/ensembles/42/records/test_parameter_1?"
+] = to_parquet_helper(
+    pd.DataFrame(
+        [0.1, 1.1, 2.1],
+        columns=["0"],
+        index=["0", "1", "2"],
+    ).transpose()
+)
+ensembles_response[
+    "http://127.0.0.1:5000/ensembles/42/records/test_parameter_2?label=a"
+] = to_parquet_helper(
+    pd.DataFrame(
+        [0.01, 1.01, 2.01],
+        columns=["a"],
+        index=["0", "1", "2"],
+    ).transpose()
+)
+ensembles_response[
+    "http://127.0.0.1:5000/ensembles/42/records/test_parameter_2?label=b"
+] = to_parquet_helper(
+    pd.DataFrame(
+        [0.02, 1.02, 2.02],
+        columns=["b"],
+        index=["0", "1", "2"],
+    ).transpose()
+)
