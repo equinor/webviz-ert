@@ -17,6 +17,14 @@ https://github.com/equinor/webviz-ert
 pip install .
 ```
 
+## Running tests
+```sh
+# From the downloaded project's root folder - to run tests
+pip install -r test_requirements.txt
+cd tests
+pip -m pytest
+```
+
 ## Run Webviz-ert
 Webviz-ert connects automatically to a storage server running in [ERT](https://github.com/equinor/ert).
 Here are a few steps to get an example version of webviz-ert running.
