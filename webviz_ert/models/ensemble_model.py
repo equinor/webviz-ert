@@ -100,8 +100,9 @@ class EnsembleModel:
     ) -> Optional[Mapping[str, ParametersModel]]:
         if not self._parameters:
             parameter_names = []
-            for param_name in self._data_loader.get_ensemble_parameters(self._id):
-                labels = self._data_loader.get_record_labels(self._id, param_name)
+            for params in self._data_loader.get_ensemble_parameters(self._id):
+                labels = params["labels"]
+                param_name = params["name"]
                 if len(labels) > 0:
                     for label in labels:
                         parameter_names.append(f"{param_name}::{label}")
