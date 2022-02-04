@@ -285,8 +285,8 @@ ensembles_response.update(
             }
         },
         "http://127.0.0.1:5000/ensembles/42/parameters": [
-            "test_parameter_1",
-            "test_parameter_2",
+            {"name": "test_parameter_1", "labels": []},
+            {"name": "test_parameter_2", "labels": ["a", "b"]},
         ],
         "http://127.0.0.1:5000/ensembles/42/responses": {
             "test_resposne": {
