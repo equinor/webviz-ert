@@ -74,8 +74,8 @@ ensembles_response = {
         }
     },
     "http://127.0.0.1:5000/ensembles/1/parameters": [
-        "BPR_138_PERSISTENCE",
-        "OP1_DIVERGENCE_SCALE",
+        {"name": "BPR_138_PERSISTENCE", "labels": []},
+        {"name": "OP1_DIVERGENCE_SCALE", "labels": []},
     ],
     "http://127.0.0.1:5000/ensembles/1/responses": {
         "SNAKE_OIL_GPR_DIFF": {
