@@ -113,8 +113,8 @@ def observation_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                     selection=None
                 )  # What about selections?
                 if summary_df is not None:
-                    data_dict[parent.ensembles[ensemble_id]._name] = summary_df
-                colors[parent.ensembles[ensemble_id]._name] = color["color"]
+                    data_dict[ensemble._name] = summary_df
+                colors[ensemble._name] = color["color"]
             if data_dict:
                 plot = MultiHistogramPlotModel(
                     data_dict,

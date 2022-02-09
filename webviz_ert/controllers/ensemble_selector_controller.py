@@ -80,7 +80,7 @@ def ensemble_selector_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> 
             for ensemble_schema in ensemble_dict:
                 ensemble_id = ensemble_schema["id"]
                 load_ensemble(parent, ensemble_id)
-            datas = _construct_graph(parent.ensembles)
+            datas = _construct_graph(parent.get_ensembles())
 
         for element in datas:
 

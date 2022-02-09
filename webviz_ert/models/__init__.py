@@ -22,13 +22,13 @@ if TYPE_CHECKING:
 def load_ensemble(
     parent_page: "WebvizErtPluginABC", ensemble_id: str
 ) -> "EnsembleModel":
-    ensemble = parent_page.ensembles.get(
-        ensemble_id,
-        EnsembleModel(
+
+    ensemble = parent_page.get_ensemble(ensemble_id=ensemble_id)
+    if ensemble is None:
+        ensemble = EnsembleModel(
             ensemble_id=ensemble_id, project_id=parent_page.project_identifier
-        ),
-    )
-    parent_page.ensembles[ensemble_id] = ensemble
+        )
+        parent_page.add_ensemble(ensemble)
     return ensemble
 
 
