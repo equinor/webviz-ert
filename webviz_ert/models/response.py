@@ -10,15 +10,15 @@ class Response:
     def __init__(
         self,
         name: str,
-        response_id: str,
         ensemble_id: str,
         project_id: str,
         ensemble_size: int,
         active_realizations: List[int],
+        resp_schema: Any,
     ):
         self._data_loader: DataLoader = get_data_loader(project_id)
         self._document: Optional[Mapping[str, Any]] = None
-        self._id: str = response_id
+        self._id: str = resp_schema["id"]
         self._ensemble_id: str = ensemble_id
         self.name: str = name
         self._data: Optional[pd.DataFrame] = None
@@ -27,6 +27,13 @@ class Response:
         self._summary_misfits_df: Optional[pd.DataFrame] = None
         self._ensemble_size: int = ensemble_size
         self._active_realizations: List[int] = active_realizations
+
+        if "observations" in resp_schema:
+            self._observations = []
+            for observation_schema in resp_schema["observations"]:
+                self._observations.append(
+                    Observation(observation_schema=observation_schema)
+                )
 
     @property
     def ensemble_id(self) -> str:
