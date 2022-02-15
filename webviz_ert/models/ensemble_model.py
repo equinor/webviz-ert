@@ -57,11 +57,11 @@ class EnsembleModel:
         self.responses = {
             resp_name: Response(
                 name=resp_name,
-                response_id=resp_schema["id"],
                 ensemble_id=ensemble_id,
                 project_id=project_id,
                 ensemble_size=self._size,
                 active_realizations=self._active_realizations,
+                resp_schema=resp_schema,
             )
             for resp_name, resp_schema in self._data_loader.get_ensemble_responses(
                 ensemble_id
