@@ -24,7 +24,6 @@ setup(
     include_package_data=True,
     entry_points={
         "webviz_config_plugins": [
-            "EnsembleOverview = webviz_ert.plugins:EnsembleOverview",
             "ResponseComparison = webviz_ert.plugins:ResponseComparison",
             "ObservationAnalyzer = webviz_ert.plugins:ObservationAnalyzer",
             "ParameterComparison = webviz_ert.plugins:ParameterComparison",

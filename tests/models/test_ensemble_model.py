@@ -1,6 +1,6 @@
 from webviz_ert.models import EnsembleModel
 import dash
-from webviz_ert.plugins import EnsembleOverview
+from webviz_ert.plugins import ParameterComparison
 from webviz_ert.plugins import ObservationAnalyzer
 from webviz_ert.models import load_ensemble
 
@@ -35,19 +35,19 @@ def test_ensemble_model_parameter_data(mock_data):
     parameters = ens_model.parameters
     assert len(parameters) == 3
 
-    # Parameter no lables:
-    expected_lables = ens_model._data_loader.get_record_labels(
+    # Parameter no labels:
+    expected_labels = ens_model._data_loader.get_record_labels(
         ens_id, "test_parameter_1"
     )
-    assert expected_lables == []
+    assert expected_labels == []
     data = parameters["test_parameter_1"].data_df().values
     assert data.flatten().tolist() == [0.1, 1.1, 2.1]
 
-    # Parameter with lables:
-    expected_lables = ens_model._data_loader.get_record_labels(
+    # Parameter with labels:
+    expected_labels = ens_model._data_loader.get_record_labels(
         ens_id, "test_parameter_2"
     )
-    assert expected_lables == ["a", "b"]
+    assert expected_labels == ["a", "b"]
     data = parameters["test_parameter_2::a"].data_df()["a"].values.tolist()
     assert data == [0.01, 1.01, 2.01]
     data = parameters["test_parameter_2::b"].data_df()["b"].values.tolist()
@@ -57,20 +57,20 @@ def test_ensemble_model_parameter_data(mock_data):
 def test_ensemble_caching(mock_data):
     app = dash.Dash(__name__)
 
-    page_ens_overview = EnsembleOverview(app, project_identifier=None)
+    plotter_view = ParameterComparison(app, project_identifier=None)
     ens_model_1 = EnsembleModel(ensemble_id=1, project_id=None)
-    assert len(page_ens_overview.get_ensembles()) == 0
+    assert len(plotter_view.get_ensembles()) == 0
 
-    ensemble = page_ens_overview.get_ensemble(ensemble_id=1)
+    ensemble = plotter_view.get_ensemble(ensemble_id=1)
     assert ensemble is None
 
-    page_ens_overview.add_ensemble(ens_model_1)
-    load_ensemble(page_ens_overview, ensemble_id=42)
+    plotter_view.add_ensemble(ens_model_1)
+    load_ensemble(plotter_view, ensemble_id=42)
 
-    page_ens_overview_ensembles = page_ens_overview.get_ensembles()
+    plotter_view_ensembles = plotter_view.get_ensembles()
 
-    assert len(page_ens_overview_ensembles) == 2
-    assert [ens_id for ens_id, ens_model in page_ens_overview_ensembles.items()] == [
+    assert len(plotter_view_ensembles) == 2
+    assert [ens_id for ens_id, ens_model in plotter_view_ensembles.items()] == [
         1,
         42,
     ]
@@ -78,8 +78,8 @@ def test_ensemble_caching(mock_data):
     page_obs_analyzer = ObservationAnalyzer(app, project_identifier=None)
     page_obs_analyzer_ensembles = page_obs_analyzer.get_ensembles()
     assert len(page_obs_analyzer_ensembles) == 2
-    assert page_obs_analyzer_ensembles == page_ens_overview_ensembles
+    assert page_obs_analyzer_ensembles == plotter_view_ensembles
 
-    page_ens_overview.clear_ensembles()
+    plotter_view.clear_ensembles()
     assert len(page_obs_analyzer_ensembles) == 0
-    assert len(page_ens_overview_ensembles) == 0
+    assert len(plotter_view_ensembles) == 0
