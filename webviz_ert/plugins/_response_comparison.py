@@ -1,8 +1,6 @@
 import dash
 from dash.development.base_component import Component
-from typing import Mapping
 
-# from webviz_ert.models import EnsembleModel, ParametersModel
 import webviz_ert.models
 from dash import html
 

@@ -2,10 +2,6 @@ title: ERT - Visualization tool
 
 pages:
 
- - title: Front page
-   content:
-    - EnsembleOverview:
-
  - title: Plot Viewer
    content:
     - ResponseComparison:
