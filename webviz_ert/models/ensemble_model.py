@@ -141,3 +141,7 @@ class EnsembleModel:
 
     def __repr__(self) -> str:
         return f"{self.id}, {self._name}"
+
+    @property
+    def name(self) -> str:
+        return self._name
