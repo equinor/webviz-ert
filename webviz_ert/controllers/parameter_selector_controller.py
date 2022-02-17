@@ -108,13 +108,8 @@ def parameter_selector_controller(
         ctx = dash.callback_context
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
         if triggered_id == parameter_selector_filter_id:
-            parameters = [
-                parm["value"]
-                for parm in par_opts
-                if parm["value"] not in selected_params
-            ]
-            if not parameters:
-                raise PreventUpdate
+            # Prevent selecting everything from the search result on enter
+            raise PreventUpdate
         elif triggered_id == parameter_selector_multi_id:
             parameters = [
                 parameter

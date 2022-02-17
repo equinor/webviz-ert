@@ -1,6 +1,8 @@
 import dash
 import webviz_ert
-from webviz_ert.plugins._parameter_comparison import ParameterComparison
+
+from selenium.webdriver.common.keys import Keys
+from webviz_ert.plugins import ParameterComparison
 
 
 def test_parameter_selector(
@@ -67,4 +69,88 @@ def test_parameter_selector(
     parameter_selector_container = dash_duo.wait_for_element_by_css_selector(
         ".ert-parameter-selector-container-hide"
     )
+    assert dash_duo.get_logs() == []
+
+
+def test_search_input_return_functionality(
+    mock_data,
+    dash_duo,
+):
+    app = dash.Dash(__name__)
+
+    plugin = ParameterComparison(app, project_identifier=None)
+    layout = plugin.layout
+    app.layout = layout
+    dash_duo.start_server(app)
+    windowsize = (630, 1200)
+    dash_duo.driver.set_window_size(*windowsize)
+
+    ensemble_elements = dash_duo.find_element(".ert-ensemble-selector-large")
+    dash_duo.wait_for_element("#" + plugin.uuid("parameter-selector-multi-params"))
+
+    x, y = (0.5, 0.15)
+    dash_duo.click_at_coord_fractions(ensemble_elements, x, y)
+
+    parameter_selector_container = dash_duo.find_element(
+        "#" + plugin.uuid("container-parameter-selector-multi-params")
+    )
+
+    dash_duo.wait_for_contains_text(
+        "#" + plugin.uuid("parameter-selector-multi-params"),
+        "BPR_138_PERSISTENCE",
+        timeout=4,
+    )
+    dash_duo.wait_for_contains_text(
+        "#" + plugin.uuid("parameter-selector-multi-params"),
+        "OP1_DIVERGENCE_SCALE",
+        timeout=4,
+    )
+    first_elem, _ = parameter_selector_container.text.split("\n")
+
+    dash_duo.click_at_coord_fractions(parameter_selector_container, 0.1, 0.05)
+
+    parameter_deactivator = dash_duo.find_element(
+        "#" + plugin.uuid("parameter-deactivator-params")
+    )
+
+    dash_duo.wait_for_contains_text(
+        "#" + plugin.uuid("parameter-deactivator-params"), f"×{first_elem}", timeout=4
+    )
+    parameter_deactivator.click()
+    dash_duo.clear_input(parameter_deactivator)
+
+    dash_duo.wait_for_contains_text(
+        "#" + plugin.uuid("parameter-deactivator-params"), "Select...", timeout=4
+    )
+
+    parameter_selector_input = dash_duo.find_element(
+        "#" + plugin.uuid("parameter-selector-filter-params")
+    )
+    parameter_selector_input.send_keys(Keys.ENTER)
+    dash_duo.wait_for_contains_text(
+        "#" + plugin.uuid("parameter-deactivator-params"), "Select...", timeout=4
+    )
+
+    parameter_selector_input.send_keys("OP1")
+
+    dash_duo.wait_for_text_to_equal(
+        "#" + plugin.uuid("parameter-selector-filter-params"), "OP1", timeout=4
+    )
+    dash_duo.wait_for_text_to_equal(
+        "#" + plugin.uuid("parameter-selector-multi-params"),
+        "OP1_DIVERGENCE_SCALE",
+        timeout=4,
+    )
+    parameter_selector_input.send_keys(Keys.ENTER)
+
+    dash_duo.wait_for_contains_text(
+        "#" + plugin.uuid("parameter-deactivator-params"), "Select...", timeout=4
+    )
+    dash_duo.click_at_coord_fractions(parameter_selector_container, 0.1, 0.05)
+    dash_duo.wait_for_contains_text(
+        "#" + plugin.uuid("parameter-deactivator-params"),
+        "×OP1_DIVERGENCE_SCALE",
+        timeout=4,
+    )
+
     assert dash_duo.get_logs() == []
