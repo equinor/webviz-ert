@@ -8,15 +8,15 @@ from webviz_ert.models import load_ensemble
 def test_ensemble_model(mock_data):
     ens_model = EnsembleModel(ensemble_id=1, project_id=None)
     assert len(ens_model.children) == 1
-    assert ens_model.children[0]._name == "default_smoother_update"
-    assert ens_model._name == "default"
+    assert ens_model.children[0].name == "default_smoother_update"
+    assert ens_model.name == "default"
     assert len(ens_model.responses) == 1
 
 
 def test_ensemble_model_labled_parameters(mock_data):
     ens_id = 42
     ens_model = EnsembleModel(ensemble_id=ens_id, project_id=None)
-    assert ens_model._name == "default"
+    assert ens_model.name == "default"
     assert len(ens_model.parameters) == 3
     for param_name, parameter in ens_model.parameters.items():
         name, label = (
