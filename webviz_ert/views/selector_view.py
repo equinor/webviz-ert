@@ -16,7 +16,7 @@ def parameter_selector_view(
                 [
                     dbc.Col(
                         html.Label(
-                            "Search (Press ENTER to select all matches):",
+                            "Search",
                             className="ert-label",
                         ),
                         align="left",
