@@ -24,6 +24,7 @@ def test_valid_response_option():
     class Response:
         name = "DummyResponse"
         observations = ["DummyObs"]
+        has_observations = None
 
     response = Response()
     assert _valid_response_option(response_filters, response) is True

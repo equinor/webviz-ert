@@ -4,8 +4,11 @@ from webviz_ert.models import Response, EnsembleModel
 
 def _valid_response_option(response_filters: List[str], response: Response) -> bool:
     if "obs" in response_filters:
-        if response.observations is None or len(response.observations) == 0:
-            return False
+        if response.has_observations is None:
+            if response.observations is None or len(response.observations) == 0:
+                return False
+        else:
+            return response.has_observations
 
     if "historical" in response_filters:
         if response.name.split(":")[0][-1] == "H":

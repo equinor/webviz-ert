@@ -27,13 +27,10 @@ class Response:
         self._summary_misfits_df: Optional[pd.DataFrame] = None
         self._ensemble_size: int = ensemble_size
         self._active_realizations: List[int] = active_realizations
+        self._has_observations: Optional[bool] = None
 
-        if "observations" in resp_schema:
-            self._observations = []
-            for observation_schema in resp_schema["observations"]:
-                self._observations.append(
-                    Observation(observation_schema=observation_schema)
-                )
+        if "has_observations" in resp_schema:
+            self._has_observations = resp_schema["has_observations"]
 
     @property
     def ensemble_id(self) -> str:
@@ -88,3 +85,7 @@ class Response:
                     Observation(observation_schema=observation_schema)
                 )
         return self._observations
+
+    @property
+    def has_observations(self) -> Optional[bool]:
+        return self._has_observations
