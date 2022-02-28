@@ -1,15 +1,16 @@
 import dash
-from webviz_config import WebvizPluginABC
+import dash_bootstrap_components as dbc
+
+from dash import html
 from typing import List, Union, Any, Dict, Tuple, Optional, Mapping
 from dash.development.base_component import Component
 from dash.dependencies import Input, Output, State
-from dash.exceptions import PreventUpdate
-import dash_bootstrap_components as dbc
-from dash import html
-from webviz_ert.views import response_view, parameter_view
+
 import webviz_ert.controllers
-from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
 import webviz_ert.assets as assets
+
+from webviz_ert.views import response_view, parameter_view
+from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
 
 
 def _get_child(response: str, children: List[Component]) -> Optional[Component]:

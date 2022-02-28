@@ -1,20 +1,20 @@
 import dash
-from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
 import pandas as pd
 import datetime
-from typing import List, Dict, Tuple, Union, Any, Optional, Mapping
 import plotly.graph_objects as go
+import webviz_ert.assets as assets
+
 from copy import deepcopy
+from typing import List, Dict, Union, Any, Optional
 from dash.dependencies import Input, Output, State, ALL, MATCH
 from dash.exceptions import PreventUpdate
+from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
 from webviz_ert.models import (
     ResponsePlotModel,
     Response,
     PlotModel,
     load_ensemble,
 )
-from webviz_ert.controllers.controller_functions import response_options
-import webviz_ert.assets as assets
 
 
 def _get_realizations_plots(
@@ -143,17 +143,17 @@ def multi_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> Non
             Input(parent.uuid("ensemble-selection-store"), "modified_timestamp"),
         ],
         [
-            State(parent.uuid("ensemble-selection-store"), "data"),
+            State(parent.uuid("selected-ensemble-dropdown"), "value"),
             State({"index": MATCH, "type": parent.uuid("response-id-store")}, "data"),
         ],
     )
     def update_graph(
         plot_type: str,
         _: Any,
-        selected_ensembles: Optional[Mapping[str, Dict]],
+        selected_ensembles: List[str],
         response: Optional[str],
     ) -> go.Figure:
-        if response in [None, ""] or not selected_ensembles:
+        if not response or not selected_ensembles:
             raise PreventUpdate
 
         def _generate_plot(ensemble_id: str, color: str) -> Optional[ResponsePlotModel]:
@@ -166,8 +166,8 @@ def multi_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> Non
             return plot
 
         response_plots = [
-            _generate_plot(ensemble_id, data["color"])
-            for ensemble_id, data in selected_ensembles.items()
+            _generate_plot(ensemble_id, assets.get_color(index=index))
+            for index, ensemble_id in enumerate(selected_ensembles)
         ]
 
         fig = go.Figure()

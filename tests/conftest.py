@@ -77,3 +77,10 @@ def _requests_post(url, **kwargs):
     if url in ensembles_response:
         return _MockResponse(url, ensembles_response[url], 200)
     return _MockResponse(url, {}, 400)
+
+
+def select_first(dash_duo, selector):
+    parameter_selector_input = dash_duo.find_element(selector)
+    options = parameter_selector_input.text.split("\n")
+    dash_duo.click_at_coord_fractions(parameter_selector_input, 0.1, 0.1)
+    return options[0]

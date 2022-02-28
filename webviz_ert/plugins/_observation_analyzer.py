@@ -4,10 +4,9 @@ from dash import html
 from webviz_config import WebvizPluginABC
 from typing import Mapping
 
-# from webviz_ert.models import EnsembleModel, ParametersModel
 import webviz_ert.models
 
-from webviz_ert.views import ensemble_selector_view, response_obs_view
+from webviz_ert.views import ensemble_selector_list, response_obs_view
 
 from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
 import webviz_ert.controllers
@@ -24,7 +23,7 @@ class ObservationAnalyzer(WebvizErtPluginABC):
             [
                 html.Div(
                     id=self.uuid("ensemble-content"),
-                    children=ensemble_selector_view(parent=self),
+                    children=ensemble_selector_list(parent=self),
                 ),
                 html.Div(
                     id=self.uuid("plotting-content"),
@@ -34,5 +33,5 @@ class ObservationAnalyzer(WebvizErtPluginABC):
         )
 
     def set_callbacks(self, app: dash.Dash) -> None:
-        webviz_ert.controllers.ensemble_selector_controller(self, app)
+        webviz_ert.controllers.ensemble_list_selector_controller(self, app)
         webviz_ert.controllers.observation_response_controller(self, app)

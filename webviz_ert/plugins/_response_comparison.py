@@ -5,7 +5,7 @@ import webviz_ert.models
 from dash import html
 
 from webviz_ert.views import (
-    ensemble_selector_view,
+    ensemble_selector_list,
     plot_view_body,
     plot_view_header,
     plot_view_menu,
@@ -26,7 +26,7 @@ class ResponseComparison(WebvizErtPluginABC):
             [
                 html.Div(
                     id=self.uuid("ensemble-content"),
-                    children=ensemble_selector_view(parent=self),
+                    children=ensemble_selector_list(parent=self),
                 ),
                 html.Div(
                     children=plot_view_header(parent=self),
@@ -41,7 +41,7 @@ class ResponseComparison(WebvizErtPluginABC):
         )
 
     def set_callbacks(self, app: dash.Dash) -> None:
-        webviz_ert.controllers.ensemble_selector_controller(self, app)
+        webviz_ert.controllers.ensemble_list_selector_controller(self, app)
         webviz_ert.controllers.parameter_selector_controller(self, app, suffix="param")
         webviz_ert.controllers.parameter_selector_controller(
             self, app, suffix="resp", extra_input=True

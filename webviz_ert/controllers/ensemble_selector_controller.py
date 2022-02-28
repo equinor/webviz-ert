@@ -1,161 +1,84 @@
-from typing import List, Dict, Mapping, Union, Optional, TYPE_CHECKING, MutableMapping
+from typing import List, Dict, Any
 from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
 import dash
 from dash.dependencies import Input, Output, State
-from dash.exceptions import PreventUpdate
 from webviz_ert.data_loader import get_ensembles
 from webviz_ert.models import load_ensemble
-import webviz_ert.assets as assets
-
-if TYPE_CHECKING:
-    from webviz_ert.models import EnsembleModel
 
 
-def _construct_graph(ensembles: MutableMapping[str, "EnsembleModel"]) -> List[Dict]:
-
-    queue = [
-        ensemble
-        for ensemble_id, ensemble in ensembles.items()
-        if ensemble.parent == None
-    ]
-
-    datas = []
-
-    def _construct_node(ensemble: "EnsembleModel") -> Dict:
-        return {
-            "data": {
-                "id": str(ensemble.id),
-                "label": str(ensemble),
-                "color": assets.ERTSTYLE["ensemble-selector"]["default_color"],
-            },
-        }
-
-    def _construct_edge(
-        ensemble_src: "EnsembleModel", ensemble_target: "EnsembleModel"
-    ) -> Dict:
-        return {
-            "data": {
-                "source": str(ensemble_src.id),
-                "target": str(ensemble_target.id),
-            }
-        }
-
-    while queue:
-        ensemble = queue.pop(-1)
-        datas.append(_construct_node(ensemble))
-        if ensemble.children:
-            for child in ensemble.children:
-                datas.append(_construct_edge(ensemble, child))
-                queue.append(child)
-    return datas
+def get_non_selected_options(store: Dict[str, List]) -> List[Dict[str, str]]:
+    _options = []
+    for option in store["options"]:
+        if option not in store["selected"]:
+            _options.append(option)
+    return _options
 
 
-def ensemble_selector_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:
+def ensemble_list_selector_controller(
+    parent: WebvizErtPluginABC, app: dash.Dash
+) -> None:
     @app.callback(
-        Output(parent.uuid("ensemble-selector"), "elements"),
         [
-            Input(parent.uuid("ensemble-selection-store"), "data"),
-            Input(parent.uuid("ensemble-selector-button"), "n_clicks"),
+            Output(parent.uuid("selected-ensemble-dropdown"), "options"),
+            Output(parent.uuid("selected-ensemble-dropdown"), "value"),
+            Output(parent.uuid("ensemble-multi-selector"), "options"),
+            Output(parent.uuid("ensemble-selection-store"), "data"),
         ],
         [
-            State(parent.uuid("ensemble-selector"), "elements"),
+            Input(parent.uuid("ensemble-multi-selector"), "value"),
+            Input(parent.uuid("selected-ensemble-dropdown"), "value"),
+        ],
+        [
+            State(parent.uuid("selected-ensemble-dropdown"), "options"),
+            State(parent.uuid("selected-ensemble-dropdown"), "value"),
+            State(parent.uuid("ensemble-multi-selector"), "options"),
+            State(parent.uuid("ensemble-selection-store"), "data"),
         ],
     )
-    def update_ensemble_selector_graph(
-        selected_ensembles: Optional[Mapping[str, Dict]],
-        _: int,
-        elements: Optional[List[Dict]],
-    ) -> List[Dict]:
-        selected_ensembles = {} if not selected_ensembles else selected_ensembles
+    def set_callback(
+        _input_ensemble_selector: List[str],
+        _: List[str],
+        selected_ens_options: List[Dict],
+        selected_ens_value: List[str],
+        ens_selector_options: List[Dict[str, str]],
+        ensemble_selection_store: Dict[str, List],
+    ) -> List[Any]:
         ctx = dash.callback_context
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+        if not triggered_id and not ensemble_selection_store:
+            ensemble_selection_store = {"options": [], "selected": []}
 
-        if (
-            triggered_id == parent.uuid("ensemble-selection-store")
-            and elements is not None
-        ):
-            datas = elements
-        else:
-            ensemble_dict = get_ensembles(project_id=parent.project_identifier)
-            for ensemble_schema in ensemble_dict:
-                ensemble_id = ensemble_schema["id"]
-                load_ensemble(parent, ensemble_id)
-            datas = _construct_graph(parent.get_ensembles())
+            if not parent.get_ensembles():
+                ensemble_dict = get_ensembles(project_id=parent.project_identifier)
+                for ensemble_schema in ensemble_dict:
+                    ensemble_id = ensemble_schema["id"]
+                    load_ensemble(parent, ensemble_id)
 
-        for element in datas:
+            for ens_id, ensemble in parent.get_ensembles().items():
+                element = {"label": ensemble.name, "value": ensemble.id}
+                ensemble_selection_store["options"].append(element)
 
-            if "id" in element["data"]:
-                element["data"].update(
-                    selected_ensembles.get(element["data"]["id"], {})
-                )
-                element["selected"] = element["data"]["id"] in selected_ensembles
-        return datas
+        if triggered_id == parent.uuid("ensemble-multi-selector"):
+            selected_list_elem = _input_ensemble_selector[0]
+            element = next(
+                op for op in ens_selector_options if op["value"] == selected_list_elem
+            )
+            ensemble_selection_store["selected"].append(element)
 
-    @app.callback(
-        Output(parent.uuid("ensemble-selection-store"), "data"),
-        [
-            Input(parent.uuid("ensemble-selector"), "selectedNodeData"),
-        ],
-    )
-    def update_ensemble_selection(
-        selected_nodes: Optional[List[Dict]],
-    ) -> Mapping[int, Dict]:
-        color_wheel = assets.ERTSTYLE["ensemble-selector"]["color_wheel"]
-        if not selected_nodes:
-            raise PreventUpdate
-        data = {
-            ensemble["id"]: {
-                "color": color_wheel[index % len(color_wheel)],
-            }
-            for index, ensemble in enumerate(selected_nodes)
-        }
+        if triggered_id == parent.uuid("selected-ensemble-dropdown"):
+            element = next(
+                op
+                for op in selected_ens_options
+                if op["value"] not in selected_ens_value
+            )
+            ensemble_selection_store["selected"].remove(element)
 
-        return data
-
-    @app.callback(
-        [
-            Output(parent.uuid("ensemble-selector"), "className"),
-            Output(parent.uuid("ensemble-selector-container"), "className"),
-            Output(parent.uuid("ensemble-selector-button"), "children"),
-            Output(parent.uuid("ensemble-view-store"), "data"),
-        ],
-        [
-            Input(parent.uuid("ensemble-selector-button"), "n_clicks"),
-        ],
-        [
-            State(parent.uuid("ensemble-selector"), "className"),
-            State(parent.uuid("ensemble-selector-container"), "className"),
-            State(parent.uuid("ensemble-view-store"), "data"),
-        ],
-    )
-    def update_ensemble_selector_view_size(
-        _: int, class_name: str, class_name_container: str, maximized: bool
-    ) -> List[Union[str, str, str, bool]]:
-
-        ctx = dash.callback_context
-        triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
-
-        if triggered_id == parent.uuid("ensemble-selector-button"):
-            maximized = not maximized
-
-        if maximized:
-            old_class_name = "ert-ensemble-selector-small"
-            new_class_name = "ert-ensemble-selector-large"
-            old_container_class_name = "ert-ensemble-selector-container-small"
-            new_container_class_name = "ert-ensemble-selector-container-large"
-            new_button_text = "Minimize"
-        else:
-            old_class_name = "ert-ensemble-selector-large"
-            new_class_name = "ert-ensemble-selector-small"
-            old_container_class_name = "ert-ensemble-selector-container-large"
-            new_container_class_name = "ert-ensemble-selector-container-small"
-            new_button_text = "Expand"
-
+        ens_selector_options = get_non_selected_options(ensemble_selection_store)
+        selected_ens_options = ensemble_selection_store["selected"]
+        selected_ens_value = [option["value"] for option in selected_ens_options]
         return [
-            class_name.replace(old_class_name, new_class_name),
-            class_name_container.replace(
-                old_container_class_name, new_container_class_name
-            ),
-            new_button_text,
-            maximized,
+            selected_ens_options,
+            selected_ens_value,
+            ens_selector_options,
+            ensemble_selection_store,
         ]

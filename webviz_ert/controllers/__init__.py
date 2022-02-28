@@ -1,4 +1,4 @@
-from .ensemble_selector_controller import ensemble_selector_controller
+from .ensemble_selector_controller import ensemble_list_selector_controller
 from .multi_response_controller import multi_response_controller
 from .observation_response_controller import observation_response_controller
 from .multi_parameter_controller import multi_parameter_controller

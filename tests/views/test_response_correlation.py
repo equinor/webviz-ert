@@ -1,5 +1,6 @@
 import dash
 from webviz_ert.plugins._response_correlation import ResponseCorrelation
+from tests.conftest import select_first
 
 
 def test_response_correlation_view(
@@ -14,12 +15,15 @@ def test_response_correlation_view(
     dash_duo.start_server(app)
     windowsize = (630, 1200)
     dash_duo.driver.set_window_size(*windowsize)
-    ensemble_elements = dash_duo.find_element(".ert-ensemble-selector-large")
 
-    # The position is hard coded coordinates normalized to the extent of the
-    # ensemble-selector
-    x, y = (0.5, 0.15)
-    dash_duo.click_at_coord_fractions(ensemble_elements, x, y)
+    ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
+
+    dash_duo.wait_for_contains_text(
+        "#" + plugin.uuid("selected-ensemble-dropdown"),
+        ensemble_name,
+        timeout=4,
+    )
+
     resp_select = dash_duo.find_element(
         "#" + plugin.uuid("parameter-selector-multi-resp")
     )

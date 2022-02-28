@@ -1,10 +1,12 @@
 import dash
+import plotly.graph_objects as go
+
 from typing import List, Tuple, Any, Optional, Mapping, Dict
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State, MATCH
-import plotly.graph_objects as go
 from webviz_ert.models import MultiHistogramPlotModel, load_ensemble
 from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
+from webviz_ert import assets
 
 
 def multi_parameter_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:
@@ -44,7 +46,7 @@ def multi_parameter_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> No
             Input(parent.uuid("param-label-check"), "value"),
         ],
         [
-            State(parent.uuid("ensemble-selection-store"), "data"),
+            State(parent.uuid("selected-ensemble-dropdown"), "value"),
             State({"index": MATCH, "type": parent.uuid("parameter-id-store")}, "data"),
             State({"index": MATCH, "type": parent.uuid("bincount-store")}, "data"),
         ],
@@ -54,7 +56,7 @@ def multi_parameter_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> No
         _: Any,
         __: Any,
         legend: List[str],
-        selected_ensembles: Optional[Mapping[str, Dict]],
+        selected_ensembles: List[str],
         parameter: str,
         bin_count: int,
     ) -> Tuple[go.Figure, int]:
@@ -65,13 +67,13 @@ def multi_parameter_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> No
         colors = {}
         names = {}
         priors = {}
-        for ensemble_id, color in selected_ensembles.items():
+        for index, ensemble_id in enumerate(selected_ensembles):
             ensemble = load_ensemble(parent, ensemble_id)
             if ensemble.parameters and parameter in ensemble.parameters:
                 key = str(ensemble)
                 parameter_model = ensemble.parameters[parameter]
                 data[key] = parameter_model.data_df()
-                colors[key] = color["color"]
+                colors[key] = assets.get_color(index)
                 names[key] = key if "label" in legend else ""
 
                 if parameter_model.priors and "prior" in hist_check_values:
@@ -95,18 +97,18 @@ def multi_parameter_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> No
         ],
         [
             State({"index": MATCH, "type": parent.uuid("hist-check")}, "options"),
-            State(parent.uuid("ensemble-selection-store"), "data"),
+            State(parent.uuid("selected-ensemble-dropdown"), "value"),
         ],
     )
     def set_parameter_from_btn(
         parameter: str,
         plotting_options: List[Mapping[str, str]],
-        selected_ensembles: Optional[Mapping[str, Dict]],
+        selected_ensembles: List[str],
     ) -> List[Mapping[str, str]]:
         if not selected_ensembles:
             raise PreventUpdate
         has_priors = False
-        for ensemble_id, _ in selected_ensembles.items():
+        for ensemble_id in selected_ensembles:
             ensemble = load_ensemble(parent, ensemble_id)
             if ensemble.parameters and parameter in ensemble.parameters:
                 parameter_model = ensemble.parameters[parameter]

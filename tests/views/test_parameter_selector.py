@@ -3,6 +3,7 @@ import webviz_ert
 
 from selenium.webdriver.common.keys import Keys
 from webviz_ert.plugins import ParameterComparison
+from tests.conftest import select_first
 
 
 def test_parameter_selector(
@@ -18,11 +19,14 @@ def test_parameter_selector(
     windowsize = (630, 1200)
     dash_duo.driver.set_window_size(*windowsize)
 
-    ensemble_elements = dash_duo.find_element(".ert-ensemble-selector-large")
-    dash_duo.wait_for_element("#" + plugin.uuid("parameter-selector-multi-params"))
+    ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
+    dash_duo.wait_for_contains_text(
+        "#" + plugin.uuid("selected-ensemble-dropdown"),
+        ensemble_name,
+        timeout=4,
+    )
 
-    x, y = (0.5, 0.15)
-    dash_duo.click_at_coord_fractions(ensemble_elements, x, y)
+    dash_duo.wait_for_element("#" + plugin.uuid("parameter-selector-multi-params"))
 
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("parameter-selector-multi-params"),
@@ -85,11 +89,14 @@ def test_search_input_return_functionality(
     windowsize = (630, 1200)
     dash_duo.driver.set_window_size(*windowsize)
 
-    ensemble_elements = dash_duo.find_element(".ert-ensemble-selector-large")
-    dash_duo.wait_for_element("#" + plugin.uuid("parameter-selector-multi-params"))
+    ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
+    dash_duo.wait_for_contains_text(
+        "#" + plugin.uuid("selected-ensemble-dropdown"),
+        ensemble_name,
+        timeout=4,
+    )
 
-    x, y = (0.5, 0.15)
-    dash_duo.click_at_coord_fractions(ensemble_elements, x, y)
+    dash_duo.wait_for_element("#" + plugin.uuid("parameter-selector-multi-params"))
 
     parameter_selector_container = dash_duo.find_element(
         "#" + plugin.uuid("container-parameter-selector-multi-params")

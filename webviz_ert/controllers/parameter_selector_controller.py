@@ -1,13 +1,14 @@
 import re
 import dash
-from typing import List, Any, Tuple, Dict, Optional, Mapping
-from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
+
+from typing import List, Any, Tuple, Dict, Optional
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
+
+from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
 from webviz_ert.models import (
     load_ensemble,
 )
-
 from webviz_ert.controllers import parameter_options, response_options
 
 
@@ -33,7 +34,7 @@ def parameter_selector_controller(
     parameter_deactivator_id = parent.uuid(f"parameter-deactivator-{suffix}")
     parameter_selection_store_id = parent.uuid(f"parameter-selection-store-{suffix}")
     options_inputs = [
-        Input(parent.uuid("ensemble-selection-store"), "data"),
+        Input(parent.uuid("selected-ensemble-dropdown"), "value"),
         Input(parameter_selector_filter_id, "value"),
         Input(parameter_deactivator_id, "value"),
     ]
@@ -51,13 +52,15 @@ def parameter_selector_controller(
         [State(parameter_type_store_id, "data")],
     )
     def update_parameters_options(
-        selected_ensembles: Optional[Mapping[str, Dict]],
+        selected_ensembles: List[str],
         filter_search: str,
         selected: Optional[List[str]],
         *args: List[str],
     ) -> Tuple[List[Dict], List[str]]:
         if not selected_ensembles:
-            raise PreventUpdate
+            # Reset selection list
+            return [], []
+
         store_type = args[0]
         response_filter = []
         if extra_input:
@@ -91,16 +94,12 @@ def parameter_selector_controller(
             Input(parameter_selector_multi_id, "value"),
             Input(parameter_selector_filter_id, "n_submit"),
         ],
-        [
-            State(parameter_deactivator_id, "value"),
-            State(parameter_selector_multi_id, "options"),
-        ],
+        State(parameter_deactivator_id, "value"),
     )
     def update_parameter_selection(
         parameters: List[str],
         _: int,
         selected_params: Optional[List[str]],
-        par_opts: List[Dict],
     ) -> Optional[List[str]]:
         selected_params = [] if not selected_params else selected_params
         parameters = [] if not parameters else parameters

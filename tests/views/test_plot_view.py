@@ -1,17 +1,16 @@
 import dash
 import webviz_ert
 from webviz_ert.plugins._response_comparison import ResponseComparison
+from tests.conftest import select_first
 
 
 def test_plot_view(
     mock_data,
     dash_duo,
 ):
-    # This test selects an ensemble from the ensemble-selector
+    # This test selects an ensemble from the ensemble-multi-selector
     # then selects a response and parameter and checks that the
     # DOM element for both are created.
-    # The ensemble-selector has no API and the position for the
-    # ensemble might change.
     app = dash.Dash(__name__)
 
     plugin = ResponseComparison(app, project_identifier=None)
@@ -20,12 +19,15 @@ def test_plot_view(
     dash_duo.start_server(app)
     windowsize = (630, 1200)
     dash_duo.driver.set_window_size(*windowsize)
-    ensemble_elements = dash_duo.find_element(".ert-ensemble-selector-large")
 
-    # The position is hard coded coordinates normalized to the extent of the
-    # ensemble-selector
-    x, y = (0.5, 0.15)
-    dash_duo.click_at_coord_fractions(ensemble_elements, x, y)
+    ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
+
+    dash_duo.wait_for_contains_text(
+        "#" + plugin.uuid("selected-ensemble-dropdown"),
+        ensemble_name,
+        timeout=4,
+    )
+
     resp_select = dash_duo.find_element(
         "#" + plugin.uuid("parameter-selector-multi-resp")
     )
