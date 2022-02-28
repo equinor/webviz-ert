@@ -34,7 +34,6 @@ setup(
         ],
     },
     install_requires=[
-        "dash-cytoscape",
         "dash-bootstrap-components",
         "requests",
         "webviz-config>=0.0.40",

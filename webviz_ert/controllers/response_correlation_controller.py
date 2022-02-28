@@ -1,18 +1,16 @@
-from typing import List, Optional, Dict, Mapping, Tuple, Any
-
 import pandas as pd
-from dash.development.base_component import Component
-from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
-
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-from copy import deepcopy
-from dash.exceptions import PreventUpdate
-from dash.dependencies import Input, Output, State
-from dash import dcc
-from dash import html
 import dash
 
+from typing import List, Optional, Dict, Tuple, Any
+from copy import deepcopy
+from dash import dcc, html
+from dash.development.base_component import Component
+from dash.exceptions import PreventUpdate
+from dash.dependencies import Input, Output, State
+from plotly.subplots import make_subplots
+
+from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
 from webviz_ert.models import (
     load_ensemble,
     BarChartPlotModel,
@@ -21,7 +19,7 @@ from webviz_ert.models import (
 from webviz_ert.controllers.multi_response_controller import (
     _get_observation_plots,
 )
-import webviz_ert.assets as assets
+from webviz_ert import assets
 
 
 def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:
@@ -50,7 +48,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         [
             State(parent.uuid("parameter-selection-store-param"), "data"),
             State(parent.uuid("parameter-selection-store-resp"), "data"),
-            State(parent.uuid("ensemble-selection-store"), "data"),
+            State(parent.uuid("selected-ensemble-dropdown"), "value"),
         ],
     )
     def update_correlation_plot(
@@ -59,7 +57,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         correlation_metric: str,
         parameters: List[str],
         responses: List[str],
-        ensembles: Optional[Mapping[str, Dict]],
+        ensembles: List[str],
     ) -> Optional[Tuple[go.Figure, go.Figure]]:
         if not (
             ensembles
@@ -75,7 +73,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         heatmaps = []
 
         df_index = None
-        for ensemble_id, color in ensembles.items():
+        for index, ensemble_id in enumerate(ensembles):
             ensemble = load_ensemble(parent, ensemble_id)
             parameter_df = ensemble.parameters_df(parameters)
             if parameter_df.empty:
@@ -108,7 +106,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             ens_key = repr(ensemble)
             data[ens_key] = corrdf[selected_response]
             data[ens_key].index.name = selected_response
-            colors[ens_key] = color["color"]
+            colors[ens_key] = assets.get_color(index=index)
         if data and heatmaps:
             correlation_plot = BarChartPlotModel(data, colors)
             heatmap_plot = make_subplots(
@@ -145,7 +143,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         ],
         [
             State(parent.uuid("parameter-selection-store-resp"), "data"),
-            State(parent.uuid("ensemble-selection-store"), "data"),
+            State(parent.uuid("selected-ensemble-dropdown"), "value"),
             State(parent.uuid("correlation-store-xindex"), "data"),
             State(parent.uuid("correlation-store-selection"), "data"),
         ],
@@ -156,7 +154,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         ___: Any,
         ____: Any,
         responses: Optional[List[str]],
-        ensembles: Optional[Mapping[str, Dict]],
+        ensembles: List[str],
         corr_xindex: Dict,
         corr_param_resp: Dict,
     ) -> Optional[go.Figure]:
@@ -166,7 +164,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         _plots = []
         _obs_plots: List[PlotModel] = []
 
-        for ensemble_id, data in ensembles.items():
+        for index, ensemble_id in enumerate(ensembles):
             ensemble = load_ensemble(parent, ensemble_id)
             response = ensemble.responses[selected_response]
             x_axis = response.axis
@@ -178,9 +176,9 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                 else:
                     style = deepcopy(assets.ERTSTYLE["response-plot"]["response"])
             data_df = response.data_df().copy()
-
-            style.update({"marker": {"color": data["color"]}})
-            style.update({"line": {"color": data["color"]}})
+            ensemble_color = assets.get_color(index=index)
+            style.update({"marker": {"color": ensemble_color}})
+            style.update({"line": {"color": ensemble_color}})
             _plots += [
                 PlotModel(
                     x_axis=x_axis,
@@ -240,7 +238,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         [
             State(parent.uuid("parameter-selection-store-param"), "data"),
             State(parent.uuid("parameter-selection-store-resp"), "data"),
-            State(parent.uuid("ensemble-selection-store"), "data"),
+            State(parent.uuid("selected-ensemble-dropdown"), "value"),
         ],
     )
     def update_response_parameter_scatterplot(
@@ -248,7 +246,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         corr_param_resp: Dict,
         parameters: List[str],
         responses: List[str],
-        ensembles: Optional[Mapping[str, Dict]],
+        ensembles: List[str],
     ) -> Optional[Tuple[go.Figure, Component]]:
 
         if not (
@@ -267,7 +265,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         _param_plots = {}
         _colors = {}
 
-        for ensemble_id, data in ensembles.items():
+        for index, ensemble_id in enumerate(ensembles):
             ensemble = load_ensemble(parent, ensemble_id)
 
             if ensemble.parameters and ensemble.responses:
@@ -278,8 +276,9 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                     x_index = corr_xindex.get(selected_response, 0)
                     x_data = response.data_df().iloc[x_index]
                     style = deepcopy(assets.ERTSTYLE["response-plot"]["response-index"])
-                    style["marker"]["color"] = data["color"]
-                    _colors[str(ensemble)] = data["color"]
+                    ensemble_color = assets.get_color(index=index)
+                    style["marker"]["color"] = ensemble_color
+                    _colors[str(ensemble)] = ensemble_color
                     _plots += [
                         PlotModel(
                             x_axis=x_data.values.flatten(),
@@ -397,23 +396,19 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         corr_param_resp: Dict,
     ) -> Optional[Dict]:
         ctx = dash.callback_context
-        triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
-        if triggered_id == parent.uuid("parameter-selection-store-resp") and responses:
+        if responses:
             corr_param_resp["response"] = (
                 corr_param_resp["response"]
                 if corr_param_resp["response"] in responses
                 else responses[0]
             )
-        elif (
-            triggered_id == parent.uuid("parameter-selection-store-param")
-            and parameters
-        ):
+        if parameters:
             corr_param_resp["parameter"] = (
                 corr_param_resp["parameter"]
                 if corr_param_resp["parameter"] in parameters
                 else parameters[0]
             )
-        elif click_data:
+        if click_data:
             corr_param_resp["parameter"] = click_data["points"][0]["y"]
             corr_param_resp["response"] = click_data["points"][0]["x"]
         return corr_param_resp

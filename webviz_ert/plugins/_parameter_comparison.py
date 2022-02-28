@@ -5,7 +5,7 @@ from dash import html
 import webviz_ert.models
 
 from webviz_ert.views import (
-    ensemble_selector_view,
+    ensemble_selector_list,
     parallel_coordinates_view,
     parameter_selector_view,
 )
@@ -25,7 +25,7 @@ class ParameterComparison(WebvizErtPluginABC):
             [
                 html.Div(
                     id=self.uuid("ensemble-content"),
-                    children=ensemble_selector_view(parent=self),
+                    children=ensemble_selector_list(parent=self),
                 ),
                 html.Div(
                     id=self.uuid("parallel-coor-content"),
@@ -41,10 +41,10 @@ class ParameterComparison(WebvizErtPluginABC):
         )
 
     def set_callbacks(self, app: dash.Dash) -> None:
-        webviz_ert.controllers.ensemble_selector_controller(self, app)
-        webviz_ert.controllers.parameter_comparison_controller(
-            self, app, suffix="params"
-        )
+        webviz_ert.controllers.ensemble_list_selector_controller(self, app)
         webviz_ert.controllers.parameter_selector_controller(
             self, app, suffix="params", union_keys=False
+        )
+        webviz_ert.controllers.parameter_comparison_controller(
+            self, app, suffix="params"
         )

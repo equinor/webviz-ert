@@ -6,7 +6,7 @@ from dash import html
 from dash import dcc
 import dash_bootstrap_components as dbc
 from webviz_ert.views import (
-    ensemble_selector_view,
+    ensemble_selector_list,
     correlation_view,
     parameter_selector_view,
 )
@@ -86,7 +86,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
                 ),
                 html.Div(
                     id=self.uuid("ensemble-content"),
-                    children=ensemble_selector_view(parent=self),
+                    children=ensemble_selector_list(parent=self),
                 ),
                 dbc.Row(
                     [
@@ -164,9 +164,9 @@ class ResponseCorrelation(WebvizErtPluginABC):
         )
 
     def set_callbacks(self, app: dash.Dash) -> None:
-        webviz_ert.controllers.ensemble_selector_controller(self, app)
-        webviz_ert.controllers.response_correlation_controller(self, app)
+        webviz_ert.controllers.ensemble_list_selector_controller(self, app)
         webviz_ert.controllers.parameter_selector_controller(
             self, app, suffix="param", union_keys=False
         )
         webviz_ert.controllers.parameter_selector_controller(self, app, suffix="resp")
+        webviz_ert.controllers.response_correlation_controller(self, app)

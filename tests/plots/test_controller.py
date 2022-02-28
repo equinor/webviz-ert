@@ -8,7 +8,7 @@ from webviz_ert.controllers.multi_response_controller import (
 from webviz_ert.controllers.observation_response_controller import (
     _get_univariate_misfits_boxplots,
 )
-from webviz_ert.controllers.ensemble_selector_controller import _construct_graph
+
 from webviz_ert.data_loader import get_ensembles
 from webviz_ert.models import EnsembleModel, PriorModel
 from webviz_ert.models import (
@@ -83,31 +83,6 @@ def test_realizations_statistics_plot_representation():
     np.testing.assert_equal(plots[0].repr.y, np.mean(data, axis=1))
     np.testing.assert_equal(plots[1].repr.y, np.quantile(data, 0.1, axis=1))
     np.testing.assert_equal(plots[2].repr.y, np.quantile(data, 0.9, axis=1))
-
-
-def test_ensemble_selector_graph_constructor(mock_data):
-    ensemble_dict = get_ensembles(project_id=None)
-    ensemble_models = {
-        schema["id"]: EnsembleModel(schema["id"], project_id=None)
-        for schema in ensemble_dict
-    }
-    graph_data = _construct_graph(ensemble_models)
-
-    parent_ensemble_node = {
-        "data": {
-            "id": "1",
-            "label": "2020-04-29T09:36:26, default",
-            "color": assets.ERTSTYLE["ensemble-selector"]["default_color"],
-        }
-    }
-    parent_child_edge = {
-        "data": {
-            "source": "1",
-            "target": "2",
-        }
-    }
-    assert parent_ensemble_node in graph_data
-    assert parent_child_edge in graph_data
 
 
 def test_histogram_plot_representation():
