@@ -54,8 +54,10 @@ def plot_view_header(parent: WebvizPluginABC) -> List[Component]:
 
 def plot_view_body(parent: WebvizPluginABC) -> List[Component]:
     return [
-        html.Div(id=parent.uuid("plotting-content")),
-        dcc.Store(id=parent.uuid("plotting-content-store"), storage_type="session"),
+        html.Div(
+            [dbc.Row(children=[], id=parent.uuid("plotting-content"))],
+            id=parent.uuid("plotting-content-container"),
+        ),
     ]
 
 

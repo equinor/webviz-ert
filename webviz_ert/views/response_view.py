@@ -33,7 +33,7 @@ def response_view(parent: WebvizPluginABC, index: int = 0) -> List[Component]:
                                 {"label": key, "value": key}
                                 for key in ["Function plot", "Statistics"]
                             ],
-                            value="Function plot",
+                            value="Statistics",
                             id={"index": index, "type": parent.uuid("plot-type")},
                             persistence="session",
                         ),
