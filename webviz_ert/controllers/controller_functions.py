@@ -45,7 +45,9 @@ def parameter_options(
             else:
                 params_included = params_included.intersection(parameters)
     if params_included:
-        return [
+        parameter_list = [
             {"label": parameter, "value": parameter} for parameter in params_included
         ]
+        parameter_list.sort(key=lambda x: str(x.get("label")))
+        return parameter_list
     return []

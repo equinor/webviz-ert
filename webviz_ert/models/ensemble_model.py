@@ -2,7 +2,6 @@ import json
 import pandas as pd
 from typing import Mapping, List, Dict, Union, Any, Optional
 from webviz_ert.data_loader import get_data_loader, DataLoaderException
-
 from webviz_ert.models import Response, PriorModel, ParametersModel
 
 
@@ -36,7 +35,7 @@ def _create_parameter_models(
 
 
 class EnsembleModel:
-    def __init__(self, ensemble_id: str, project_id: str):
+    def __init__(self, ensemble_id: str, project_id: str) -> None:
         self._data_loader = get_data_loader(project_id)
         self._schema = self._data_loader.get_ensemble(ensemble_id)
         self._experiment_id = self._schema["experiment"]["id"]
@@ -54,22 +53,29 @@ class EnsembleModel:
         self._size = self._schema["size"]
         self._active_realizations = self._schema["activeRealizations"]
         self._time_created = self._schema["timeCreated"]
-        self.responses = {
-            resp_name: Response(
-                name=resp_name,
-                ensemble_id=ensemble_id,
-                project_id=project_id,
-                ensemble_size=self._size,
-                active_realizations=self._active_realizations,
-                resp_schema=resp_schema,
-            )
-            for resp_name, resp_schema in self._data_loader.get_ensemble_responses(
-                ensemble_id
-            ).items()
-        }
+        self._responses: Dict[str, Response] = {}
         self._parameters: Optional[Mapping[str, ParametersModel]] = None
         self._cached_children: Optional[List["EnsembleModel"]] = None
         self._cached_parent: Optional["EnsembleModel"] = None
+
+    @property
+    def responses(self) -> Dict[str, Response]:
+        if not self._responses:
+            self._responses = {}
+            responses_dict = self._data_loader.get_ensemble_responses(self._id)
+            response_names = list(responses_dict.keys())
+            response_names.sort()
+
+            for name in response_names:
+                self._responses[name] = Response(
+                    name=name,
+                    ensemble_id=self._id,
+                    project_id=self._project_id,
+                    ensemble_size=self._size,
+                    active_realizations=self._active_realizations,
+                    resp_schema=responses_dict[name],
+                )
+        return self._responses
 
     @property
     def children(self) -> Optional[List["EnsembleModel"]]:

@@ -161,3 +161,38 @@ def test_search_input_return_functionality(
     )
 
     assert dash_duo.get_logs() == []
+
+
+def test_parameter_selector_sorting(
+    mock_data,
+    dash_duo,
+):
+    app = dash.Dash(__name__)
+    plugin = ParameterComparison(app, project_identifier=None)
+    layout = plugin.layout
+    app.layout = layout
+    dash_duo.start_server(app)
+    windowsize = (630, 1200)
+    dash_duo.driver.set_window_size(*windowsize)
+
+    ensemble_selector = dash_duo.find_element(
+        "#" + plugin.uuid("ensemble-multi-selector")
+    )
+
+    dash_duo.click_at_coord_fractions(ensemble_selector, 0.1, 0.25)
+    dash_duo.wait_for_contains_text(
+        "#" + plugin.uuid("selected-ensemble-dropdown"),
+        "nr_42",
+        timeout=4,
+    )
+
+    parameter_selector_container = dash_duo.find_element(
+        "#" + plugin.uuid("container-parameter-selector-multi-params")
+    )
+    parameter_list = parameter_selector_container.text.split("\n")
+
+    assert parameter_list[0] == "test_parameter_1"
+    assert parameter_list[1] == "test_parameter_11"
+    assert parameter_list[2] == "test_parameter_2::a"
+    assert parameter_list[3] == "test_parameter_2::b"
+    assert parameter_list[4] == "test_parameter_77"

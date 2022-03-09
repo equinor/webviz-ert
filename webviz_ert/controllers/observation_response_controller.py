@@ -127,7 +127,8 @@ def observation_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
 
         def _generate_plot(ensemble_id: str, color: str) -> ResponsePlotModel:
             ensemble = load_ensemble(parent, ensemble_id)
-            plot = _create_misfits_plot(ensemble.responses[response], [], color)
+            resp = ensemble.responses[str(response)]
+            plot = _create_misfits_plot(resp, [], color)
             return plot
 
         response_plots = [
