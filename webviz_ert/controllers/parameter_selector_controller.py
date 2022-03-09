@@ -79,6 +79,7 @@ def parameter_selector_controller(
             raise ValueError(f"Undefined parameter type {store_type}")
 
         options = [option for option in options if option["value"] not in selected]
+
         if bool(filter_search):
             options = [
                 option

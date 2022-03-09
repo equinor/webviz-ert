@@ -13,11 +13,11 @@ def test_ensemble_model(mock_data):
     assert len(ens_model.responses) == 1
 
 
-def test_ensemble_model_labled_parameters(mock_data):
+def test_ensemble_model_labeled_parameters(mock_data):
     ens_id = 42
     ens_model = EnsembleModel(ensemble_id=ens_id, project_id=None)
-    assert ens_model.name == "default"
-    assert len(ens_model.parameters) == 3
+    assert ens_model.name == "nr_42"
+    assert len(ens_model.parameters) == 5
     for param_name, parameter in ens_model.parameters.items():
         name, label = (
             param_name.split("::", maxsplit=1)
@@ -33,7 +33,7 @@ def test_ensemble_model_parameter_data(mock_data):
     ens_id = 42
     ens_model = EnsembleModel(ensemble_id=ens_id, project_id=None)
     parameters = ens_model.parameters
-    assert len(parameters) == 3
+    assert len(parameters) == 5
 
     # Parameter no labels:
     expected_labels = ens_model._data_loader.get_record_labels(

@@ -38,6 +38,13 @@ ensembles_response = {
                             "id": 2,
                             "time_created": "2020-04-29T09:43:25",
                         },
+                        {
+                            "children": [],
+                            "name": "nr_42",
+                            "parent": None,
+                            "id": 42,
+                            "time_created": "2021-04-29T09:43:25",
+                        },
                     ],
                 }
             ],
@@ -97,6 +104,10 @@ ensembles_response = {
             }
         }
     },
+    "http://127.0.0.1:5000/ensembles/2/parameters": [
+        {"name": "test_parameter_1", "labels": []},
+        {"name": "test_parameter_11", "labels": []},
+    ],
     "http://127.0.0.1:5000/ensembles/2/responses": {
         "SNAKE_OIL_GPR_DIFF": {
             "name": "SNAKE_OIL_GPR_DIFF",
@@ -280,18 +291,32 @@ ensembles_response.update(
                     "timeCreated": "2020-04-29T09:36:26",
                     "size": 1,
                     "activeRealizations": [0],
-                    "userdata": '{"name": "default"}',
+                    "userdata": '{"name": "nr_42"}',
                 }
             }
         },
         "http://127.0.0.1:5000/ensembles/42/parameters": [
             {"name": "test_parameter_1", "labels": []},
             {"name": "test_parameter_2", "labels": ["a", "b"]},
+            {"name": "test_parameter_77", "labels": []},
+            {"name": "test_parameter_11", "labels": []},
         ],
         "http://127.0.0.1:5000/ensembles/42/responses": {
-            "test_resposne": {
+            "test_response": {
                 "name": "name_test_response",
                 "id": "test_response_id_1",
+            },
+            "test_response_99": {
+                "name": "name_test_response",
+                "id": "test_response_id_99",
+            },
+            "test_response_44": {
+                "name": "name_test_response",
+                "id": "test_response_id_44",
+            },
+            "test_response_4": {
+                "name": "name_test_response",
+                "id": "test_response_id_4",
             },
         },
         "http://127.0.0.1:5000/ensembles/42/records/test_parameter_1/labels": [],
@@ -299,10 +324,8 @@ ensembles_response.update(
             "a",
             "b",
         ],
-        "http://127.0.0.1:5000/ensembles/42/records/test_parameter_2/labels": [
-            "a",
-            "b",
-        ],
+        "http://127.0.0.1:5000/ensembles/42/records/test_parameter_77/labels": [],
+        "http://127.0.0.1:5000/ensembles/42/records/test_parameter_11/labels": [],
     }
 )
 
