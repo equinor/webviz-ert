@@ -65,7 +65,8 @@ def observation_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         ensembles = [
             load_ensemble(parent, ensemble_id) for ensemble_id in selected_ensembles
         ]
-        return response_options(response_filters=["obs"], ensembles=ensembles)
+        options = response_options(response_filters=["obs"], ensembles=ensembles)
+        return [{"label": name, "value": name} for name in sorted(options)]
 
     @app.callback(
         Output(parent.uuid("response-selector"), "value"),
