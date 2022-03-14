@@ -1,40 +1,35 @@
-from typing import List, Dict, Optional, Set
+from typing import List, Set
 from webviz_ert.models import Response, EnsembleModel
 
 
 def _valid_response_option(response_filters: List[str], response: Response) -> bool:
-    if "obs" in response_filters:
-        if response.has_observations is None:
-            if response.observations is None or len(response.observations) == 0:
-                return False
-        else:
-            return response.has_observations
-
     if "historical" in response_filters:
         if response.name.split(":")[0][-1] == "H":
             return False
+
+    if "obs" in response_filters:
+        return response.has_observations
 
     return True
 
 
 def response_options(
-    response_filters: List[str], ensembles: List[EnsembleModel]
-) -> List[Dict]:
-    options = []
+    response_filters: List[str],
+    ensembles: List[EnsembleModel],
+) -> Set:
+    response_names = set()
+
     for ensemble in ensembles:
-        for response in ensemble.responses:
-            if (
-                _valid_response_option(response_filters, ensemble.responses[response])
-                and {"label": response, "value": response} not in options
-            ):
-                options.append({"label": response, "value": response})
-    return options
+        for name, response in ensemble.responses.items():
+            if name in response_names:
+                continue
+            if _valid_response_option(response_filters, response):
+                response_names.add(name)
+    return response_names
 
 
-def parameter_options(
-    ensembles: List[EnsembleModel], union_keys: bool = True
-) -> List[Dict]:
-    params_included: Optional[Set[str]] = None
+def parameter_options(ensembles: List[EnsembleModel], union_keys: bool = True) -> Set:
+    params_included: Set[str] = set()
     for ensemble in ensembles:
         if ensemble.parameters:
             parameters = set([parameter for parameter in ensemble.parameters])
@@ -44,10 +39,4 @@ def parameter_options(
                 params_included = params_included.union(parameters)
             else:
                 params_included = params_included.intersection(parameters)
-    if params_included:
-        parameter_list = [
-            {"label": parameter, "value": parameter} for parameter in params_included
-        ]
-        parameter_list.sort(key=lambda x: str(x.get("label")))
-        return parameter_list
-    return []
+    return params_included

@@ -88,6 +88,7 @@ ensembles_response = {
         "SNAKE_OIL_GPR_DIFF": {
             "name": "SNAKE_OIL_GPR_DIFF",
             "id": "SNAKE_OIL_GPR_DIFF",
+            "has_observations": False,
         },
     },
     "http://127.0.0.1:5000/ensembles/2": {
@@ -133,14 +134,17 @@ ensembles_response = {
         "SNAKE_OIL_GPR_DIFF": {
             "name": "SNAKE_OIL_GPR_DIFF",
             "id": "SNAKE_OIL_GPR_DIFF",
+            "has_observations": False,
         },
         "FOPR": {
             "name": "FOPR",
             "id": "FOPR",
+            "has_observations": True,
         },
         "WOPR:OP1": {
             "name": "WOPR:OP1",
             "id": "WOPR:OP1",
+            "has_observations": True,
         },
     },
     "http://127.0.0.1:5000/ensembles/4": {
@@ -165,6 +169,7 @@ ensembles_response = {
         "FOPR": {
             "name": "FOPR",
             "id": "FOPR",
+            "has_observations": True,
         },
     },
     "http://127.0.0.1:5000/ensembles/1/records/OP1_DIVERGENCE_SCALE/labels": [],

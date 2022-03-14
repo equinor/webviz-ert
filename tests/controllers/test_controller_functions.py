@@ -23,8 +23,7 @@ def test_valid_response_option():
 
     class Response:
         name = "DummyResponse"
-        observations = ["DummyObs"]
-        has_observations = None
+        has_observations = True
 
     response = Response()
     assert _valid_response_option(response_filters, response) is True
@@ -35,29 +34,28 @@ def test_valid_response_option():
     response.name = "DummyResponseH:OP_1"
     assert _valid_response_option(response_filters, response) is False
 
-    response.observations = []
+    response.has_observations = False
     assert _valid_response_option(response_filters, response) is False
 
     response.name = "DummyResponse"
-    response.observations = None
     assert _valid_response_option(response_filters, response) is False
 
     response_filters = ["obs"]
     response.name = "DummyResponseH"
-    response.observations = ["DummyObs"]
+    response.has_observations = True
     assert _valid_response_option(response_filters, response) is True
 
     response_filters = ["obs"]
     response.name = "DummyResponseH"
-    response.observations = None
+    response.has_observations = False
     assert _valid_response_option(response_filters, response) is False
 
     response_filters = ["historical"]
     response.name = "DummyResponse"
-    response.observations = []
+    response.has_observations = False
     assert _valid_response_option(response_filters, response) is True
 
     response_filters = ["historical"]
     response.name = "DummyResponseH"
-    response.observations = []
+    response.has_observations = False
     assert _valid_response_option(response_filters, response) is False

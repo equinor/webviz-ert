@@ -1,4 +1,3 @@
-import re
 import dash
 
 from typing import List, Any, Tuple, Dict, Optional
@@ -12,13 +11,8 @@ from webviz_ert.models import (
 from webviz_ert.controllers import parameter_options, response_options
 
 
-def _filter_match(filter: str, key: str) -> bool:
-    reg_exp = ".*" + ".*".join(filter.split())
-    try:
-        match = bool(re.match(reg_exp, key, re.IGNORECASE))
-    except:
-        return False
-    return match
+def _filter_match(_filter: str, key: str) -> bool:
+    return _filter.lower() in key.lower()
 
 
 def parameter_selector_controller(
@@ -56,7 +50,7 @@ def parameter_selector_controller(
         filter_search: str,
         selected: Optional[List[str]],
         *args: List[str],
-    ) -> Tuple[List[Dict], List[str]]:
+    ) -> Tuple[List[Dict], Optional[List[str]]]:
         if not selected_ensembles:
             # Reset selection list
             return [], []
@@ -66,11 +60,10 @@ def parameter_selector_controller(
         if extra_input:
             store_type = args[1]
             response_filter = args[0]
-        selected = [] if not selected else selected
+        selected_set = set() if not selected else set(selected)
         ensembles = [
             load_ensemble(parent, ensemble_id) for ensemble_id in selected_ensembles
         ]
-        options = None
         if store_type == "parameter":
             options = parameter_options(ensembles, union_keys=union_keys)
         elif store_type == "response":
@@ -78,16 +71,11 @@ def parameter_selector_controller(
         else:
             raise ValueError(f"Undefined parameter type {store_type}")
 
-        options = [option for option in options if option["value"] not in selected]
+        options = options.difference(selected_set)
+        if filter_search:
+            options = {name for name in options if _filter_match(filter_search, name)}
 
-        if bool(filter_search):
-            options = [
-                option
-                for option in options
-                if _filter_match(filter_search, option["value"])
-            ]
-
-        return options, selected
+        return [{"label": name, "value": name} for name in sorted(options)], selected
 
     @app.callback(
         Output(parameter_selection_store_id, "data"),
