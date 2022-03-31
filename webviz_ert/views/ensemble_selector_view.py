@@ -31,6 +31,8 @@ def ensemble_selector_list(parent: WebvizPluginABC) -> List[Component]:
             multi=True,
             options=[],
             persistence=True,
+            searchable=False,
+            placeholder="",
             persistence_type="session",
         ),
         dcc.Store(id=parent.uuid("ensemble-selection-store"), storage_type="session"),

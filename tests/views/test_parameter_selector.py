@@ -127,7 +127,7 @@ def test_search_input_return_functionality(
     dash_duo.clear_input(parameter_deactivator)
 
     dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("parameter-deactivator-params"), "Select...", timeout=4
+        "#" + plugin.uuid("parameter-deactivator-params"), "", timeout=4
     )
 
     parameter_selector_input = dash_duo.find_element(
@@ -135,7 +135,7 @@ def test_search_input_return_functionality(
     )
     parameter_selector_input.send_keys(Keys.ENTER)
     dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("parameter-deactivator-params"), "Select...", timeout=4
+        "#" + plugin.uuid("parameter-deactivator-params"), "", timeout=4
     )
 
     parameter_selector_input.send_keys("OP1")
@@ -151,7 +151,7 @@ def test_search_input_return_functionality(
     parameter_selector_input.send_keys(Keys.ENTER)
 
     dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("parameter-deactivator-params"), "Select...", timeout=4
+        "#" + plugin.uuid("parameter-deactivator-params"), "", timeout=4
     )
     dash_duo.click_at_coord_fractions(parameter_selector_container, 0.1, 0.05)
     dash_duo.wait_for_contains_text(

@@ -53,6 +53,8 @@ def parameter_selector_view(
             dcc.Dropdown(
                 id=parent.uuid(f"parameter-deactivator-{suffix}"),
                 multi=True,
+                searchable=False,
+                placeholder="",
                 persistence="session",
             ),
             dcc.Store(
