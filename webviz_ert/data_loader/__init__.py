@@ -150,9 +150,6 @@ class DataLoader:
             raise RuntimeError(
                 f"ERT Storage query returned with '{resp.status_code}':\n{pformat(doc)}"
             )
-
-        # self._graphql_cache[query][kwargs] = doc
-        # print(f"--- Query ---\n{query}\n--- Response ---\n{pformat(doc)}\n---------\n")
         return doc["data"]
 
     def _get(
@@ -176,32 +173,62 @@ class DataLoader:
         return resp
 
     def get_all_ensembles(self) -> list:
-        experiments = self._query(GET_ALL_ENSEMBLES)["experiments"]
-        return [
-            {"name": exp["name"], **ens}
-            for exp in experiments
-            for ens in exp["ensembles"]
-        ]
+        try:
+            experiments = self._query(GET_ALL_ENSEMBLES)["experiments"]
+            return [
+                {"name": exp["name"], **ens}
+                for exp in experiments
+                for ens in exp["ensembles"]
+            ]
+        except RuntimeError as e:
+            logger.error(e)
+            return list()
 
     def get_ensemble(self, ensemble_id: str) -> dict:
-        return self._query(GET_ENSEMBLE, id=ensemble_id)["ensemble"]
+        try:
+            return self._query(GET_ENSEMBLE, id=ensemble_id)["ensemble"]
+        except RuntimeError as e:
+            logger.error(e)
+            return dict()
 
     def get_ensemble_responses(self, ensemble_id: str) -> dict:
-        return self._get(url=f"ensembles/{ensemble_id}/responses").json()
+        try:
+            return self._get(url=f"ensembles/{ensemble_id}/responses").json()
+        except DataLoaderException as e:
+            logger.error(e)
+            return dict()
 
     def get_ensemble_userdata(self, ensemble_id: str) -> dict:
-        return self._get(url=f"ensembles/{ensemble_id}/userdata").json()
+        try:
+            return self._get(url=f"ensembles/{ensemble_id}/userdata").json()
+        except DataLoaderException as e:
+            logger.error(e)
+            return dict()
 
     def get_ensemble_parameters(self, ensemble_id: str) -> list:
-        return self._get(url=f"ensembles/{ensemble_id}/parameters").json()
+        try:
+            return self._get(url=f"ensembles/{ensemble_id}/parameters").json()
+        except DataLoaderException as e:
+            logger.error(e)
+            return list()
 
     def get_record_labels(self, ensemble_id: str, name: str) -> list:
-        return self._get(url=f"ensembles/{ensemble_id}/records/{name}/labels").json()
+        try:
+            return self._get(
+                url=f"ensembles/{ensemble_id}/records/{name}/labels"
+            ).json()
+        except DataLoaderException as e:
+            logger.error(e)
+            return list()
 
     def get_experiment_priors(self, experiment_id: str) -> dict:
-        return json.loads(
-            self._query(GET_PRIORS, id=experiment_id)["experiment"]["priors"]
-        )
+        try:
+            return json.loads(
+                self._query(GET_PRIORS, id=experiment_id)["experiment"]["priors"]
+            )
+        except RuntimeError as e:
+            logger.error(e)
+            return dict()
 
     def get_ensemble_parameter_data(
         self,
@@ -255,26 +282,34 @@ class DataLoader:
     def get_ensemble_record_observations(
         self, ensemble_id: str, record_name: str
     ) -> List[dict]:
-        return self._get(
-            url=f"ensembles/{ensemble_id}/records/{record_name}/observations",
-            # Hard coded to zero, as all realizations are connected to the same observations
-            params={"realization_index": 0},
-        ).json()
+        try:
+            return self._get(
+                url=f"ensembles/{ensemble_id}/records/{record_name}/observations",
+                # Hard coded to zero, as all realizations are connected to the same observations
+                params={"realization_index": 0},
+            ).json()
+        except DataLoaderException as e:
+            logger.error(e)
+            return list()
 
     def compute_misfit(
         self, ensemble_id: str, response_name: str, summary: bool
     ) -> pd.DataFrame:
-        resp = self._get(
-            "compute/misfits",
-            params={
-                "ensemble_id": ensemble_id,
-                "response_name": response_name,
-                "summary_misfits": summary,
-            },
-        )
-        stream = io.BytesIO(resp.content)
-        df = pd.read_csv(stream, index_col=0, float_precision="round_trip")
-        return df
+        try:
+            resp = self._get(
+                "compute/misfits",
+                params={
+                    "ensemble_id": ensemble_id,
+                    "response_name": response_name,
+                    "summary_misfits": summary,
+                },
+            )
+            stream = io.BytesIO(resp.content)
+            df = pd.read_csv(stream, index_col=0, float_precision="round_trip")
+            return df
+        except DataLoaderException as e:
+            logger.error(e)
+            return pd.DataFrame()
 
 
 def get_data_loader(project_id: Optional[str] = None) -> DataLoader:
