@@ -22,7 +22,7 @@ pip install .
 # From the downloaded project's root folder - to run tests
 pip install -r test_requirements.txt
 cd tests
-pip -m pytest
+pytest
 ```
 
 ## Run Webviz-ert
