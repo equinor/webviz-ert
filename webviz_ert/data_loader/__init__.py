@@ -172,6 +172,26 @@ class DataLoader:
             )
         return resp
 
+    def _post(
+        self, url: str, headers: dict = None, params: dict = None
+    ) -> requests.Response:
+        if headers is None:
+            headers = {}
+
+        resp = _requests_post(
+            f"{self.baseurl}/{url}",
+            headers={**headers, "Token": self.token},
+            params=params,
+        )
+        if resp.status_code != 200:
+            raise DataLoaderException(
+                f"""Error posting to {self.baseurl}/{url}
+                The request returned status code: {resp.status_code}
+                {str(resp.content)}
+                """
+            )
+        return resp
+
     def get_all_ensembles(self) -> list:
         try:
             experiments = self._query(GET_ALL_ENSEMBLES)["experiments"]
@@ -311,6 +331,9 @@ class DataLoader:
             logger.error(e)
             return pd.DataFrame()
 
+    def refresh_data(self) -> requests.Response:
+        return self._post("updates/facade")
+
 
 def get_data_loader(project_id: Optional[str] = None) -> DataLoader:
     return DataLoader(*(get_connection_info(project_id).values()))
@@ -318,3 +341,7 @@ def get_data_loader(project_id: Optional[str] = None) -> DataLoader:
 
 def get_ensembles(project_id: Optional[str] = None) -> list:
     return get_data_loader(project_id).get_all_ensembles()
+
+
+def refresh_data(project_id: Optional[str] = None) -> requests.Response:
+    return get_data_loader(project_id).refresh_data()

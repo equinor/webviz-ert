@@ -68,8 +68,8 @@ from webviz_ert.data_loader import GET_ENSEMBLE
 
 
 def _requests_post(url, **kwargs):
-    payload = kwargs["json"]
-    if payload["query"] == GET_ENSEMBLE:
+    payload = kwargs["json"] if "json" in kwargs else None
+    if payload is not None and payload["query"] == GET_ENSEMBLE:
         variables = payload["variables"]
         ensemble_id = variables["id"]
         url = f"http://127.0.0.1:5000/ensembles/{ensemble_id}"
@@ -82,5 +82,10 @@ def _requests_post(url, **kwargs):
 def select_first(dash_duo, selector):
     parameter_selector_input = dash_duo.find_element(selector)
     options = parameter_selector_input.text.split("\n")
-    dash_duo.click_at_coord_fractions(parameter_selector_input, 0.1, 0.1)
+    dash_duo.click_at_coord_fractions(parameter_selector_input, 0.1, 0.05)
     return options[0]
+
+
+def get_options(dash_duo, selector):
+    parameter_selector_input = dash_duo.find_element(selector)
+    return parameter_selector_input.text.split("\n")
