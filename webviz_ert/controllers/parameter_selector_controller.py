@@ -82,14 +82,18 @@ def parameter_selector_controller(
         [
             Input(parameter_selector_multi_id, "value"),
             Input(parameter_selector_filter_id, "n_submit"),
+            Input(parent.uuid("selected-ensemble-dropdown"), "value"),
         ],
         State(parameter_deactivator_id, "value"),
     )
     def update_parameter_selection(
         parameters: List[str],
         _: int,
+        selected_ensembles: List[str],
         selected_params: Optional[List[str]],
     ) -> Optional[List[str]]:
+        if selected_ensembles is None or selected_ensembles == []:
+            return []
         selected_params = [] if not selected_params else selected_params
         parameters = [] if not parameters else parameters
 
@@ -97,6 +101,8 @@ def parameter_selector_controller(
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
         if triggered_id == parameter_selector_filter_id:
             # Prevent selecting everything from the search result on enter
+            raise PreventUpdate
+        elif triggered_id == parent.uuid("selected-ensemble-dropdown"):
             raise PreventUpdate
         elif triggered_id == parameter_selector_multi_id:
             parameters = [

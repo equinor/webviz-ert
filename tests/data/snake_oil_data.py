@@ -13,6 +13,7 @@ class DataContent:
 
 
 ensembles_response = {
+    "http://127.0.0.1:5000/updates/facade": "OK",
     "http://127.0.0.1:5000/gql": {
         "data": {
             "experiments": [
@@ -108,6 +109,7 @@ ensembles_response = {
     "http://127.0.0.1:5000/ensembles/2/parameters": [
         {"name": "test_parameter_1", "labels": []},
         {"name": "test_parameter_11", "labels": []},
+        {"name": "BPR_138_PERSISTENCE", "labels": []},
     ],
     "http://127.0.0.1:5000/ensembles/2/responses": {
         "SNAKE_OIL_GPR_DIFF": {
