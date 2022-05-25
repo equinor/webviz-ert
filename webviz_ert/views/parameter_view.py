@@ -16,74 +16,81 @@ def parameter_view(parent: WebvizPluginABC, index: int = 0) -> List[Component]:
             id={"index": index, "type": parent.uuid("parameter-id-store")}, data=index
         ),
         dbc.Row(
-            className="ert-plot-options",
             children=[
                 dbc.Col(
                     [
-                        dbc.Row(
-                            [
-                                dbc.Col(
-                                    [html.H4(index)],
-                                    align="center",
-                                ),
-                                dbc.Col(
-                                    [
-                                        html.Label("Plots:"),
-                                    ],
-                                    width="auto",
-                                    align="center",
-                                ),
-                                dbc.Col(
-                                    [
-                                        dcc.Checklist(
-                                            id={
-                                                "index": index,
-                                                "type": parent.uuid("hist-check"),
-                                            },
-                                            options=[
-                                                {"label": "histogram", "value": "hist"},
-                                                {"label": "kde", "value": "kde"},
-                                            ],
-                                            value=["hist", "kde"],
-                                            persistence="session",
-                                        ),
-                                    ],
-                                    align="center",
-                                ),
-                            ]
+                        html.H4(
+                            index,
+                            className="ert-parameter-view-caption",
+                            id={
+                                "index-caption": index,
+                                "type": parent.uuid("parameter-id-store"),
+                            },
                         )
                     ],
+                    align="left",
+                ),
+                dbc.Tooltip(
+                    index,
+                    target={
+                        "index-caption": index,
+                        "type": parent.uuid("parameter-id-store"),
+                    },
+                    placement="bottom-start",
+                    class_name="ert-parameter-view-caption-tooltip",
+                ),
+            ]
+        ),
+        dbc.Row(
+            children=[
+                dbc.Col(
+                    [
+                        html.Label("Plots:"),
+                    ],
+                    width="auto",
+                    align="left",
+                ),
+                dbc.Col(
+                    [
+                        dcc.Checklist(
+                            id={
+                                "index": index,
+                                "type": parent.uuid("hist-check"),
+                            },
+                            options=[
+                                {"label": "histogram", "value": "hist"},
+                                {"label": "kde", "value": "kde"},
+                            ],
+                            value=["hist", "kde"],
+                            persistence="session",
+                        ),
+                    ],
+                    align="left",
                     width="auto",
                 ),
                 dbc.Col(
                     [
-                        dbc.Row(
-                            [
-                                dbc.Col(
-                                    [
-                                        html.Label(
-                                            "Number of bins:", className="ert-label"
-                                        ),
-                                    ],
-                                    width="auto",
-                                ),
-                                dbc.Col(
-                                    [
-                                        dcc.Input(
-                                            id={
-                                                "index": index,
-                                                "type": parent.uuid("hist-bincount"),
-                                            },
-                                            type="number",
-                                            placeholder="# bins",
-                                            min=2,
-                                            debounce=True,
-                                        ),
-                                    ]
-                                ),
-                            ]
-                        )
-                    ]
+                        html.Label("Number of bins:", className="ert-label"),
+                    ],
+                    align="left",
+                    width="auto",
+                ),
+                dbc.Col(
+                    [
+                        dcc.Input(
+                            id={
+                                "index": index,
+                                "type": parent.uuid("hist-bincount"),
+                            },
+                            type="number",
+                            placeholder="# bins",
+                            min=2,
+                            debounce=True,
+                            className="ert-input-number",
+                        ),
+                    ],
+                    align="left",
+                    width="auto",
                 ),
                 dcc.Store(
                     id={"index": index, "type": parent.uuid("bincount-store")},

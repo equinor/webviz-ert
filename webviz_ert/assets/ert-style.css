@@ -13,3 +13,21 @@
 .ert-parameter-label-checkbox {
     display: block;
 }
+.ert-input-number {
+    width: 65px;
+}
+.ert-parameter-view-caption {
+    width: auto;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.ert-parameter-view-caption-tooltip {
+    background-color: rgba(56,108,176, 0.8);
+    color: white;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
