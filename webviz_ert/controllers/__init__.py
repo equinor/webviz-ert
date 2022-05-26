@@ -7,3 +7,4 @@ from .plot_view_controller import plot_view_controller
 from .parameter_comparison_controller import parameter_comparison_controller
 from .parameter_selector_controller import parameter_selector_controller
 from .response_correlation_controller import response_correlation_controller
+from .element_dropdown_controller import element_dropdown_controller
