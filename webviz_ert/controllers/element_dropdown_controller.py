@@ -26,20 +26,21 @@ def element_dropdown_controller(
         ],
         [
             State(parent.uuid(f"element-dropdown-store-{data_type}"), "data"),
-            State(parent.uuid("selected-ensemble-dropdown"), "value"),
+            State(parent.uuid("ensemble-selection-store"), "data"),
         ],
     )
-    def set_callbackcccc(
+    def set_callbacks(
         _: Any,
         selected: Optional[str],
         selected_store: Optional[str],
-        selected_ensembles: List[str],
+        ensemble_selection_store: Dict[str, List],
     ) -> Tuple[List[Dict], Optional[str], Optional[str]]:
-        print("XXXX")
-        print(selected_ensembles)
 
-        if not selected_ensembles:
+        if not ensemble_selection_store["selected"]:
             return [], None, None
+
+        selected_ensembles = [selection["value"] for selection in ensemble_selection_store["selected"]]
+
         ensembles = [
             load_ensemble(parent, ensemble_id) for ensemble_id in selected_ensembles
         ]
