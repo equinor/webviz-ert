@@ -98,10 +98,11 @@ def plot_view_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:
                 if plot["name"] not in children_names:
                     children.append(_new_child(parent, plot))
         elif len(plots) < len(children_names):
-            # Remove some plot from the grid
+            # Remove no longer selected plots from grid
             plot_names = [p["name"] for p in plots]
-            idx = next(i for i, c in enumerate(children_names) if c not in plot_names)
-            del children[idx]
+            children = list(
+                filter(lambda child: child["props"]["key"] in plot_names, children)
+            )
 
         for c in children:
             xl_width = 6 if len(children) > 1 else 12
