@@ -6,9 +6,7 @@ from dash import dcc
 from webviz_ert.models.data_model import DataType
 
 
-def element_dropdown_view(
-    parent: WebvizPluginABC, data_type: DataType
-) -> Component:
+def element_dropdown_view(parent: WebvizPluginABC, data_type: DataType) -> Component:
     return html.Div(
         [
             dcc.Dropdown(

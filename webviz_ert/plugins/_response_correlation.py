@@ -179,5 +179,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
             self, app, suffix="param", union_keys=False
         )
         webviz_ert.controllers.parameter_selector_controller(self, app, suffix="resp")
-        webviz_ert.controllers.element_dropdown_controller(self, app, webviz_ert.models.DataType.RESPONSE)
+        webviz_ert.controllers.element_dropdown_controller(
+            self, app, webviz_ert.models.DataType.RESPONSE
+        )
         webviz_ert.controllers.response_correlation_controller(self, app)

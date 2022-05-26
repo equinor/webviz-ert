@@ -39,7 +39,9 @@ def element_dropdown_controller(
         if not ensemble_selection_store["selected"]:
             return [], None, None
 
-        selected_ensembles = [selection["value"] for selection in ensemble_selection_store["selected"]]
+        selected_ensembles = [
+            selection["value"] for selection in ensemble_selection_store["selected"]
+        ]
 
         ensembles = [
             load_ensemble(parent, ensemble_id) for ensemble_id in selected_ensembles
