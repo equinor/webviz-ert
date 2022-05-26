@@ -9,6 +9,7 @@ from webviz_ert.views import (
     ensemble_selector_list,
     correlation_view,
     parameter_selector_view,
+    element_dropdown_view,
 )
 import webviz_ert.assets as assets
 import webviz_ert.models
@@ -64,7 +65,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
             {
                 "id": self.uuid("response-info-text"),
                 "content": (
-                    "All reponses with selected their x_index / timestep; "
+                    "All responses with selected their x_index / timestep; "
                     "the currently active response and parameter are made bold. "
                 ),
             },
@@ -97,7 +98,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
                                     self, data_type="response", suffix="resp"
                                 ),
                             ],
-                            width=6,
+                            width=4,
                         ),
                         dbc.Col(
                             [
@@ -106,7 +107,16 @@ class ResponseCorrelation(WebvizErtPluginABC):
                                     self, data_type="parameter", suffix="param"
                                 ),
                             ],
-                            width=6,
+                            width=4,
+                        ),
+                        dbc.Col(
+                            [
+                                html.Label("Parameters", className="ert-label"),
+                                element_dropdown_view(
+                                    self, data_type=webviz_ert.models.DataType.RESPONSE
+                                ),
+                            ],
+                            width=4,
                         ),
                     ],
                 ),
@@ -169,4 +179,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
             self, app, suffix="param", union_keys=False
         )
         webviz_ert.controllers.parameter_selector_controller(self, app, suffix="resp")
+        # webviz_ert.controllers.element_dropdown_controller(
+        #     self, app, webviz_ert.models.DataType.RESPONSE
+        # )
         webviz_ert.controllers.response_correlation_controller(self, app)

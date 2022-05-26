@@ -32,6 +32,7 @@ def load_ensemble(
     return ensemble
 
 
+from .data_model import DataType
 from .observation import Observation
 from .realization import Realization
 from .response import Response
