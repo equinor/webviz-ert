@@ -36,7 +36,7 @@ def element_dropdown_controller(
         ensemble_selection_store: Dict[str, List],
     ) -> Tuple[List[Dict], Optional[str], Optional[str]]:
 
-        if not ensemble_selection_store["selected"]:
+        if not ensemble_selection_store:
             return [], None, None
 
         selected_ensembles = [
