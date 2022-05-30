@@ -4,10 +4,10 @@
 .ert-plot-options {
     height: 84px !important;
 }
-.ert-parameter-selector-container-hide {
+.ert-parameter-selector-container-hide, .ert-ensemble-selector-container-hide {
     display: none;
 }
-.ert-parameter-selector-container-show {
+.ert-parameter-selector-container-show, .ert-ensemble-selector-container-show {
     display: block;
 }
 .ert-parameter-label-checkbox {

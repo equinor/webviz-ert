@@ -27,10 +27,6 @@ class ResponseComparison(WebvizErtPluginABC):
         return html.Div(
             [
                 html.Div(
-                    id=self.uuid("ensemble-content"),
-                    children=ensemble_selector_list(parent=self),
-                ),
-                html.Div(
                     children=plot_view_header(parent=self),
                 ),
                 html.Div(

@@ -10,7 +10,9 @@ from webviz_ert.models.data_model import DataType
 
 
 def parameter_selector_view(
-    parent: WebvizErtPluginABC, data_type: DataType
+    parent: WebvizErtPluginABC,
+    data_type: DataType,
+    titleLabel: str = "Parameters",
 ) -> Component:
     return html.Div(
         [
@@ -18,19 +20,26 @@ def parameter_selector_view(
                 [
                     dbc.Col(
                         html.Label(
-                            "Search",
+                            titleLabel,
                             className="ert-label",
                         ),
                         align="left",
-                        width="auto",
                     ),
                     dbc.Col(
-                        dcc.Input(
-                            id=parent.uuid(f"parameter-selector-filter-{data_type}"),
-                            type="search",
-                            placeholder="Substring...",
-                            persistence="session",
-                        ),
+                        [
+                            html.Label(
+                                "Search: ",
+                                className="ert-label",
+                            ),
+                            dcc.Input(
+                                id=parent.uuid(
+                                    f"parameter-selector-filter-{data_type}"
+                                ),
+                                type="search",
+                                placeholder="Substring...",
+                                persistence="session",
+                            ),
+                        ],
                         align="left",
                     ),
                     dbc.Col(
@@ -39,6 +48,7 @@ def parameter_selector_view(
                             children=("Toggle selector visibility"),
                         ),
                         align="right",
+                        width="auto",
                     ),
                 ],
             ),

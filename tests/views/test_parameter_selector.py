@@ -53,9 +53,7 @@ def test_parameter_selector(
     )
 
     assert parameter_selector_container.is_displayed() is True
-    button_hide = dash_duo.find_element(
-        "#" + plugin.uuid("parameter-selector-button-param")
-    )
+    button_hide = dash_duo.find_element("#" + plugin.uuid("parameter-selector-button"))
     button_hide.click()
     parameter_selector_container = dash_duo.wait_for_element_by_css_selector(
         ".ert-parameter-selector-container-hide"

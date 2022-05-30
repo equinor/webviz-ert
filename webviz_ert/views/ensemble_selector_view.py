@@ -11,37 +11,43 @@ import dash_bootstrap_components as dbc
 def ensemble_selector_list(parent: WebvizErtPluginABC) -> List[Component]:
     return [
         html.Div(
-            [
-                dbc.Row(
-                    [
-                        dbc.Col(
-                            [
-                                html.Label("Ensembles", className="ert-label"),
-                                wcc.Select(
-                                    id=parent.uuid("ensemble-multi-selector"),
-                                    multi=True,
-                                    size=10,
-                                    persistence=True,
-                                    persistence_type="session",
-                                    options=[],
-                                    value=[],
-                                ),
-                            ],
-                            align="left",
+            dbc.Row(
+                [
+                    dbc.Col(
+                        html.Label("Ensembles", className="ert-label"),
+                        align="left",
+                        width="auto",
+                    ),
+                    dbc.Col(
+                        html.Button(
+                            id=parent.uuid(f"ensemble-refresh-button"),
+                            children="Refresh",
+                            n_clicks=0,
                         ),
-                        dbc.Col(
-                            html.Button(
-                                id=parent.uuid(f"ensemble-refresh-button"),
-                                children="Refresh",
-                                n_clicks=0,
-                            ),
-                            align="right",
-                            width=2,
+                        align="right",
+                    ),
+                    dbc.Col(
+                        html.Button(
+                            id=parent.uuid(f"parameter-selector-button"),
+                            children=("Toggle selector visibilities"),
                         ),
-                    ],
-                ),
-            ],
-            id=parent.uuid("ensemble-multi-selector-container"),
+                        align="right",
+                    ),
+                ]
+            )
+        ),
+        html.Div(
+            wcc.Select(
+                id=parent.uuid("ensemble-multi-selector"),
+                multi=True,
+                size=10,
+                persistence=True,
+                persistence_type="session",
+                options=[],
+                value=[],
+            ),
+            id=parent.uuid("container-ensemble-selector-multi"),
+            className="ert-ensemble-selector-container-show",
         ),
         dcc.Dropdown(
             id=parent.uuid("selected-ensemble-dropdown"),

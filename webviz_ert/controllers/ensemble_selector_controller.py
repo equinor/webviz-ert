@@ -110,3 +110,27 @@ def ensemble_list_selector_controller(
             [],
             ensemble_selection_store,
         ]
+
+    container_ensemble_selector_multi_id = parent.uuid(
+        "container-ensemble-selector-multi"
+    )
+    parameter_selector_button_id = parent.uuid(f"parameter-selector-button")
+
+    @app.callback(
+        Output(container_ensemble_selector_multi_id, "className"),
+        [
+            Input(parameter_selector_button_id, "n_clicks"),
+        ],
+        [
+            State(container_ensemble_selector_multi_id, "className"),
+        ],
+    )
+    def toggle_selector_visibility(_: int, class_name: str) -> str:
+        ctx = dash.callback_context
+        triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+        if triggered_id == parameter_selector_button_id:
+            if class_name == "ert-ensemble-selector-container-hide":
+                class_name = "ert-ensemble-selector-container-show"
+            else:
+                class_name = "ert-ensemble-selector-container-hide"
+        return class_name

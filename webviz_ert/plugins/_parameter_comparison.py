@@ -1,7 +1,9 @@
+from typing import List
 import dash
 from dash.development.base_component import Component
 from typing import List, Dict
 from dash import html
+import dash_bootstrap_components as dbc
 
 import webviz_ert.models
 
@@ -25,19 +27,32 @@ class ParameterComparison(WebvizErtPluginABC):
     def layout(self) -> Component:
         return html.Div(
             [
-                html.Div(
-                    id=self.uuid("ensemble-content"),
-                    children=ensemble_selector_list(parent=self),
-                ),
-                html.Div(
-                    id=self.uuid("parallel-coor-content"),
-                    children=[
-                        html.H5("Multi parameter selector:"),
-                        parameter_selector_view(
-                            parent=self, data_type=DataType.PARAMETER
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            id=self.uuid("ensemble-content"),
+                            children=ensemble_selector_list(parent=self),
+                            width=6,
                         ),
-                        parallel_coordinates_view(parent=self),
-                    ],
+                        dbc.Col(
+                            id=self.uuid("parameter-content"),
+                            children=[
+                                parameter_selector_view(
+                                    parent=self, data_type=DataType.PARAMETER
+                                ),
+                            ],
+                            width=6,
+                        ),
+                    ]
+                ),
+                dbc.Row(
+                    dbc.Col(
+                        id=self.uuid("parallel-coor-content"),
+                        children=[
+                            parallel_coordinates_view(parent=self),
+                        ],
+                        width=12,
+                    )
                 ),
             ]
         )
