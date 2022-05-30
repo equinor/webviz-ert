@@ -4,10 +4,10 @@
 .ert-plot-options {
     height: 84px !important;
 }
-.ert-parameter-selector-container-hide {
+.ert-parameter-selector-container-hide, .ert-ensemble-selector-container-hide {
     display: none;
 }
-.ert-parameter-selector-container-show {
+.ert-parameter-selector-container-show, .ert-ensemble-selector-container-show {
     display: block;
 }
 .ert-parameter-label-checkbox {
@@ -60,4 +60,8 @@
 .selected-ensemble-dropdown> div > div >div.Select-value:nth-child(5n-0) {
   background-color: rgba(191,91,23,0.8);
   color: black;
+}
+
+.webviz-config-select {
+	height: 15rem;
 }

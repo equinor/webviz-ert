@@ -1,8 +1,10 @@
 import dash
+import dash_bootstrap_components as dbc
 import webviz_ert.controllers
 import webviz_ert.models
 from dash.development.base_component import Component
 from typing import List, Dict
+
 from webviz_ert.views import (
     ensemble_selector_list,
     parallel_coordinates_view,
@@ -36,19 +38,32 @@ class ParameterComparison(WebvizErtPluginABC):
                     ],
                     hidden=not self.beta,
                 ),
-                dash.html.Div(
-                    id=self.uuid("ensemble-content"),
-                    children=ensemble_selector_list(parent=self),
-                ),
-                dash.html.Div(
-                    id=self.uuid("parallel-coor-content"),
-                    children=[
-                        dash.html.H5("Multi parameter selector:"),
-                        parameter_selector_view(
-                            parent=self, data_type=DataType.PARAMETER
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            id=self.uuid("ensemble-content"),
+                            children=ensemble_selector_list(parent=self),
+                            width=6,
                         ),
-                        parallel_coordinates_view(parent=self),
-                    ],
+                        dbc.Col(
+                            id=self.uuid("parameter-content"),
+                            children=[
+                                parameter_selector_view(
+                                    parent=self, data_type=DataType.PARAMETER
+                                ),
+                            ],
+                            width=6,
+                        ),
+                    ]
+                ),
+                dbc.Row(
+                    dbc.Col(
+                        id=self.uuid("parallel-coor-content"),
+                        children=[
+                            parallel_coordinates_view(parent=self),
+                        ],
+                        width=12,
+                    )
                 ),
             ]
         )

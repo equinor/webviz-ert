@@ -101,29 +101,32 @@ class ResponseCorrelation(WebvizErtPluginABC):
                     ),
                     storage_type="session",
                 ),
-                dash.html.Div(
-                    id=self.uuid("ensemble-content"),
-                    children=ensemble_selector_list(parent=self),
-                ),
                 dbc.Row(
                     [
                         dbc.Col(
-                            [
-                                dash.html.Label("Responses", className="ert-label"),
-                                parameter_selector_view(
-                                    self, data_type=DataType.RESPONSE
-                                ),
-                            ],
-                            width=6,
+                            id=self.uuid("ensemble-content"),
+                            children=ensemble_selector_list(parent=self),
+                            width=4,
                         ),
                         dbc.Col(
                             [
-                                dash.html.Label("Parameters", className="ert-label"),
                                 parameter_selector_view(
-                                    self, data_type=DataType.PARAMETER
+                                    self,
+                                    data_type=DataType.RESPONSE,
+                                    titleLabel="Responses",
                                 ),
                             ],
-                            width=6,
+                            width=4,
+                        ),
+                        dbc.Col(
+                            [
+                                parameter_selector_view(
+                                    self,
+                                    data_type=DataType.PARAMETER,
+                                    titleLabel="Parameters",
+                                ),
+                            ],
+                            width=4,
                         ),
                     ],
                 ),
