@@ -22,6 +22,7 @@ def _get_realizations_plots(
     x_axis: Optional[List[Union[int, str, datetime.datetime]]],
     color: str,
     style: Optional[Dict] = None,
+    ensemble_name: str = "",
 ) -> List[PlotModel]:
     if style:
         _style = style
@@ -30,11 +31,11 @@ def _get_realizations_plots(
     _style.update({"line": {"color": color}})
     _style.update({"marker": {"color": color}})
     realizations_data = list()
-    for realization in realizations_df:
+    for idx, realization in enumerate(realizations_df):
         plot = PlotModel(
             x_axis=x_axis,
             y_axis=realizations_df[realization].values,
-            text=realization,
+            text=f"Realization: {realization} Ensemble: {ensemble_name}",
             name=realization,
             **_style,
         )
@@ -46,6 +47,7 @@ def _get_realizations_statistics_plots(
     df_response: pd.DataFrame,
     x_axis: Optional[List[Union[int, str, datetime.datetime]]],
     color: str,
+    ensemble_name: str = "",
 ) -> List[PlotModel]:
     data = df_response
     p10 = data.quantile(0.1, axis=1)
@@ -56,7 +58,11 @@ def _get_realizations_statistics_plots(
     style_mean = deepcopy(style)
     style_mean["line"]["dash"] = "solid"
     mean_data = PlotModel(
-        x_axis=x_axis, y_axis=_mean, text="Mean", name="Mean", **style_mean
+        x_axis=x_axis,
+        y_axis=_mean,
+        text=f"Mean",
+        name=f"Mean {ensemble_name}",
+        **style_mean,
     )
     lower_std_data = PlotModel(
         x_axis=x_axis, y_axis=p10, text="p10 quantile", name="p10 quantile", **style
@@ -99,16 +105,24 @@ def _create_response_plot(
     selected_realizations: List[int],
     color: str,
     style: Optional[Dict] = None,
+    ensemble_name: str = "",
 ) -> ResponsePlotModel:
 
     x_axis = response.axis
     if plot_type == "Statistics":
         realizations = _get_realizations_statistics_plots(
-            response.data_df(selected_realizations), x_axis, color=color
+            response.data_df(selected_realizations),
+            x_axis,
+            color=color,
+            ensemble_name=ensemble_name,
         )
     else:
         realizations = _get_realizations_plots(
-            response.data_df(selected_realizations), x_axis, color=color, style=style
+            response.data_df(selected_realizations),
+            x_axis,
+            color=color,
+            style=style,
+            ensemble_name=ensemble_name,
         )
     if response.observations:
         observations = [
@@ -161,7 +175,11 @@ def multi_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> Non
             if response not in ensemble.responses:
                 return None
             plot = _create_response_plot(
-                ensemble.responses[response], plot_type, [], color
+                ensemble.responses[response],
+                plot_type,
+                [],
+                color,
+                ensemble_name=ensemble.name,
             )
             return plot
 
