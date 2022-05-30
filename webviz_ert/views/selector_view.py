@@ -10,37 +10,41 @@ from webviz_ert.models.data_model import DataType
 
 
 def parameter_selector_view(
-    parent: WebvizErtPluginABC, data_type: DataType
+    parent: WebvizErtPluginABC,
+    data_type: DataType,
+    titleLabel: str = "Parameters",
 ) -> Component:
     return html.Div(
         [
             dbc.Row(
                 [
                     dbc.Col(
-                        html.Label(
-                            "Search",
+                        html.H6(
+                            titleLabel,
                             className="ert-label",
                         ),
                         align="left",
+                    ),
+                    dbc.Col(
+                        [
+                            html.Label(
+                                "Search: ",
+                                className="ert-label",
+                            ),
+                            dcc.Input(
+                                id=parent.uuid(
+                                    f"parameter-selector-filter-{data_type}"
+                                ),
+                                type="search",
+                                placeholder="Substring...",
+                                persistence="session",
+                            ),
+                        ],
+                        align="right",
                         width="auto",
                     ),
-                    dbc.Col(
-                        dcc.Input(
-                            id=parent.uuid(f"parameter-selector-filter-{data_type}"),
-                            type="search",
-                            placeholder="Substring...",
-                            persistence="session",
-                        ),
-                        align="left",
-                    ),
-                    dbc.Col(
-                        html.Button(
-                            id=parent.uuid(f"parameter-selector-button-{data_type}"),
-                            children=("Toggle selector visibility"),
-                        ),
-                        align="right",
-                    ),
                 ],
+                align="center",
             ),
             html.Div(
                 wcc.Select(

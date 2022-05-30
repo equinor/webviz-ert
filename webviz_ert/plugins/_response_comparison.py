@@ -38,10 +38,6 @@ class ResponseComparison(WebvizErtPluginABC):
                     hidden=not self.beta,
                 ),
                 dash.html.Div(
-                    id=self.uuid("ensemble-content"),
-                    children=ensemble_selector_list(parent=self),
-                ),
-                dash.html.Div(
                     children=plot_view_header(parent=self),
                 ),
                 dash.html.Div(

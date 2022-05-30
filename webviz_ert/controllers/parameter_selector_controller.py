@@ -139,7 +139,7 @@ def parameter_selector_controller(
     container_parameter_selector_multi_id = parent.uuid(
         f"container-parameter-selector-multi-{data_type}"
     )
-    parameter_selector_button_id = parent.uuid(f"parameter-selector-button-{data_type}")
+    parameter_selector_button_id = parent.uuid(f"parameter-selector-button")
 
     @app.callback(
         Output(container_parameter_selector_multi_id, "className"),

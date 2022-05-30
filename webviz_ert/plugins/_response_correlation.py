@@ -101,17 +101,19 @@ class ResponseCorrelation(WebvizErtPluginABC):
                     ),
                     storage_type="session",
                 ),
-                dash.html.Div(
-                    id=self.uuid("ensemble-content"),
-                    children=ensemble_selector_list(parent=self),
-                ),
                 dbc.Row(
                     [
                         dbc.Col(
+                            id=self.uuid("ensemble-content"),
+                            children=ensemble_selector_list(parent=self),
+                            width=4,
+                        ),
+                        dbc.Col(
                             [
-                                dash.html.Label("Responses", className="ert-label"),
                                 parameter_selector_view(
-                                    self, data_type=DataType.RESPONSE
+                                    self,
+                                    data_type=DataType.RESPONSE,
+                                    titleLabel="Responses",
                                 ),
                                 dash.dcc.Checklist(
                                     id=self.uuid("response-observations-check"),
@@ -125,16 +127,17 @@ class ResponseCorrelation(WebvizErtPluginABC):
                                     labelStyle={"display": "block"},
                                 ),
                             ],
-                            width=6,
+                            width=4,
                         ),
                         dbc.Col(
                             [
-                                dash.html.Label("Parameters", className="ert-label"),
                                 parameter_selector_view(
-                                    self, data_type=DataType.PARAMETER
+                                    self,
+                                    data_type=DataType.PARAMETER,
+                                    titleLabel="Parameters",
                                 ),
                             ],
-                            width=6,
+                            width=4,
                         ),
                     ],
                 ),
