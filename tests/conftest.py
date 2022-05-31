@@ -86,6 +86,17 @@ def select_first(dash_duo, selector):
     return options[0]
 
 
+def select_by_name(dash_duo, selector, name):
+    options = dash_duo.find_elements(selector + " option")
+    if not options:
+        raise AssertionError(f"No selection option for selector {selector}")
+    for option in options:
+        if option.text == name:
+            option.click()
+            return name
+    raise AssertionError(f" Option {name} not available in {selector}")
+
+
 def get_options(dash_duo, selector):
     parameter_selector_input = dash_duo.find_element(selector)
     return parameter_selector_input.text.split("\n")

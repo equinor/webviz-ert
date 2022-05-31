@@ -17,6 +17,11 @@ def response_obs_view(parent: WebvizPluginABC) -> List[Component]:
                     id=parent.uuid("response-selector"),
                     className="ert-dropdown",
                 ),
+                dcc.Store(
+                    id=parent.uuid("response-selector-store"),
+                    data=None,
+                    storage_type="session",
+                ),
             ],
         ),
         html.Div(

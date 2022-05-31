@@ -46,6 +46,13 @@ ensembles_response = {
                             "id": 42,
                             "time_created": "2021-04-29T09:43:25",
                         },
+                        {
+                            "children": [],
+                            "name": "default3",
+                            "parent": None,
+                            "id": 3,
+                            "time_created": "2021-04-29T09:43:25",
+                        },
                     ],
                 }
             ],
