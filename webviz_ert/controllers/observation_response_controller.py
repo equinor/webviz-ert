@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 from copy import deepcopy
-from typing import List, Dict, Union, Optional, Mapping
+from typing import List, Dict, Union, Optional, Mapping, Any
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from webviz_ert.controllers.controller_functions import response_options
@@ -56,33 +56,44 @@ def _create_misfits_plot(
 
 def observation_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:
     @app.callback(
-        Output(parent.uuid("response-selector"), "options"),
-        [Input(parent.uuid("selected-ensemble-dropdown"), "value")],
+        [
+            Output(parent.uuid("response-selector"), "options"),
+            Output(parent.uuid("response-selector"), "value"),
+            Output(parent.uuid("response-selector-store"), "data"),
+        ],
+        [
+            Input(parent.uuid("selected-ensemble-dropdown"), "value"),
+            Input(parent.uuid("response-selector"), "value"),
+        ],
+        [
+            State(parent.uuid("response-selector-store"), "data"),
+        ],
     )
-    def set_response_options(selected_ensembles: List[str]) -> List[Dict]:
-        if not selected_ensembles:
+    def set_response_callback(
+        selected_ensembles: List[str], selected_resp: str, selected_resp_store: str
+    ) -> List[Any]:
+        ctx = dash.callback_context
+        triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+        if not triggered_id:
             raise PreventUpdate
+
+        if triggered_id == parent.uuid("response-selector"):
+            selected_resp_store = selected_resp
+
         ensembles = [
             load_ensemble(parent, ensemble_id) for ensemble_id in selected_ensembles
         ]
-        options = response_options(response_filters=["obs"], ensembles=ensembles)
-        return [{"label": name, "value": name} for name in sorted(options)]
+        responses = response_options(response_filters=["obs"], ensembles=ensembles)
+        options = [{"label": name, "value": name} for name in sorted(responses)]
 
-    @app.callback(
-        Output(parent.uuid("response-selector"), "value"),
-        [Input(parent.uuid("response-selector"), "options")],
-        [State(parent.uuid("response-selector"), "value")],
-    )
-    def set_responses_value(
-        available_options: List[Dict], previous_selected_response: str
-    ) -> str:
-        if available_options and previous_selected_response in [
-            opt["value"] for opt in available_options
-        ]:
-            return previous_selected_response
-        if available_options and not previous_selected_response:
-            return available_options[0]["value"]
-        return ""
+        if options:
+            if selected_resp_store is not None:
+                selected_resp = selected_resp_store
+            else:
+                selected_resp = options[0]["value"]
+                selected_resp_store = selected_resp
+
+        return [options, selected_resp, selected_resp_store]
 
     @app.callback(
         Output(
@@ -103,7 +114,7 @@ def observation_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         selected_ensembles: List[str],
     ) -> go.Figure:
         if not response or response == "" or not selected_ensembles:
-            raise PreventUpdate
+            return go.Figure()
 
         if misfits_type == "Summary":
             data_dict = {}

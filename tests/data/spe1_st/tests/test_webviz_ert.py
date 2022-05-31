@@ -132,4 +132,9 @@ def test_webviz_observation_analyzer(dash_duo):
     )
 
     ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
+    dash_duo.wait_for_contains_text(
+        "#" + plugin.uuid("selected-ensemble-dropdown"),
+        ensemble_name,
+        timeout=4,
+    )
     _verify_keys_in_menu(dash_duo, plugin, ["WOPT:PROD"], "response-selector")

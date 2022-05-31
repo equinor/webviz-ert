@@ -55,9 +55,9 @@ def test_ensemble_refresh(
     # Check selected parameters are not duplicated
     assert len(selected_params) == len(set(selected_params_2)), "Duplicat parameter"
 
-    # Check only one more selectable options is available
+    # Check only two more selectable options is available
     cases = get_options(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
-    assert cases == ["nr_42"]
+    assert cases == ["nr_42", "default3"]
 
     # Click the refresh button
     ensemble_refresh = dash_duo.find_element(
