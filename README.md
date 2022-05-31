@@ -35,4 +35,8 @@ ert ensemble_smoother --target-case smoother poly.ert
 
 # After simulation has finished, start webviz-ert from the same location with
 ert vis
+
+# Alternatively, you might have to supply the config file if you're using the
+# classic ert storage solution:
+ert vis poly.ert
 ```
