@@ -75,12 +75,12 @@ def ensemble_list_selector_controller(
             ensemble_selection_store["selected"].append(element)
 
         if triggered_id == parent.uuid("selected-ensemble-dropdown"):
-            element = next(
+            for element in [
                 op
                 for op in selected_ens_options
                 if op["value"] not in selected_ens_value
-            )
-            ensemble_selection_store["selected"].remove(element)
+            ]:
+                ensemble_selection_store["selected"].remove(element)
         if triggered_id == parent.uuid(f"ensemble-refresh-button"):
             parent.clear_ensembles()
             refresh_data(project_id=parent.project_identifier)
