@@ -1,3 +1,4 @@
+import enum
 import dash
 import dash_bootstrap_components as dbc
 
@@ -23,8 +24,8 @@ def _new_child(parent: WebvizErtPluginABC, plot: Dict) -> Component:
 
     return dbc.Col(
         html.Div(id=parent.uuid(plot["name"]), children=p),
-        xl=12,
-        lg=6,
+        # xl=12,
+        # lg=6,
         style=assets.ERTSTYLE["dbc-column"],
         key=plot["name"],
     )
@@ -90,25 +91,47 @@ def plot_view_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:
 
         children_names = []
         for c in children:
-            children_names.append(c["props"]["key"])
+            if "key" in c["props"]:
+                children_names.append(c["props"]["key"])
 
         if len(plots) > len(children_names):
             # Add new plots to the grid
             for plot in plots:
                 if plot["name"] not in children_names:
                     children.append(_new_child(parent, plot))
+
         elif len(plots) < len(children_names):
             # Remove some plot from the grid
             plot_names = [p["name"] for p in plots]
-            idx = next(i for i, c in enumerate(children_names) if c not in plot_names)
-            del children[idx]
+            children_names = [
+                c["props"]["key"] for c in children if "key" in c["props"]
+            ]
+            missing_plot_name = [x for x in children_names if x not in plot_names]
 
-        for c in children:
-            xl_width = 6 if len(children) > 1 else 12
-            if isinstance(c, dict):
-                c["props"]["xl"] = xl_width
-            else:
-                c.xl = xl_width
+            for idx, x in enumerate(children):
+                if "key" in x["props"]:
+                    if x["props"]["key"] == missing_plot_name[0]:
+                        del children[idx]
+                        break
+
+        # remove line breaks
+        def comp(x):
+            if isinstance(x, dict):
+                if "id" in x["props"]:
+                    if x["props"]["id"] == "line-breaker":
+                        return False
+            return True
+
+        children[:] = [x for x in children if comp(x)]
+
+        # recalculate grid
+        cols = 3
+        ee = [x for x in range(len(children)) if x % cols == 0]
+        count = 0
+        for i in ee[1:]:
+            cc = html.Div(id="line-breaker", className="w-100")
+            children.insert(i + count, cc)
+            count += 1
 
         # Every change to the childred even if the there is no change
         # and the input is returned as output triggers a redrawing
