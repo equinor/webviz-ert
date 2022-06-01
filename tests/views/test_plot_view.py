@@ -1,7 +1,12 @@
 import dash
 from webviz_ert.plugins._response_comparison import ResponseComparison
-from tests.conftest import select_first
-from selenium.common.exceptions import TimeoutException
+from tests.conftest import (
+    setup_plugin,
+    select_ensemble,
+    select_parameter,
+    select_response,
+    wait_a_bit,
+)
 
 
 def test_plot_view(
@@ -11,42 +16,13 @@ def test_plot_view(
     # This test selects an ensemble from the ensemble-multi-selector
     # then selects a response and parameter and checks that the
     # DOM element for both are created.
-    app = dash.Dash(__name__)
+    plugin = setup_plugin(dash_duo, __name__, ResponseComparison)
 
-    plugin = ResponseComparison(app, project_identifier=None)
-    layout = plugin.layout
-    app.layout = layout
-    dash_duo.start_server(app)
-    windowsize = (630, 1200)
-    dash_duo.driver.set_window_size(*windowsize)
+    select_ensemble(dash_duo, plugin)
 
-    ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
+    select_response(dash_duo, plugin, "SNAKE_OIL_GPR_DIFF")
 
-    dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("selected-ensemble-dropdown"),
-        ensemble_name,
-        timeout=4,
-    )
-
-    resp_select = dash_duo.find_element(
-        "#" + plugin.uuid("parameter-selector-multi-resp")
-    )
-
-    x, y = (0.5, 0.1)
-    dash_duo.click_at_coord_fractions(resp_select, x, y)
-    dash_duo.wait_for_element("#" + plugin.uuid("SNAKE_OIL_GPR_DIFF"))
-
-    param_select = dash_duo.find_element(
-        "#" + plugin.uuid("parameter-selector-multi-param")
-    )
-    param_select.click()
-
-    x, y = (0.5, 0.1)
-    # double click's for the sake if other parameter comes first
-    dash_duo.click_at_coord_fractions(param_select, x, y)
-    param_select.click()
-    dash_duo.click_at_coord_fractions(param_select, x, y)
-    dash_duo.wait_for_element("#" + plugin.uuid("BPR_138_PERSISTENCE"))
+    select_parameter(dash_duo, plugin, "BPR_138_PERSISTENCE")
 
     assert dash_duo.get_logs() == [], "browser console should contain no error"
 
@@ -60,49 +36,18 @@ def test_clearing_parameters_view(
     # we select an ensemble, select a response, select two parameters, check
     # that three graphs are present, clear all parameters, and check that just
     # the response graph remains
+    plugin = setup_plugin(dash_duo, __name__, ResponseComparison)
 
-    app = dash.Dash(__name__)
+    select_ensemble(dash_duo, plugin)
 
-    plugin = ResponseComparison(app, project_identifier=None)
-    layout = plugin.layout
-    app.layout = layout
-    dash_duo.start_server(app)
-    windowsize = (1024, 3600)
-    dash_duo.driver.set_window_size(*windowsize)
-
-    ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
-
-    dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("selected-ensemble-dropdown"),
-        ensemble_name,
-        timeout=4,
-    )
-
-    resp_select = dash_duo.find_element(
-        "#" + plugin.uuid("parameter-selector-multi-resp")
-    )
+    response_name = "SNAKE_OIL_GPR_DIFF"
 
     # click the response, and check that the response graph appears
-    responseName = "SNAKE_OIL_GPR_DIFF"
+    select_response(dash_duo, plugin, response_name)
 
-    x, y = (0.5, 0.1)
-    dash_duo.click_at_coord_fractions(resp_select, x, y)
-    dash_duo.wait_for_element("#" + plugin.uuid(responseName))
-
-    param_select = dash_duo.find_element(
-        "#" + plugin.uuid("parameter-selector-multi-param")
-    )
-    param_select.click()
-
-    # triple click to select two first parameters (not sure why triple is
-    # necessary), and check that the two parameter plots appear
-    dash_duo.click_at_coord_fractions(param_select, x, y)
-    dash_duo.wait_for_element("#" + plugin.uuid("BPR_138_PERSISTENCE"))
-    param_select.click()
-    dash_duo.click_at_coord_fractions(param_select, x, y)
-    param_select.click()
-    dash_duo.click_at_coord_fractions(param_select, x, y)
-    dash_duo.wait_for_element("#" + plugin.uuid("OP1_DIVERGENCE_SCALE"))
+    # click some parameters
+    select_parameter(dash_duo, plugin, "BPR_138_PERSISTENCE")
+    select_parameter(dash_duo, plugin, "OP1_DIVERGENCE_SCALE")
 
     # clear parameter selection
     clear_all = dash_duo.find_element(
@@ -111,14 +56,11 @@ def test_clearing_parameters_view(
     dash_duo.click_at_coord_fractions(clear_all, 0.5, 0.5)
 
     # wait a bit for the page to update
-    try:
-        dash_duo.wait_for_element(".foo-baarrrrr", timeout=0.1)
-    except TimeoutException:
-        pass
+    wait_a_bit(dash_duo)
 
     # verify only expected response plot is left in place
     plots = dash_duo.find_elements(".dash-graph")
-    assert responseName in plots[0].get_attribute("id")
+    assert response_name in plots[0].get_attribute("id")
     assert len(plots) == 1
 
     assert dash_duo.get_logs() == [], "browser console should contain no error"
@@ -131,52 +73,18 @@ def test_clearing_ensembles_view(
     # this is a regression test, ensuring that clearing all ensembles actually
     # removes all ensembles, all responses, all parameters, and all plots
 
-    app = dash.Dash(__name__)
-
-    plugin = ResponseComparison(app, project_identifier=None)
-    layout = plugin.layout
-    app.layout = layout
-    dash_duo.start_server(app)
-    windowsize = (1024, 2048)
-    dash_duo.driver.set_window_size(*windowsize)
+    plugin = setup_plugin(dash_duo, __name__, ResponseComparison, (1024, 2048))
 
     # click and choose two ensembles
-    first_ensemble = select_first(
-        dash_duo, "#" + plugin.uuid("ensemble-multi-selector")
-    )
+    select_ensemble(dash_duo, plugin)
+    select_ensemble(dash_duo, plugin)
 
-    dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("selected-ensemble-dropdown"),
-        first_ensemble,
-        timeout=4,
-    )
-
-    second_ensemble = select_first(
-        dash_duo, "#" + plugin.uuid("ensemble-multi-selector")
-    )
-
-    dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("selected-ensemble-dropdown"),
-        second_ensemble,
-        timeout=4,
-    )
-
-    x, y = (0.5, 0.1)
     # click the response, and check that the response graph appears
-    resp_select = dash_duo.find_element(
-        "#" + plugin.uuid("parameter-selector-multi-resp")
-    )
-    dash_duo.click_at_coord_fractions(resp_select, x, y)
-    dash_duo.wait_for_element("#" + plugin.uuid("SNAKE_OIL_GPR_DIFF"))
+    select_response(dash_duo, plugin, "SNAKE_OIL_GPR_DIFF")
 
     # click some parameters
-    param_select = dash_duo.find_element(
-        "#" + plugin.uuid("parameter-selector-multi-param")
-    )
-    dash_duo.click_at_coord_fractions(param_select, x, y)
-    dash_duo.wait_for_element("#" + plugin.uuid("BPR_138_PERSISTENCE"))
-    dash_duo.click_at_coord_fractions(param_select, x, y)
-    dash_duo.wait_for_element("#" + plugin.uuid("OP1_DIVERGENCE_SCALE"))
+    select_parameter(dash_duo, plugin, "BPR_138_PERSISTENCE")
+    select_parameter(dash_duo, plugin, "OP1_DIVERGENCE_SCALE")
 
     # clear ensemble selection
     clear_all = dash_duo.find_element(
@@ -185,10 +93,7 @@ def test_clearing_ensembles_view(
     dash_duo.click_at_coord_fractions(clear_all, 0.5, 0.5)
 
     # wait a bit for the page to update
-    try:
-        dash_duo.wait_for_element(".foo-baarrrrr", timeout=0.1)
-    except TimeoutException:
-        pass
+    wait_a_bit(dash_duo)
 
     # verify all plots are gone
     plots = dash_duo.find_elements(".dash-graph")

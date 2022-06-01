@@ -12,6 +12,13 @@ class DataContent:
         return self._content
 
 
+all_ensemble_names = [
+    "default",
+    "default3",
+    "default_smoother_update",
+    "nr_42",
+]
+
 ensembles_response = {
     "http://127.0.0.1:5000/updates/facade": "OK",
     "http://127.0.0.1:5000/experiments": [

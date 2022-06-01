@@ -2,30 +2,21 @@ import dash
 from webviz_ert.assets import get_color
 from webviz_ert.plugins import ParameterComparison
 from tests.conftest import select_first, get_options
+from tests.data.snake_oil_data import all_ensemble_names
+from tests.conftest import setup_plugin, select_ensemble
 
 
 def test_ensemble_refresh(
     mock_data,
     dash_duo,
 ):
-    app = dash.Dash(__name__)
+    plugin = setup_plugin(dash_duo, __name__, ParameterComparison)
 
-    plugin = ParameterComparison(app, project_identifier=None)
-    layout = plugin.layout
-    app.layout = layout
-    dash_duo.start_server(app)
-    windowsize = (630, 1200)
-    dash_duo.driver.set_window_size(*windowsize)
-
-    expected_cases = get_options(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
+    ensemble_selector_id = plugin.uuid("ensemble-multi-selector")
+    initial_cases = get_options(dash_duo, "#" + ensemble_selector_id)
 
     # Select first ensemble
-    ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
-    dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("selected-ensemble-dropdown"),
-        ensemble_name,
-        timeout=4,
-    )
+    first_ensemble_name = select_ensemble(dash_duo, plugin)
 
     # Select a parameter
     param_name = select_first(
@@ -41,12 +32,7 @@ def test_ensemble_refresh(
     )
 
     # Select second ensemble
-    ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
-    dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("selected-ensemble-dropdown"),
-        ensemble_name,
-        timeout=4,
-    )
+    second_ensemble_name = select_ensemble(dash_duo, plugin)
 
     selected_params_2 = get_options(
         dash_duo, "#" + plugin.uuid("parameter-deactivator-params")
@@ -55,9 +41,15 @@ def test_ensemble_refresh(
     # Check selected parameters are not duplicated
     assert len(selected_params) == len(set(selected_params_2)), "Duplicat parameter"
 
-    # Check only two more selectable options is available
-    cases = get_options(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
-    assert cases == ["default3", "nr_42"]
+    # Check only expected selectable options are available
+    expected_cases_after_selection = list(
+        filter(
+            lambda ens: ens not in (first_ensemble_name, second_ensemble_name),
+            all_ensemble_names,
+        )
+    )
+    cases_after_selection = get_options(dash_duo, "#" + ensemble_selector_id)
+    assert sorted(cases_after_selection) == sorted(expected_cases_after_selection)
 
     # Click the refresh button
     ensemble_refresh = dash_duo.find_element(
@@ -78,11 +70,10 @@ def test_ensemble_refresh(
         timeout=4,
     )
 
-    # Check after the refresh all the initial ensemble cases are available as options
-    refreshed_cases = get_options(
-        dash_duo, "#" + plugin.uuid("ensemble-multi-selector")
-    )
-    assert refreshed_cases == expected_cases
+    # Check after the refresh all the initial ensemble cases are available as
+    # options
+    refreshed_cases = get_options(dash_duo, "#" + ensemble_selector_id)
+    assert refreshed_cases == initial_cases
 
 
 def test_ensemble_color(mock_data, dash_duo):

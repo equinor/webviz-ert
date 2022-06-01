@@ -1,28 +1,15 @@
 import dash
 from webviz_ert.plugins._response_correlation import ResponseCorrelation
-from tests.conftest import select_first, select_by_name
+from tests.conftest import setup_plugin, select_ensemble
 
 
 def test_response_correlation_view(
     mock_data,
     dash_duo,
 ):
-    app = dash.Dash(__name__)
+    plugin = setup_plugin(dash_duo, __name__, ResponseCorrelation)
 
-    plugin = ResponseCorrelation(app, project_identifier=None)
-    layout = plugin.layout
-    app.layout = layout
-    dash_duo.start_server(app)
-    windowsize = (630, 1200)
-    dash_duo.driver.set_window_size(*windowsize)
-
-    ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
-
-    dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("selected-ensemble-dropdown"),
-        ensemble_name,
-        timeout=4,
-    )
+    select_ensemble(dash_duo, plugin)
 
     resp_select = dash_duo.find_element(
         "#" + plugin.uuid("parameter-selector-multi-resp")
@@ -47,26 +34,9 @@ def test_response_correlation_view(
 
 
 def test_response_selector_sorting(mock_data, dash_duo):
-
-    app = dash.Dash(__name__)
-    plugin = ResponseCorrelation(app, project_identifier=None)
-    layout = plugin.layout
-    app.layout = layout
-    dash_duo.start_server(app)
-    windowsize = (630, 1200)
-    dash_duo.driver.set_window_size(*windowsize)
-
-    ensemble_name = select_by_name(
-        dash_duo=dash_duo,
-        selector="#" + plugin.uuid("ensemble-multi-selector"),
-        name="nr_42",
-    )
-
-    dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("selected-ensemble-dropdown"),
-        ensemble_name,
-        timeout=4,
-    )
+    plugin = setup_plugin(dash_duo, __name__, ResponseCorrelation)
+    wanted_ensemble_name = "nr_42"
+    select_ensemble(dash_duo, plugin, wanted_ensemble_name)
 
     response_selector_container = dash_duo.find_element(
         "#" + plugin.uuid("container-parameter-selector-multi-resp")

@@ -6,21 +6,10 @@ from webviz_ert.plugins import (
     ResponseCorrelation,
     ObservationAnalyzer,
 )
-from tests.conftest import select_first
+from tests.conftest import select_first, setup_plugin
 
 parameter_keys = ["FIELD_PROPERTIES:POROSITY", "FIELD_PROPERTIES:X_MID_PERMEABILITY"]
 response_keys = ["WGPT:PROD", "WWPT:PROD", "WOPT:PROD", "WWIT:INJ"]
-
-
-def _gen_plugin(dash_duo_handle, PluginClass):
-    app = dash.Dash(__name__)
-    plugin = PluginClass(app, project_identifier=None)
-    layout = plugin.layout
-    app.layout = layout
-    dash_duo_handle.start_server(app)
-    windowsize = (630, 2000)
-    dash_duo_handle.driver.set_window_size(*windowsize)
-    return plugin
 
 
 def _verify_keys_in_menu(dash_duo_handle, plugin, keys, selector):
@@ -37,7 +26,7 @@ def _verify_keys_in_menu(dash_duo_handle, plugin, keys, selector):
 def test_webviz_parameter_comparison(get_ensemble_id, dash_duo):
     # here we need the poke storage first - to get this test running
     _ = get_ensemble_id
-    plugin = _gen_plugin(dash_duo, ParameterComparison)
+    plugin = setup_plugin(dash_duo, __name__, ParameterComparison)
 
     # Wait for the ensemble selector to be initialized
     dash_duo.wait_for_contains_text(
@@ -54,7 +43,7 @@ def test_webviz_parameter_comparison(get_ensemble_id, dash_duo):
 
 @pytest.mark.spe1
 def test_webviz_response_correlation(dash_duo):
-    plugin = _gen_plugin(dash_duo, ResponseCorrelation)
+    plugin = setup_plugin(dash_duo, __name__, ResponseCorrelation)
 
     # Wait for the ensemble selector to be initialized
     dash_duo.wait_for_contains_text(
@@ -86,7 +75,7 @@ def test_webviz_response_correlation(dash_duo):
 
 @pytest.mark.spe1
 def test_webviz_response_comparison(dash_duo):
-    plugin = _gen_plugin(dash_duo, ResponseComparison)
+    plugin = setup_plugin(dash_duo, __name__, ResponseComparison)
 
     # Wait for the ensemble selector to be initialized
     dash_duo.wait_for_contains_text(
@@ -122,7 +111,7 @@ def test_webviz_response_comparison(dash_duo):
 
 @pytest.mark.spe1
 def test_webviz_observation_analyzer(dash_duo):
-    plugin = _gen_plugin(dash_duo, ObservationAnalyzer)
+    plugin = setup_plugin(dash_duo, __name__, ObservationAnalyzer)
 
     # Wait for the ensemble selector to be initialized
     dash_duo.wait_for_contains_text(

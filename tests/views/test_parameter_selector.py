@@ -3,28 +3,15 @@ import webviz_ert
 
 from selenium.webdriver.common.keys import Keys
 from webviz_ert.plugins import ParameterComparison
-from tests.conftest import select_first, select_by_name
+from tests.conftest import setup_plugin, select_ensemble
 
 
 def test_parameter_selector(
     mock_data,
     dash_duo,
 ):
-    app = dash.Dash(__name__)
-
-    plugin = ParameterComparison(app, project_identifier=None)
-    layout = plugin.layout
-    app.layout = layout
-    dash_duo.start_server(app)
-    windowsize = (630, 1200)
-    dash_duo.driver.set_window_size(*windowsize)
-
-    ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
-    dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("selected-ensemble-dropdown"),
-        ensemble_name,
-        timeout=4,
-    )
+    plugin = setup_plugin(dash_duo, __name__, ParameterComparison)
+    select_ensemble(dash_duo, plugin)
 
     dash_duo.wait_for_element("#" + plugin.uuid("parameter-selector-multi-params"))
 
@@ -80,23 +67,8 @@ def test_search_input_return_functionality(
     mock_data,
     dash_duo,
 ):
-    app = dash.Dash(__name__)
-
-    plugin = ParameterComparison(app, project_identifier=None)
-    layout = plugin.layout
-    app.layout = layout
-    dash_duo.start_server(app)
-    windowsize = (630, 1200)
-    dash_duo.driver.set_window_size(*windowsize)
-
-    ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
-    dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("selected-ensemble-dropdown"),
-        ensemble_name,
-        timeout=4,
-    )
-
-    dash_duo.wait_for_element("#" + plugin.uuid("parameter-selector-multi-params"))
+    plugin = setup_plugin(dash_duo, __name__, ParameterComparison)
+    select_ensemble(dash_duo, plugin)
 
     parameter_selector_container = dash_duo.find_element(
         "#" + plugin.uuid("container-parameter-selector-multi-params")
@@ -167,25 +139,10 @@ def test_parameter_selector_sorting(
     mock_data,
     dash_duo,
 ):
-    app = dash.Dash(__name__)
-    plugin = ParameterComparison(app, project_identifier=None)
-    layout = plugin.layout
-    app.layout = layout
-    dash_duo.start_server(app)
-    windowsize = (630, 1200)
-    dash_duo.driver.set_window_size(*windowsize)
+    plugin = setup_plugin(dash_duo, __name__, ParameterComparison)
 
-    ensemble_name = select_by_name(
-        dash_duo=dash_duo,
-        selector="#" + plugin.uuid("ensemble-multi-selector"),
-        name="nr_42",
-    )
-
-    dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("selected-ensemble-dropdown"),
-        ensemble_name,
-        timeout=4,
-    )
+    wanted_ensemble_name = "nr_42"
+    select_ensemble(dash_duo, plugin, wanted_ensemble_name)
 
     parameter_selector_container = dash_duo.find_element(
         "#" + plugin.uuid("container-parameter-selector-multi-params")
