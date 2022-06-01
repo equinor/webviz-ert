@@ -1,8 +1,10 @@
 import pytest
 from requests import HTTPError
+import dash
+from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import TimeoutException
 
 from tests.data.snake_oil_data import ensembles_response
-from selenium.webdriver.chrome.options import Options
 
 
 def pytest_setup_options():
@@ -90,3 +92,63 @@ def select_by_name(dash_duo, selector, name):
 def get_options(dash_duo, selector):
     parameter_selector_input = dash_duo.find_element(selector)
     return parameter_selector_input.text.split("\n")
+
+
+def setup_plugin(dash_duo, name, plugin_class, window_size=(630, 2000)):
+    app = dash.Dash(name)
+    plugin = plugin_class(app, project_identifier=None)
+    layout = plugin.layout
+    app.layout = layout
+    dash_duo.start_server(app)
+    windowsize = window_size
+    dash_duo.driver.set_window_size(*windowsize)
+    return plugin
+
+
+def select_ensemble(dash_duo, plugin, wanted_ensemble_name=None):
+    """tries to select, i.e. click, the ensemble given by ensemble_name, and
+    clicks the first one if no name is given. It returns the name of the
+    selected ensemble."""
+    ensemble_selector_id = plugin.uuid("ensemble-multi-selector")
+    if not wanted_ensemble_name:
+        first_ensemble_name = select_first(dash_duo, "#" + ensemble_selector_id)
+        dash_duo.wait_for_contains_text(
+            "#" + plugin.uuid("selected-ensemble-dropdown"),
+            first_ensemble_name,
+            timeout=4,
+        )
+        return first_ensemble_name
+
+    options_selector_prefix = f"#{ensemble_selector_id}"
+    select_by_name(dash_duo, options_selector_prefix, wanted_ensemble_name)
+    dash_duo.wait_for_contains_text(
+        "#" + plugin.uuid("selected-ensemble-dropdown"),
+        wanted_ensemble_name,
+        timeout=4,
+    )
+    return wanted_ensemble_name
+
+
+def select_response(dash_duo, plugin, response_name):
+    select_by_name(
+        dash_duo,
+        f'#{plugin.uuid("parameter-selector-multi-resp")}',
+        response_name,
+    )
+    dash_duo.wait_for_element(f"#{plugin.uuid(response_name)}")
+
+
+def select_parameter(dash_duo, plugin, parameter_name):
+    select_by_name(
+        dash_duo,
+        f'#{plugin.uuid("parameter-selector-multi-param")}',
+        parameter_name,
+    )
+    dash_duo.wait_for_element(f"#{plugin.uuid(parameter_name)}")
+
+
+def wait_a_bit(dash_duo, time_seconds=0.1):
+    try:
+        dash_duo.wait_for_element(".foo-elderberries-baarrrrr", timeout=time_seconds)
+    except TimeoutException:
+        pass
