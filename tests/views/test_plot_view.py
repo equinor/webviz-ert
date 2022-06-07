@@ -112,3 +112,42 @@ def test_clearing_ensembles_view(
     assert len(chosen_parameters) == 0
 
     assert dash_duo.get_logs() == [], "browser console should contain no error"
+
+
+def test_axis_labels(mock_data, dash_duo):
+    """test_axis_labels loads two different plots in the plot view and checks
+    that axes are labelled correctly"""
+
+    plugin = setup_plugin(
+        dash_duo, __name__, ResponseComparison, window_size=(1024, 2048)
+    )
+
+    # find the right ensemble which has mock data prepared for this test
+    wanted_ensemble_name = "default3"
+    select_ensemble(dash_duo, plugin, wanted_ensemble_name)
+
+    # click two responses, with specified names
+    wanted_responses = ["FGPT", "FOPR"]
+
+    for response in wanted_responses:
+        select_response(dash_duo, plugin, response)
+
+    # wait a bit for the graphs to be drawn
+    wait_a_bit(dash_duo, time_seconds=2)
+
+    # check that both have Value as y axis label
+    for response in wanted_responses:
+        y_axis_title_selector = f"#{plugin.uuid(response)} text.ytitle"
+        y_axis_title = dash_duo.find_element(y_axis_title_selector)
+        assert y_axis_title.text == "Value"
+
+    # check that one has date, the other has index as x axis label
+    date_plot_id = plugin.uuid("FOPR")
+    x_axis_title_date = dash_duo.find_element(f"#{date_plot_id} text.xtitle")
+    assert x_axis_title_date.text == "Date"
+
+    index_plot_id = plugin.uuid("FGPT")
+    x_axis_title_index = dash_duo.find_element(f"#{index_plot_id} text.xtitle")
+    assert x_axis_title_index.text == "Index"
+
+    assert dash_duo.get_logs() == [], "browser console should contain no error"

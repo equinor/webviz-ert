@@ -1,3 +1,4 @@
+import logging
 import dash
 import pandas as pd
 import datetime
@@ -5,7 +6,7 @@ import plotly.graph_objects as go
 import webviz_ert.assets as assets
 
 from copy import deepcopy
-from typing import List, Dict, Union, Any, Optional
+from typing import List, Dict, Union, Any, Optional, Type, Tuple, TYPE_CHECKING
 from dash.dependencies import Input, Output, State, ALL, MATCH
 from dash.exceptions import PreventUpdate
 from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
@@ -15,6 +16,11 @@ from webviz_ert.models import (
     PlotModel,
     load_ensemble,
 )
+
+if TYPE_CHECKING:
+    from .ensemble_model import EnsembleModel
+
+logger = logging.getLogger()
 
 
 def _get_realizations_plots(
@@ -131,14 +137,7 @@ def _create_response_plot(
     else:
         observations = []
 
-    ensemble_plot = ResponsePlotModel(
-        realizations,
-        observations,
-        dict(
-            xaxis={"title": "Index"},
-            yaxis={"title": "Unit TODO"},
-        ),
-    )
+    ensemble_plot = ResponsePlotModel(realizations, observations, dict())
     return ensemble_plot
 
 
@@ -170,8 +169,9 @@ def multi_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> Non
         if not response or not selected_ensembles:
             raise PreventUpdate
 
-        def _generate_plot(ensemble_id: str, color: str) -> Optional[ResponsePlotModel]:
-            ensemble = load_ensemble(parent, ensemble_id)
+        def _generate_plot(
+            ensemble: "EnsembleModel", color: str
+        ) -> Optional[ResponsePlotModel]:
             if response not in ensemble.responses:
                 return None
             plot = _create_response_plot(
@@ -183,10 +183,16 @@ def multi_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> Non
             )
             return plot
 
-        response_plots = [
-            _generate_plot(ensemble_id, assets.get_color(index=index))
-            for index, ensemble_id in enumerate(selected_ensembles)
+        loaded_ensembles = [
+            load_ensemble(parent, ensemble_id) for ensemble_id in selected_ensembles
         ]
+
+        response_plots = [
+            _generate_plot(ensemble, assets.get_color(index=index))
+            for index, ensemble in enumerate(loaded_ensembles)
+        ]
+
+        x_axis_label = axis_label_for_ensemble_response(loaded_ensembles[0], response)
 
         fig = go.Figure()
         for plot in filter(None, response_plots):
@@ -196,4 +202,37 @@ def multi_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> Non
             for observation in plot._observations:
                 fig.add_trace(observation.repr)
         fig.update_layout(assets.ERTSTYLE["figure"]["layout"])
+        fig.update_layout({"xaxis": {"title": {"text": x_axis_label}}})
+        fig.update_layout(assets.ERTSTYLE["figure"]["layout-value-y-axis-label"])
         return fig
+
+
+def axis_label_for_ensemble_response(
+    ensemble: "EnsembleModel", response_name: str
+) -> str:
+    response = ensemble.responses[response_name]
+    response_data = response.data
+    index = response_data.index
+    index_type = type(index)
+    data_sample = index[0] if len(index) > 0 else None
+    if index_type == pd.core.indexes.base.Index and data_sample is not None:
+        try:
+            pd.to_datetime(data_sample)
+        except (pd.errors.ParserError, ValueError) as error:
+            logger.warning(
+                f"got following error trying to parse {data_sample}\n"
+                f"as date for ensemble {ensemble.name}, response {response_name}:\n"
+                f"{error}"
+            )
+            pass
+        else:
+            return "Date"
+    if index_type == pd.core.indexes.numeric.Int64Index:
+        return "Index"
+
+    logger.warning(
+        f"got index type `{index_type}` and data sample `{data_sample}` for\n"
+        f"ensemble {ensemble.name}, response {response_name}\n"
+        "- not sure how to convert to axis label string"
+    )
+    return "Index"

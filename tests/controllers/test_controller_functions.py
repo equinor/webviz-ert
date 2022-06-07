@@ -14,7 +14,7 @@ def test_response_options(mock_data):
         response_filters=["obs"], ensembles=[ensemble3, ensemble4]
     )
 
-    assert len(options) == 3
+    assert len(options) == 4
     assert len(options_with_obs) == 2
 
 

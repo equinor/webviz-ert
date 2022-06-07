@@ -18,6 +18,7 @@ from webviz_ert.models import (
 )
 from webviz_ert.controllers.multi_response_controller import (
     _get_observation_plots,
+    axis_label_for_ensemble_response,
 )
 from webviz_ert import assets
 
@@ -166,9 +167,13 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         _plots = []
         _obs_plots: List[PlotModel] = []
 
-        for index, ensemble_id in enumerate(ensembles):
-            ensemble = load_ensemble(parent, ensemble_id)
+        loaded_ensembles = [
+            load_ensemble(parent, ensemble_id) for ensemble_id in ensembles
+        ]
+
+        for index, ensemble in enumerate(loaded_ensembles):
             response = ensemble.responses[selected_response]
+
             x_axis = response.axis
             if isinstance(x_axis, pd.Index) and x_axis.empty:
                 continue
@@ -181,6 +186,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             ensemble_color = assets.get_color(index=index)
             style.update({"marker": {"color": ensemble_color}})
             style.update({"line": {"color": ensemble_color}})
+
             _plots += [
                 PlotModel(
                     x_axis=x_axis,
@@ -203,6 +209,12 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         _layout = assets.ERTSTYLE["figure"]["layout"].copy()
         _layout.update(dict(showlegend=False))
         fig.update_layout(_layout)
+
+        x_axis_label = axis_label_for_ensemble_response(
+            loaded_ensembles[0], selected_response
+        )
+        fig.update_layout({"xaxis": {"title": {"text": x_axis_label}}})
+        fig.update_layout(assets.ERTSTYLE["figure"]["layout-value-y-axis-label"])
 
         x_index = corr_xindex.get(selected_response, 0)
         if isinstance(x_axis, pd.Index) and not x_axis.empty:
