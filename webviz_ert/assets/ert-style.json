@@ -131,6 +131,13 @@
                 "y": -0.3,
                 "x": 0.5
             }
+        },
+        "layout-value-y-axis-label": {
+            "yaxis": {
+                "title": {
+                    "text": "Value"
+                }
+            }
         }
     }
 }

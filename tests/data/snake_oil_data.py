@@ -12,6 +12,12 @@ class DataContent:
         return self._content
 
 
+def to_parquet_helper(dataframe: pd.DataFrame) -> bytes:
+    stream = io.BytesIO()
+    dataframe.to_parquet(stream)
+    return stream.getvalue()
+
+
 all_ensemble_names = [
     "default",
     "default3",
@@ -115,6 +121,11 @@ ensembles_response = {
             "id": "SNAKE_OIL_GPR_DIFF",
             "has_observations": False,
         },
+        "FGPT": {
+            "name": "FGPT",
+            "id": "FGPT",
+            "has_observations": False,
+        },
         "FOPR": {
             "name": "FOPR",
             "id": "FOPR",
@@ -126,6 +137,7 @@ ensembles_response = {
             "has_observations": True,
         },
     },
+    "http://127.0.0.1:5000/ensembles/3/parameters": [],
     "http://127.0.0.1:5000/ensembles/4": {
         "experiment_id": 1,
         "child_ensemble_ids": [],
@@ -158,15 +170,33 @@ ensembles_response = {
     .to_csv()
     .encode(),
     "http://127.0.0.1:5000/ensembles/3/records/SNAKE_OIL_GPR_DIFF/observations?realization_index=0": [],
-    "http://127.0.0.1:5000/ensembles/3/responses/FOPR?realization_index=0": pd.DataFrame(
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        columns=[0],
-        index=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-    )
-    .transpose()
-    .to_csv()
-    .encode(),
     "http://127.0.0.1:5000/ensembles/3/records/FOPR/observations?realization_index=0": [],
+    "http://127.0.0.1:5000/ensembles/3/records/FOPR": to_parquet_helper(
+        pd.DataFrame(
+            [0.24, 0.13, 0.22, 0.36, 0.21, 0.54, 0.12, 0.16, 0.23, 0.18],
+            index=[
+                "2010-01-10 00:00:00",
+                "2010-02-10 00:00:00",
+                "2010-03-10 00:00:00",
+                "2010-04-10 00:00:00",
+                "2010-05-10 00:00:00",
+                "2010-06-10 00:00:00",
+                "2010-07-10 00:00:00",
+                "2010-08-10 00:00:00",
+                "2010-09-10 00:00:00",
+                "2010-10-10 00:00:00",
+            ],
+            columns=[0],
+        ).transpose()
+    ),
+    "http://127.0.0.1:5000/ensembles/3/records/FGPT/observations?realization_index=0": [],
+    "http://127.0.0.1:5000/ensembles/3/records/FGPT": to_parquet_helper(
+        pd.DataFrame(
+            [0.1, 1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1],
+            columns=[0],
+            index=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+        ).transpose()
+    ),
     "http://127.0.0.1:5000/ensembles/3/records/WOPR:OP1?realization_index=0": pd.DataFrame(
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
         columns=[0],
@@ -209,12 +239,6 @@ ensembles_response = {
         }
     ],
 }
-
-
-def to_parquet_helper(dataframe: pd.DataFrame) -> bytes:
-    stream = io.BytesIO()
-    dataframe.to_parquet(stream)
-    return stream.getvalue()
 
 
 ensembles_response[
