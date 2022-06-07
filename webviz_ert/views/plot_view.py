@@ -36,6 +36,7 @@ def plot_view_header(parent: WebvizPluginABC) -> List[Component]:
                         ),
                     ],
                     width=6,
+                    id=parent.uuid("response-section"),
                 ),
                 dbc.Col(
                     [
@@ -45,6 +46,7 @@ def plot_view_header(parent: WebvizPluginABC) -> List[Component]:
                         ),
                     ],
                     width=6,
+                    id=parent.uuid("parameter-section"),
                 ),
             ]
         ),
