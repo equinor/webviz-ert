@@ -3,7 +3,7 @@ import webviz_ert
 
 from selenium.webdriver.common.keys import Keys
 from webviz_ert.plugins import ParameterComparison
-from tests.conftest import select_first
+from tests.conftest import select_first, select_by_name
 
 
 def test_parameter_selector(
@@ -175,14 +175,15 @@ def test_parameter_selector_sorting(
     windowsize = (630, 1200)
     dash_duo.driver.set_window_size(*windowsize)
 
-    ensemble_selector = dash_duo.find_element(
-        "#" + plugin.uuid("ensemble-multi-selector")
+    ensemble_name = select_by_name(
+        dash_duo=dash_duo,
+        selector="#" + plugin.uuid("ensemble-multi-selector"),
+        name="nr_42",
     )
 
-    dash_duo.click_at_coord_fractions(ensemble_selector, 0.1, 0.25)
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("selected-ensemble-dropdown"),
-        "nr_42",
+        ensemble_name,
         timeout=4,
     )
 

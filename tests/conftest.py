@@ -1,5 +1,4 @@
 import pytest
-import pandas as pd
 from requests import HTTPError
 
 from tests.data.snake_oil_data import ensembles_response
@@ -64,16 +63,7 @@ def _requests_get(url, **kwargs):
     return _MockResponse(url, {}, 400)
 
 
-from webviz_ert.data_loader import GET_ENSEMBLE
-
-
 def _requests_post(url, **kwargs):
-    payload = kwargs["json"] if "json" in kwargs else None
-    if payload is not None and payload["query"] == GET_ENSEMBLE:
-        variables = payload["variables"]
-        ensemble_id = variables["id"]
-        url = f"http://127.0.0.1:5000/ensembles/{ensemble_id}"
-
     if url in ensembles_response:
         return _MockResponse(url, ensembles_response[url], 200)
     return _MockResponse(url, {}, 400)

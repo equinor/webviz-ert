@@ -38,21 +38,15 @@ class EnsembleModel:
     def __init__(self, ensemble_id: str, project_id: str) -> None:
         self._data_loader = get_data_loader(project_id)
         self._schema = self._data_loader.get_ensemble(ensemble_id)
-        self._experiment_id = self._schema["experiment"]["id"]
+        self._experiment_id = self._schema["experiment_id"]
         self._project_id = project_id
-        self._metadata = json.loads(self._schema["userdata"])
-        if "name" in self._metadata:
-            self._name = self._metadata["name"]
-        else:
-            self._name = (
-                f"{self._schema['experiment']['name']}-{self._schema['timeCreated']}"
-            )
+        self._metadata = self._schema["userdata"]
+        self._name = self._metadata["name"]
         self._id = ensemble_id
-        self._children = self._schema["children"]
-        self._parent = self._schema["parent"]
+        self._children = self._schema["child_ensemble_ids"]
+        self._parent = self._schema["parent_ensemble_id"]
         self._size = self._schema["size"]
-        self._active_realizations = self._schema["activeRealizations"]
-        self._time_created = self._schema["timeCreated"]
+        self._active_realizations = self._schema["active_realizations"]
         self._responses: Dict[str, Response] = {}
         self._parameters: Optional[Mapping[str, ParametersModel]] = None
         self._cached_children: Optional[List["EnsembleModel"]] = None
@@ -82,7 +76,7 @@ class EnsembleModel:
         if not self._cached_children:
             self._cached_children = [
                 EnsembleModel(
-                    ensemble_id=child["ensembleResult"]["id"],
+                    ensemble_id=child,
                     project_id=self._project_id,
                 )
                 for child in self._children
@@ -95,7 +89,7 @@ class EnsembleModel:
             return None
         if not self._cached_parent:
             self._cached_parent = EnsembleModel(
-                ensemble_id=self._parent["ensembleReference"]["id"],
+                ensemble_id=self._parent,
                 project_id=self._project_id,
             )
         return self._cached_parent
@@ -141,9 +135,7 @@ class EnsembleModel:
         return self._id
 
     def __str__(self) -> str:
-        if "." in self._time_created:
-            return f"{self._time_created.split('.')[0]}, {self._name}"
-        return f"{self._time_created}, {self._name}"
+        return f"{self._name}"
 
     def __repr__(self) -> str:
         return f"{self.id}, {self._name}"
