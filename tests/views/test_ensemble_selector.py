@@ -57,7 +57,7 @@ def test_ensemble_refresh(
 
     # Check only two more selectable options is available
     cases = get_options(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
-    assert cases == ["nr_42", "default3"]
+    assert cases == ["default3", "nr_42"]
 
     # Click the refresh button
     ensemble_refresh = dash_duo.find_element(

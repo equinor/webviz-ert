@@ -32,75 +32,6 @@ def _requests_post(*args: Any, **kwargs: Any) -> requests.models.Response:
     return requests.post(*args, **kwargs)
 
 
-GET_REALIZATION = """\
-query($ensembleId: ID!) {
-  ensemble(id: $ensembleId) {
-    name
-    responses {
-      name
-      data_uri
-    }
-    parameters {
-      name
-      data_uri
-    }
-  }
-}
-"""
-
-GET_ALL_ENSEMBLES = """\
-query {
-  experiments {
-    name
-    ensembles {
-      id
-      timeCreated
-      parentEnsemble {
-        id
-      }
-      childEnsembles {
-        id
-      }
-    }
-  }
-}
-"""
-
-GET_ENSEMBLE = """\
-query ($id: ID!) {
-  ensemble(id: $id) {
-    id
-    size
-    activeRealizations
-    timeCreated
-    children {
-      ensembleResult{
-        id
-      }
-    }
-    userdata
-    parent {
-      ensembleReference{
-        id
-      }
-    }
-    experiment {
-      id
-      name
-    }
-  }
-}
-"""
-
-GET_PRIORS = """\
-query($id: ID!) {
-  experiment(id: $id) {
-    priors
-  }
-}
-"""
-
-
 data_cache: dict = {}
 ServerIdentifier = Tuple[str, Optional[str]]  # (baseurl, optional token)
 
@@ -126,31 +57,6 @@ class DataLoader:
         loader._graphql_cache = defaultdict(dict)
         cls._instances[(baseurl, token)] = loader
         return loader
-
-    def _query(self, query: str, **kwargs: Any) -> dict:
-        """
-        Cachable GraphQL helper
-        """
-        # query_cache = self._graphql_cache[query].get(kwargs)
-        # if query_cache is not None:
-        #     return query_cache
-        resp = _requests_post(
-            f"{self.baseurl}/gql",
-            json={
-                "query": query,
-                "variables": kwargs,
-            },
-            headers={"Token": self.token},
-        )
-        try:
-            doc = resp.json()
-        except json.JSONDecodeError:
-            doc = resp.content
-        if resp.status_code != 200 or isinstance(doc, bytes):
-            raise RuntimeError(
-                f"ERT Storage query returned with '{resp.status_code}':\n{pformat(doc)}"
-            )
-        return doc["data"]
 
     def _get(
         self, url: str, headers: dict = None, params: dict = None
@@ -194,20 +100,20 @@ class DataLoader:
 
     def get_all_ensembles(self) -> list:
         try:
-            experiments = self._query(GET_ALL_ENSEMBLES)["experiments"]
+            experiments = self._get(url=f"experiments").json()
             return [
-                {"name": exp["name"], **ens}
-                for exp in experiments
-                for ens in exp["ensembles"]
+                self.get_ensemble(ensemble_id)
+                for experiment in experiments
+                for ensemble_id in experiment["ensemble_ids"]
             ]
-        except RuntimeError as e:
+        except DataLoaderException as e:
             logger.error(e)
             return list()
 
     def get_ensemble(self, ensemble_id: str) -> dict:
         try:
-            return self._query(GET_ENSEMBLE, id=ensemble_id)["ensemble"]
-        except RuntimeError as e:
+            return self._get(url=f"ensembles/{ensemble_id}").json()
+        except DataLoaderException as e:
             logger.error(e)
             return dict()
 
@@ -243,9 +149,8 @@ class DataLoader:
 
     def get_experiment_priors(self, experiment_id: str) -> dict:
         try:
-            return json.loads(
-                self._query(GET_PRIORS, id=experiment_id)["experiment"]["priors"]
-            )
+            experiment = self._get(f"experiments/{experiment_id}").json()
+            return experiment["priors"]
         except RuntimeError as e:
             logger.error(e)
             return dict()
