@@ -58,5 +58,6 @@ def response_obs_view(parent: WebvizPluginABC) -> List[Component]:
                 ),
             ],
             className="ert-graph-container",
+            id=parent.uuid("observations-graph-container"),
         ),
     ]

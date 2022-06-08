@@ -1,8 +1,7 @@
 import dash
 from dash.development.base_component import Component
+from typing import List, Dict
 from dash import html
-from webviz_config import WebvizPluginABC
-from typing import Mapping
 
 import webviz_ert.models
 
@@ -31,6 +30,41 @@ class ObservationAnalyzer(WebvizErtPluginABC):
                 ),
             ]
         )
+
+    @property
+    def tour_steps(self) -> List[Dict[str, str]]:
+        steps = [
+            {
+                "id": self.uuid("ensemble-multi-selector"),
+                "content": "List of experiment ensembles.",
+            },
+            {
+                "id": self.uuid("selected-ensemble-dropdown"),
+                "content": "List of currently selected ensembles.",
+            },
+            {
+                "id": self.uuid(f"ensemble-refresh-button"),
+                "content": (
+                    "Forces a refresh of all ensemble data including parameter and response data."
+                ),
+            },
+            {
+                "id": self.uuid("response-selector"),
+                "content": (
+                    "Response selection list will be populated"
+                    " when an ensemble is selected in the list of ensembles"
+                    " and will contain only responses that have observations."
+                ),
+            },
+            {
+                "id": self.uuid("observations-graph-container"),
+                "content": (
+                    "Representation of the misfit between the estimated response value from the forward model"
+                    " and the existing observation values."
+                ),
+            },
+        ]
+        return steps
 
     def set_callbacks(self, app: dash.Dash) -> None:
         webviz_ert.controllers.ensemble_list_selector_controller(self, app)
