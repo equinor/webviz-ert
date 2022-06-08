@@ -61,6 +61,11 @@ class ObservationAnalyzer(WebvizErtPluginABC):
                 "content": (
                     "Representation of the misfit between the estimated response value from the forward model"
                     " and the existing observation values."
+                    " One can choose to show misfits grouped by time (Univeriate) as candles"
+                    " showing misfits statistics per a single time point"
+                    " or to render misfits as a histogram aggregating misfits over the entire temporal axes (Summary)."
+                    " When multiple ensembles are selected each graph will be overlayed on top of each other"
+                    " transparently, where each ensemble gets its own colour"
                 ),
             },
         ]

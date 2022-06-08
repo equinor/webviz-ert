@@ -1,5 +1,6 @@
 import dash
 from dash.development.base_component import Component
+from typing import List, Dict
 from dash import html
 
 import webviz_ert.models
@@ -39,6 +40,51 @@ class ParameterComparison(WebvizErtPluginABC):
                 ),
             ]
         )
+
+    @property
+    def tour_steps(self) -> List[Dict[str, str]]:
+        steps = [
+            {
+                "id": self.uuid("ensemble-multi-selector"),
+                "content": "List of experiment ensembles.",
+            },
+            {
+                "id": self.uuid("selected-ensemble-dropdown"),
+                "content": "List of currently selected ensembles.",
+            },
+            {
+                "id": self.uuid(f"ensemble-refresh-button"),
+                "content": (
+                    "Forces a refresh of all ensemble data including parameter and response data."
+                ),
+            },
+            {
+                "id": self.uuid(f"parameter-selector-multi-params"),
+                "content": (
+                    "List of parameters. This list is populated only"
+                    " if at least one ensemble is selected."
+                    " Selecting multiple parameters is possible"
+                    " using mouse `Click + Drag` inside the response list."
+                ),
+            },
+            {
+                "id": self.uuid(f"parameter-deactivator-params"),
+                "content": (
+                    "List of currently selected parameters."
+                    "Every selected parameter is visualized in the parallel coordinates plot,"
+                    " where each vertical axis represents a single parameter."
+                    " Multiple ensembles are distinguished by different colors."
+                ),
+            },
+            {
+                "id": self.uuid(f"parameter-selector-filter-params"),
+                "content": (
+                    "Search field. The parameter list will show only"
+                    " elements that contain the search characters"
+                ),
+            },
+        ]
+        return steps
 
     def set_callbacks(self, app: dash.Dash) -> None:
         webviz_ert.controllers.ensemble_list_selector_controller(self, app)
