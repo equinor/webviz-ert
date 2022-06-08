@@ -55,7 +55,7 @@ class ResponseComparison(WebvizErtPluginABC):
             {
                 "id": self.uuid(f"ensemble-refresh-button"),
                 "content": (
-                    "Forces a refresh of all ensemble data including parameter and response data. \n"
+                    "Forces a refresh of all ensemble data including parameter and response data."
                 ),
             },
             {
