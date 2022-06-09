@@ -47,7 +47,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         ],
         [
             State(parent.uuid("parameter-selection-store-param"), "data"),
-            State(parent.uuid("parameter-selection-store-resp"), "data"),
+            State(parent.uuid("element-dropdown-store-resp"), "data"),
             State(parent.uuid("selected-ensemble-dropdown"), "value"),
         ],
     )
@@ -56,14 +56,14 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         corr_param_resp: Dict,
         correlation_metric: str,
         parameters: List[str],
-        responses: List[str],
+        response: Optional[str],
         ensembles: List[str],
     ) -> Optional[Tuple[go.Figure, go.Figure]]:
         if not (
             ensembles
             and parameters
-            and responses
-            and corr_param_resp["response"] in responses
+            and response
+            and corr_param_resp["response"] == response
         ):
             raise PreventUpdate
 
@@ -76,25 +76,25 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         for index, ensemble_id in enumerate(ensembles):
             ensemble = load_ensemble(parent, ensemble_id)
             parameter_df = ensemble.parameters_df(parameters)
-            if parameter_df.empty:
+            response_df = ensemble.responses[selected_response].data_df()
+            if parameter_df.empty or response_df.empty:
                 continue
-            for response in responses:
-                response_df = ensemble.responses[response].data_df()
-                x_index = corr_xindex.get(response, 0)
-                parameter_df[response] = response_df.iloc[x_index]
+
+            x_index = corr_xindex.get(selected_response, 0)
+            parameter_df[selected_response] = response_df.iloc[x_index]
 
             corrdf = parameter_df.corr(method=correlation_metric)
-            corrdf = corrdf.drop(responses, axis=0).fillna(0)
+            corrdf = corrdf.drop([response], axis=0).fillna(0)
             if df_index is None:
                 df_index = corrdf[selected_response].abs().sort_values().index.copy()
             corrdf = corrdf.reindex(df_index)
             # create heatmap
             data_heatmap = {
                 "type": "heatmap",
-                "x": corrdf[responses].columns,
-                "y": corrdf[responses].index,
+                "x": corrdf[[response]].columns,
+                "y": corrdf[[response]].index,
                 "z": [
-                    corrdf[responses].loc[parameter].values
+                    corrdf[[response]].loc[parameter].values
                     for parameter in corrdf.index
                 ],
                 "zmin": -1,
@@ -137,12 +137,11 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         ),
         [
             Input(parent.uuid("correlation-store-xindex"), "modified_timestamp"),
-            Input(parent.uuid("parameter-selection-store-resp"), "modified_timestamp"),
+            Input(parent.uuid("element-dropdown-store-resp"), "modified_timestamp"),
             Input(parent.uuid("ensemble-selection-store"), "modified_timestamp"),
             Input(parent.uuid("correlation-store-selection"), "modified_timestamp"),
         ],
         [
-            State(parent.uuid("parameter-selection-store-resp"), "data"),
             State(parent.uuid("selected-ensemble-dropdown"), "value"),
             State(parent.uuid("correlation-store-xindex"), "data"),
             State(parent.uuid("correlation-store-selection"), "data"),
@@ -153,12 +152,11 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         __: Any,
         ___: Any,
         ____: Any,
-        responses: Optional[List[str]],
         ensembles: List[str],
         corr_xindex: Dict,
         corr_param_resp: Dict,
     ) -> Optional[go.Figure]:
-        if not (ensembles and responses and corr_param_resp["response"] in responses):
+        if not (ensembles and corr_param_resp["response"]):
             raise PreventUpdate
         selected_response = corr_param_resp["response"]
         _plots = []
@@ -237,7 +235,6 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         ],
         [
             State(parent.uuid("parameter-selection-store-param"), "data"),
-            State(parent.uuid("parameter-selection-store-resp"), "data"),
             State(parent.uuid("selected-ensemble-dropdown"), "value"),
         ],
     )
@@ -245,16 +242,14 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         corr_xindex: Dict,
         corr_param_resp: Dict,
         parameters: List[str],
-        responses: List[str],
         ensembles: List[str],
     ) -> Optional[Tuple[go.Figure, Component]]:
 
         if not (
             parameters
             and ensembles
-            and responses
             and corr_param_resp["parameter"] in parameters
-            and corr_param_resp["response"] in responses
+            and corr_param_resp["response"]
         ):
             raise PreventUpdate
 
@@ -329,15 +324,11 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         fig.update_layout(assets.ERTSTYLE["figure"]["layout"])
         fig.update_layout(showlegend=False)
         final_text = []
-        for response_name in responses:
-            x_axis = ensemble.responses[response_name].axis
-            if isinstance(x_axis, pd.Index) and not x_axis.empty:
-                x_value = x_axis[corr_xindex.get(response_name, 0)]
-                if response_name == selected_response:
-                    res_text = f"**{response_name} @ {x_value}**, "
-                else:
-                    res_text = f"{response_name} @ {x_value}, "
-                final_text.append(dcc.Markdown(res_text))
+        x_axis = ensemble.responses[selected_response].axis
+        if isinstance(x_axis, pd.Index) and not x_axis.empty:
+            x_value = x_axis[corr_xindex.get(selected_response, 0)]
+            res_text = f"**{selected_response} @ {x_value}**, "
+            final_text.append(dcc.Markdown(res_text))
         final_text += [dcc.Markdown(f"parameter: **{corr_param_resp['parameter']}**")]
         return fig, html.Div(final_text)
 
@@ -348,7 +339,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                 {"id": parent.uuid("response-overview"), "type": parent.uuid("graph")},
                 "clickData",
             ),
-            Input(parent.uuid("parameter-selection-store-resp"), "data"),
+            Input(parent.uuid("element-dropdown-store-resp"), "data"),
         ],
         [
             State(parent.uuid("correlation-store-xindex"), "data"),
@@ -356,16 +347,19 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         ],
     )
     def update_corr_index(
-        click_data: Dict, responses: List[str], corr_xindex: Dict, corr_param_resp: Dict
+        click_data: Dict,
+        response: Optional[str],
+        corr_xindex: Dict,
+        corr_param_resp: Dict,
     ) -> Optional[Dict]:
-        if not responses:
+        if not response:
             raise PreventUpdate
 
         ctx = dash.callback_context
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-        if triggered_id == parent.uuid("parameter-selection-store-resp"):
-            return {response: corr_xindex.get(response, 0) for response in responses}
+        if triggered_id == parent.uuid("element-dropdown-store-resp"):
+            return {response: corr_xindex.get(response, 0)}
         if click_data:
             corr_xindex[corr_param_resp["response"]] = click_data["points"][0][
                 "pointIndex"
@@ -382,7 +376,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                 },
                 "clickData",
             ),
-            Input(parent.uuid("parameter-selection-store-resp"), "data"),
+            Input(parent.uuid("element-dropdown-store-resp"), "data"),
             Input(parent.uuid("parameter-selection-store-param"), "data"),
         ],
         [
@@ -391,24 +385,20 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
     )
     def update_corr_param_resp(
         click_data: Dict,
-        responses: List[str],
+        response: Optional[str],
         parameters: List[str],
         corr_param_resp: Dict,
     ) -> Optional[Dict]:
         ctx = dash.callback_context
-        if responses:
-            corr_param_resp["response"] = (
-                corr_param_resp["response"]
-                if corr_param_resp["response"] in responses
-                else responses[0]
-            )
-        if parameters:
-            corr_param_resp["parameter"] = (
-                corr_param_resp["parameter"]
-                if corr_param_resp["parameter"] in parameters
-                else parameters[0]
-            )
-        if click_data:
+        triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+        if triggered_id == parent.uuid("element-dropdown-store-resp"):
+            corr_param_resp["response"] = response
+        elif triggered_id == parent.uuid("parameter-selection-store-param"):
+            if parameters:
+                corr_param_resp["parameter"] = parameters[-1]
+            else:
+                corr_param_resp["parameter"] = None
+        elif click_data:
             corr_param_resp["parameter"] = click_data["points"][0]["y"]
             corr_param_resp["response"] = click_data["points"][0]["x"]
         return corr_param_resp

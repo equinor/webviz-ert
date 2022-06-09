@@ -1,5 +1,6 @@
 import dash
 from webviz_ert.plugins._response_correlation import ResponseCorrelation
+from webviz_ert.plugins._response_comparison import ResponseComparison
 from tests.conftest import select_first
 
 
@@ -24,12 +25,7 @@ def test_response_correlation_view(
         timeout=4,
     )
 
-    resp_select = dash_duo.find_element(
-        "#" + plugin.uuid("parameter-selector-multi-resp")
-    )
-
-    x, y = (0.5, 0.1)
-    dash_duo.click_at_coord_fractions(resp_select, x, y)
+    dash_duo.select_dcc_dropdown("#" + plugin.uuid("element-dropdown-resp"), index=0)
 
     param_select = dash_duo.find_element(
         "#" + plugin.uuid("parameter-selector-multi-param")
@@ -49,7 +45,7 @@ def test_response_correlation_view(
 def test_response_selector_sorting(mock_data, dash_duo):
 
     app = dash.Dash(__name__)
-    plugin = ResponseCorrelation(app, project_identifier=None)
+    plugin = ResponseComparison(app, project_identifier=None)
     layout = plugin.layout
     app.layout = layout
     dash_duo.start_server(app)

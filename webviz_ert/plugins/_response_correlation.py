@@ -83,7 +83,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
                 ),
                 dcc.Store(
                     id=self.uuid("correlation-store-selection"),
-                    data={"parameter": "x", "response": "y"},
+                    data={"parameter": None, "response": None},
                 ),
                 html.Div(
                     id=self.uuid("ensemble-content"),
@@ -93,12 +93,12 @@ class ResponseCorrelation(WebvizErtPluginABC):
                     [
                         dbc.Col(
                             [
-                                html.Label("Responses", className="ert-label"),
-                                parameter_selector_view(
-                                    self, data_type="response", suffix="resp"
+                                html.Label("Response", className="ert-label"),
+                                element_dropdown_view(
+                                    self, data_type=webviz_ert.models.DataType.RESPONSE
                                 ),
                             ],
-                            width=4,
+                            width=6,
                         ),
                         dbc.Col(
                             [
@@ -107,16 +107,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
                                     self, data_type="parameter", suffix="param"
                                 ),
                             ],
-                            width=4,
-                        ),
-                        dbc.Col(
-                            [
-                                html.Label("Parameters", className="ert-label"),
-                                element_dropdown_view(
-                                    self, data_type=webviz_ert.models.DataType.RESPONSE
-                                ),
-                            ],
-                            width=4,
+                            width=6,
                         ),
                     ],
                 ),
@@ -178,8 +169,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
         webviz_ert.controllers.parameter_selector_controller(
             self, app, suffix="param", union_keys=False
         )
-        webviz_ert.controllers.parameter_selector_controller(self, app, suffix="resp")
-        # webviz_ert.controllers.element_dropdown_controller(
-        #     self, app, webviz_ert.models.DataType.RESPONSE
-        # )
+        webviz_ert.controllers.element_dropdown_controller(
+            self, app, webviz_ert.models.DataType.RESPONSE
+        )
         webviz_ert.controllers.response_correlation_controller(self, app)

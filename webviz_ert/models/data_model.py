@@ -2,6 +2,6 @@ from enum import Enum
 
 
 class DataType(str, Enum):
-    RESPONSE = "reps"
+    RESPONSE = "resp"
     PARAMETER = "param"
     ENSEMBLE = "ens"
