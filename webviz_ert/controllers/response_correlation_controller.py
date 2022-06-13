@@ -10,7 +10,7 @@ from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 from plotly.subplots import make_subplots
 
-from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
+from webviz_ert.plugins import WebvizErtPluginABC
 from webviz_ert.models import (
     load_ensemble,
     BarChartPlotModel,
@@ -79,25 +79,29 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             parameter_df = ensemble.parameters_df(parameters)
             if parameter_df.empty:
                 continue
+            valid_responses = []
             for response in responses:
                 response_df = ensemble.responses[response].data_df()
                 if response_df.empty:
                     continue
                 x_index = corr_xindex.get(response, 0)
                 parameter_df[response] = response_df.iloc[x_index]
+                valid_responses.append(response)
 
             corrdf = parameter_df.corr(method=correlation_metric)
-            corrdf = corrdf.drop(responses, axis=0).fillna(0)
+            corrdf = corrdf.drop(valid_responses, axis=0).fillna(0)
+            if selected_response not in valid_responses:
+                continue
             if df_index is None:
                 df_index = corrdf[selected_response].abs().sort_values().index.copy()
             corrdf = corrdf.reindex(df_index)
             # create heatmap
             data_heatmap = {
                 "type": "heatmap",
-                "x": corrdf[responses].columns,
-                "y": corrdf[responses].index,
+                "x": corrdf[valid_responses].columns,
+                "y": corrdf[valid_responses].index,
                 "z": [
-                    corrdf[responses].loc[parameter].values
+                    corrdf[valid_responses].loc[parameter].values
                     for parameter in corrdf.index
                 ],
                 "zmin": -1,
@@ -429,4 +433,9 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         elif click_data:
             corr_param_resp["parameter"] = click_data["points"][0]["y"]
             corr_param_resp["response"] = click_data["points"][0]["x"]
+        elif not parameters and not responses:
+            corr_param_resp["parameter"] = None
+            corr_param_resp["response"] = None
+
+        parent.save_state("correlation-store-selection", corr_param_resp)
         return corr_param_resp

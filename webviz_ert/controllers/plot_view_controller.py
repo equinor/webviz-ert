@@ -10,7 +10,7 @@ import webviz_ert.controllers
 import webviz_ert.assets as assets
 
 from webviz_ert.views import response_view, parameter_view
-from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
+from webviz_ert.plugins import WebvizErtPluginABC
 
 
 def _new_child(parent: WebvizErtPluginABC, plot: Dict) -> Component:

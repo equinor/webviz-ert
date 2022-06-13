@@ -9,7 +9,7 @@ from copy import deepcopy
 from typing import List, Dict, Union, Any, Optional, Type, Tuple, TYPE_CHECKING
 from dash.dependencies import Input, Output, State, ALL, MATCH
 from dash.exceptions import PreventUpdate
-from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
+from webviz_ert.plugins import WebvizErtPluginABC
 from webviz_ert.models import (
     ResponsePlotModel,
     Response,

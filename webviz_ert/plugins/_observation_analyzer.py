@@ -7,7 +7,7 @@ import webviz_ert.models
 
 from webviz_ert.views import ensemble_selector_list, response_obs_view
 
-from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
+from webviz_ert.plugins import WebvizErtPluginABC
 import webviz_ert.controllers
 
 

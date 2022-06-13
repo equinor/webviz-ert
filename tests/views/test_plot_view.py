@@ -132,9 +132,6 @@ def test_axis_labels(mock_data, dash_duo):
     for response in wanted_responses:
         select_response(dash_duo, plugin, response)
 
-    # wait a bit for the graphs to be drawn
-    wait_a_bit(dash_duo, time_seconds=2)
-
     # check that both have Value as y axis label
     for response in wanted_responses:
         y_axis_title_selector = f"#{plugin.uuid(response)} text.ytitle"

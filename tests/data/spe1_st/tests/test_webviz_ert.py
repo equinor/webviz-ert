@@ -6,7 +6,7 @@ from webviz_ert.plugins import (
     ResponseCorrelation,
     ObservationAnalyzer,
 )
-from tests.conftest import select_first, setup_plugin
+from tests.conftest import select_first, setup_plugin, verify_key_in_dropdown
 
 parameter_keys = ["FIELD_PROPERTIES:POROSITY", "FIELD_PROPERTIES:X_MID_PERMEABILITY"]
 response_keys = ["WGPT:PROD", "WWPT:PROD", "WOPT:PROD", "WWIT:INJ"]
@@ -126,4 +126,5 @@ def test_webviz_observation_analyzer(dash_duo):
         ensemble_name,
         timeout=4,
     )
-    _verify_keys_in_menu(dash_duo, plugin, ["WOPT:PROD"], "response-selector")
+
+    verify_key_in_dropdown(dash_duo, plugin.uuid("response-selector"), "WOPT:PROD")

@@ -1,5 +1,5 @@
 from dash.development.base_component import Component
-from webviz_config import WebvizPluginABC
+from webviz_ert.plugins import WebvizErtPluginABC
 
 from dash import html
 from dash import dcc
@@ -8,7 +8,7 @@ import dash_bootstrap_components as dbc
 
 
 def parameter_selector_view(
-    parent: WebvizPluginABC, data_type: str = "parameter", suffix: str = ""
+    parent: WebvizErtPluginABC, data_type: str = "parameter", suffix: str = ""
 ) -> Component:
     return html.Div(
         [
@@ -60,6 +60,7 @@ def parameter_selector_view(
             dcc.Store(
                 id=parent.uuid(f"parameter-selection-store-{suffix}"),
                 storage_type="session",
+                data=parent.load_state(f"parameter-selection-store-{suffix}", []),
             ),
             dcc.Store(
                 id=parent.uuid(f"parameter-type-store-{suffix}"),

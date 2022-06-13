@@ -13,7 +13,7 @@ from webviz_ert.views import (
 )
 
 import webviz_ert.controllers
-from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
+from webviz_ert.plugins import WebvizErtPluginABC
 
 
 class ResponseComparison(WebvizErtPluginABC):

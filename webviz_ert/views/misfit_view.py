@@ -1,12 +1,13 @@
 from typing import List
 from dash.development.base_component import Component
-from webviz_config import WebvizPluginABC
+from webviz_ert.plugins import WebvizErtPluginABC
+
 
 from dash import html
 from dash import dcc
 
 
-def response_obs_view(parent: WebvizPluginABC) -> List[Component]:
+def response_obs_view(parent: WebvizErtPluginABC) -> List[Component]:
     return [
         html.H5("Observation/Misfits plots"),
         html.Div(
@@ -19,7 +20,7 @@ def response_obs_view(parent: WebvizPluginABC) -> List[Component]:
                 ),
                 dcc.Store(
                     id=parent.uuid("response-selector-store"),
-                    data=None,
+                    data=parent.load_state("response-selector-store"),
                     storage_type="session",
                 ),
             ],

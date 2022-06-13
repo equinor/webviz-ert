@@ -4,7 +4,7 @@ from typing import List, Any, Tuple, Dict, Optional
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 
-from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
+from webviz_ert.plugins import WebvizErtPluginABC
 from webviz_ert.models import (
     load_ensemble,
 )
@@ -92,25 +92,33 @@ def parameter_selector_controller(
         selected_ensembles: List[str],
         selected_params: Optional[List[str]],
     ) -> Optional[List[str]]:
-        if selected_ensembles is None or selected_ensembles == []:
-            return []
-        selected_params = [] if not selected_params else selected_params
-        parameters = [] if not parameters else parameters
-
+        stored_parameters = None
         ctx = dash.callback_context
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
         if triggered_id == parameter_selector_filter_id:
             # Prevent selecting everything from the search result on enter
             raise PreventUpdate
         elif triggered_id == parent.uuid("selected-ensemble-dropdown"):
-            raise PreventUpdate
+            if selected_ensembles is None or selected_ensembles == []:
+                stored_parameters = []
+            else:
+                raise PreventUpdate
         elif triggered_id == parameter_selector_multi_id:
-            parameters = [
-                parameter
-                for parameter in parameters
-                if parameter not in selected_params
-            ]
-        return selected_params + parameters
+            selected_params = [] if not selected_params else selected_params
+            parameters = (
+                []
+                if not parameters
+                else [
+                    parameter
+                    for parameter in parameters
+                    if parameter not in selected_params
+                ]
+            )
+            stored_parameters = selected_params + parameters
+
+        parent.save_state(f"parameter-selection-store-{suffix}", stored_parameters)
+
+        return stored_parameters
 
     @app.callback(
         [

@@ -1,6 +1,6 @@
 from typing import List
 from dash.development.base_component import Component
-from webviz_config import WebvizPluginABC
+from webviz_ert.plugins import WebvizErtPluginABC
 
 from dash import html
 from dash import dcc
@@ -8,7 +8,7 @@ import webviz_core_components as wcc
 import dash_bootstrap_components as dbc
 
 
-def ensemble_selector_list(parent: WebvizPluginABC) -> List[Component]:
+def ensemble_selector_list(parent: WebvizErtPluginABC) -> List[Component]:
     return [
         html.Div(
             [
@@ -54,5 +54,8 @@ def ensemble_selector_list(parent: WebvizPluginABC) -> List[Component]:
             persistence_type="session",
             className="selected-ensemble-dropdown",
         ),
-        dcc.Store(id=parent.uuid("ensemble-selection-store"), storage_type="session"),
+        dcc.Store(
+            id=parent.uuid("ensemble-selection-store"),
+            storage_type="session",
+        ),
     ]
