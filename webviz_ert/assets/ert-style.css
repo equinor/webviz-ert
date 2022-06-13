@@ -55,3 +55,7 @@
   background-color: rgba(191,91,23,0.8);
   color: black;
 }
+
+.webviz-config-select {
+	height: 15rem;
+}

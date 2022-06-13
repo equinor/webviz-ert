@@ -14,7 +14,7 @@ def ensemble_selector_list(parent: WebvizErtPluginABC) -> List[Component]:
             dbc.Row(
                 [
                     dbc.Col(
-                        html.Label("Ensembles", className="ert-label"),
+                        html.H6("Ensembles", className="ert-label"),
                         align="left",
                         width="auto",
                     ),
@@ -29,11 +29,13 @@ def ensemble_selector_list(parent: WebvizErtPluginABC) -> List[Component]:
                     dbc.Col(
                         html.Button(
                             id=parent.uuid(f"parameter-selector-button"),
-                            children=("Toggle selector visibilities"),
+                            children=("Hide Selectors"),
                         ),
                         align="right",
+                        width="auto",
                     ),
-                ]
+                ],
+                align="center",
             )
         ),
         html.Div(

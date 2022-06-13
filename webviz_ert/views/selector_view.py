@@ -19,7 +19,7 @@ def parameter_selector_view(
             dbc.Row(
                 [
                     dbc.Col(
-                        html.Label(
+                        html.H6(
                             titleLabel,
                             className="ert-label",
                         ),
@@ -51,6 +51,7 @@ def parameter_selector_view(
                         width="auto",
                     ),
                 ],
+                align="center",
             ),
             html.Div(
                 wcc.Select(
