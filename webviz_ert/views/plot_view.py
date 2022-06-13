@@ -1,6 +1,6 @@
 from typing import List
 from dash.development.base_component import Component
-from webviz_config import WebvizPluginABC
+from webviz_ert.plugins import WebvizErtPluginABC
 
 from dash import html
 from dash import dcc
@@ -8,7 +8,7 @@ import dash_bootstrap_components as dbc
 from .selector_view import parameter_selector_view
 
 
-def plot_view_header(parent: WebvizPluginABC) -> List[Component]:
+def plot_view_header(parent: WebvizErtPluginABC) -> List[Component]:
     return [
         dbc.Row(
             [
@@ -54,7 +54,7 @@ def plot_view_header(parent: WebvizPluginABC) -> List[Component]:
     ]
 
 
-def plot_view_body(parent: WebvizPluginABC) -> List[Component]:
+def plot_view_body(parent: WebvizErtPluginABC) -> List[Component]:
     return [
         html.Div(
             [dbc.Row(children=[], id=parent.uuid("plotting-content"))],
@@ -63,7 +63,7 @@ def plot_view_body(parent: WebvizPluginABC) -> List[Component]:
     ]
 
 
-def plot_view_menu(parent: WebvizPluginABC) -> List[Component]:
+def plot_view_menu(parent: WebvizErtPluginABC) -> List[Component]:
     return [
         html.Div(
             dcc.Checklist(

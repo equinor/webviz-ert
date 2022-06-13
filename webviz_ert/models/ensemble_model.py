@@ -123,7 +123,7 @@ class EnsembleModel:
 
     def parameters_df(self, parameter_list: Optional[List[str]] = None) -> pd.DataFrame:
         if not self.parameters or not parameter_list:
-            return None
+            return pd.DataFrame()
         data = {
             parameter: self.parameters[parameter].data_df().values.flatten()
             for parameter in parameter_list

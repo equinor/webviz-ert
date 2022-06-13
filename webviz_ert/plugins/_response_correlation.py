@@ -12,7 +12,7 @@ from webviz_ert.views import (
 )
 import webviz_ert.assets as assets
 import webviz_ert.models
-from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
+from webviz_ert.plugins import WebvizErtPluginABC
 import webviz_ert.controllers
 
 
@@ -82,7 +82,11 @@ class ResponseCorrelation(WebvizErtPluginABC):
                 ),
                 dcc.Store(
                     id=self.uuid("correlation-store-selection"),
-                    data={"parameter": None, "response": None},
+                    data=self.load_state(
+                        "correlation-store-selection",
+                        {"parameter": None, "response": None},
+                    ),
+                    storage_type="session",
                 ),
                 html.Div(
                     id=self.uuid("ensemble-content"),

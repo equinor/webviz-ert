@@ -7,7 +7,7 @@ from typing import List, Dict, Union, Optional, Mapping, Any
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from webviz_ert.controllers.controller_functions import response_options
-from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
+from webviz_ert.plugins import WebvizErtPluginABC
 from webviz_ert.models import (
     ResponsePlotModel,
     BoxPlotModel,
@@ -70,7 +70,9 @@ def observation_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         ],
     )
     def set_response_callback(
-        selected_ensembles: List[str], selected_resp: str, selected_resp_store: str
+        selected_ensembles: List[str],
+        selected_resp: Optional[str],
+        selected_resp_store: Optional[str],
     ) -> List[Any]:
         ctx = dash.callback_context
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
@@ -87,11 +89,12 @@ def observation_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         options = [{"label": name, "value": name} for name in sorted(responses)]
 
         if options:
-            if selected_resp_store is not None:
-                selected_resp = selected_resp_store
-            else:
-                selected_resp = options[0]["value"]
-                selected_resp_store = selected_resp
+            selected_resp = selected_resp_store
+        else:
+            selected_resp = None
+            selected_resp_store = None
+
+        parent.save_state("response-selector-store", selected_resp_store)
 
         return [options, selected_resp, selected_resp_store]
 

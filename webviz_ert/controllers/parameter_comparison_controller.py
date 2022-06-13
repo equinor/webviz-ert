@@ -7,7 +7,7 @@ from webviz_ert.models import (
     load_ensemble,
     ParallelCoordinatesPlotModel,
 )
-from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
+from webviz_ert.plugins import WebvizErtPluginABC
 from webviz_ert import assets
 
 

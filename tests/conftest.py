@@ -3,6 +3,8 @@ from requests import HTTPError
 import dash
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.by import By
+
 
 from tests.data.snake_oil_data import ensembles_response
 
@@ -98,9 +100,11 @@ def get_options(dash_duo, selector):
     return parameter_selector_input.text.split("\n")
 
 
-def setup_plugin(dash_duo, name, plugin_class, window_size=(630, 2000)):
+def setup_plugin(
+    dash_duo, name, plugin_class, window_size=(630, 2000), project_identifier=None
+):
     app = dash.Dash(name)
-    plugin = plugin_class(app, project_identifier=None)
+    plugin = plugin_class(app, project_identifier=project_identifier)
     layout = plugin.layout
     app.layout = layout
     dash_duo.start_server(app)
@@ -156,3 +160,24 @@ def wait_a_bit(dash_duo, time_seconds=0.1):
         dash_duo.wait_for_element(".foo-elderberries-baarrrrr", timeout=time_seconds)
     except TimeoutException:
         pass
+
+
+def _get_dropdown_options(dash_duo, selector):
+    dropdown = dash_duo.find_element(f"#{selector}")
+    dropdown.click()
+    menu = dropdown.find_element(By.CSS_SELECTOR, "div.Select-menu-outer")
+    return [
+        el.text
+        for el in menu.find_elements(By.CSS_SELECTOR, "div.VirtualizedSelectOption")
+    ]
+
+
+def verify_key_in_dropdown(dash_duo, selector, key):
+    options = _get_dropdown_options(dash_duo, selector)
+    assert key in options
+
+
+def verify_keys_in_dropdown(dash_duo, selector, keys):
+    options = _get_dropdown_options(dash_duo, selector)
+    for key in keys:
+        assert key in options

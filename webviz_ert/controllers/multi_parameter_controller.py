@@ -5,7 +5,7 @@ from typing import List, Tuple, Any, Optional, Mapping, Dict
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State, MATCH
 from webviz_ert.models import MultiHistogramPlotModel, load_ensemble
-from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
+from webviz_ert.plugins import WebvizErtPluginABC
 from webviz_ert import assets
 
 

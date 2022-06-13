@@ -4,7 +4,7 @@ from typing import List, Tuple, Dict, Optional, Any
 from dash.dependencies import Input, Output, State
 
 from webviz_ert.models import DataType
-from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
+from webviz_ert.plugins import WebvizErtPluginABC
 from webviz_ert.models import load_ensemble
 from webviz_ert.controllers import parameter_options, response_options
 

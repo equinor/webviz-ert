@@ -16,7 +16,7 @@ def indexes_to_axis(
 
 if TYPE_CHECKING:
     from .ensemble_model import EnsembleModel
-    from webviz_ert.plugins._webviz_ert import WebvizErtPluginABC
+    from webviz_ert.plugins import WebvizErtPluginABC
 
 
 def load_ensemble(

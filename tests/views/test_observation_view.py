@@ -1,6 +1,12 @@
 import dash
-from webviz_ert.plugins._observation_analyzer import ObservationAnalyzer
-from tests.conftest import select_first, get_options, select_by_name
+
+from webviz_ert.plugins import ObservationAnalyzer
+from tests.conftest import (
+    select_first,
+    get_options,
+    select_by_name,
+    verify_key_in_dropdown,
+)
 
 
 def test_observation_analyzer_view_ensemble_no_observations(
@@ -60,10 +66,6 @@ def test_observation_analyzer_view_ensemble_with_observations(
         timeout=4,
     )
 
-    dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("response-selector"),
-        "FOPR",
-        timeout=4,
-    )
+    verify_key_in_dropdown(dash_duo, plugin.uuid("response-selector"), "FOPR")
 
     # assert dash_duo.get_logs() == [], "browser console should contain no error"
