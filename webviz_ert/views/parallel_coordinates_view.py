@@ -1,7 +1,6 @@
 from webviz_config import WebvizPluginABC
 from dash.development.base_component import Component
 
-import dash
 from dash import html
 from dash import dcc
 import webviz_ert.assets as assets
