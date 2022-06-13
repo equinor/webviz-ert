@@ -1,4 +1,3 @@
-import dash
 from dash import dcc
 from typing import List, Dict, Union, Optional
 from dash.dependencies import Input, Output, ALL
@@ -34,27 +33,3 @@ def _parse_parameter_selection(
         ]
         return real_idxs
     return []
-
-
-# def link_and_brush_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:
-#     @app.callback(
-#         Output(parent.uuid("selection-store"), "data"),
-#         [Input({"id": ALL, "type": parent.uuid("graph")}, "selectedData")],
-#     )
-#     def graph_selection(selectedData: List[Dict]) -> List[int]:
-#         ctx = dash.callback_context
-
-#         if not ctx.triggered:
-#             raise PreventUpdate
-#         else:
-#             graph_id = ctx.triggered[0]["prop_id"]
-
-#         # Get models from somewhere more generic
-#         # use type for switching between
-#         if "response" in graph_id:
-#             return _parse_response_selection(ctx.inputs[graph_id], parent.ensemble_plot)
-#         if "parameter" in graph_id:
-#             return _parse_parameter_selection(
-#                 ctx.inputs[graph_id], parent.parameter_plot
-#             )
-#         return []
