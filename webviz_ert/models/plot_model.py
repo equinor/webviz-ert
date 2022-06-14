@@ -318,7 +318,11 @@ class MultiHistogramPlotModel:
             return go.Figure()
         _max = float(np.hstack(data).max())
         _min = float(np.hstack(data).min())
-        bin_size = float((_max - _min) / self.bin_count)
+        try:
+            bin_size = float((_max - _min) / self.bin_count)
+        except ZeroDivisionError:
+            bin_size = 1.0
+
         fig = ff.create_distplot(
             data,
             names,
