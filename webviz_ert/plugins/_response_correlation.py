@@ -9,7 +9,6 @@ from webviz_ert.views import (
     ensemble_selector_list,
     correlation_view,
     parameter_selector_view,
-    element_dropdown_view,
 )
 import webviz_ert.assets as assets
 import webviz_ert.models
@@ -93,9 +92,9 @@ class ResponseCorrelation(WebvizErtPluginABC):
                     [
                         dbc.Col(
                             [
-                                html.Label("Response", className="ert-label"),
-                                element_dropdown_view(
-                                    self, data_type=webviz_ert.models.DataType.RESPONSE
+                                html.Label("Responses", className="ert-label"),
+                                parameter_selector_view(
+                                    self, data_type="response", suffix="resp"
                                 ),
                             ],
                             width=6,
@@ -169,7 +168,5 @@ class ResponseCorrelation(WebvizErtPluginABC):
         webviz_ert.controllers.parameter_selector_controller(
             self, app, suffix="param", union_keys=False
         )
-        webviz_ert.controllers.element_dropdown_controller(
-            self, app, webviz_ert.models.DataType.RESPONSE
-        )
+        webviz_ert.controllers.parameter_selector_controller(self, app, suffix="resp")
         webviz_ert.controllers.response_correlation_controller(self, app)

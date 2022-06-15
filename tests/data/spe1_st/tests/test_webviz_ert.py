@@ -1,7 +1,5 @@
 import dash
 import pytest
-from selenium.webdriver.common.by import By
-
 from webviz_ert.plugins import (
     ParameterComparison,
     ResponseComparison,
@@ -33,17 +31,6 @@ def _verify_keys_in_menu(dash_duo_handle, plugin, keys, selector):
             key,
             timeout=10,
         )
-
-
-def _verify_keys_in_dropdown(dash_duo_handle, plugin, keys, selector):
-    dropdown = dash_duo_handle.find_element("#" + plugin.uuid(selector))
-    dropdown.click()
-    menu = dropdown.find_element(By.CSS_SELECTOR, "div.Select-menu-outer")
-    options = [
-        el.text
-        for el in menu.find_elements(By.CSS_SELECTOR, "div.VirtualizedSelectOption")
-    ]
-    assert set(keys) == set(options)
 
 
 @pytest.mark.spe1
@@ -81,13 +68,12 @@ def test_webviz_response_correlation(dash_duo):
         dash_duo, plugin, parameter_keys, "parameter-selector-multi-param"
     )
 
-    _verify_keys_in_dropdown(dash_duo, plugin, response_keys, "element-dropdown-resp")
-
-    response_name = response_keys[0]
-    dash_duo.select_dcc_dropdown(
-        "#" + plugin.uuid("element-dropdown-resp"), value=response_name
+    _verify_keys_in_menu(
+        dash_duo, plugin, response_keys, "parameter-selector-multi-resp"
     )
-
+    response_name = select_first(
+        dash_duo, "#" + plugin.uuid("parameter-selector-multi-resp")
+    )
     param_name = select_first(
         dash_duo, "#" + plugin.uuid("parameter-selector-multi-param")
     )
