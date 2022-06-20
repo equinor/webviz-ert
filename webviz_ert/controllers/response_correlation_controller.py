@@ -27,17 +27,11 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
     @app.callback(
         [
             Output(
-                {
-                    "id": parent.uuid("response-correlation"),
-                    "type": parent.uuid("graph"),
-                },
+                parent.uuid("response-correlation"),
                 "figure",
             ),
             Output(
-                {
-                    "id": parent.uuid("response-heatmap"),
-                    "type": parent.uuid("graph"),
-                },
+                parent.uuid("response-heatmap"),
                 "figure",
             ),
         ],
@@ -139,7 +133,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
 
     @app.callback(
         Output(
-            {"id": parent.uuid("response-overview"), "type": parent.uuid("graph")},
+            parent.uuid("response-overview"),
             "figure",
         ),
         [
@@ -241,10 +235,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
     @app.callback(
         [
             Output(
-                {
-                    "id": parent.uuid("response-scatterplot"),
-                    "type": parent.uuid("graph"),
-                },
+                parent.uuid("response-scatterplot"),
                 "figure",
             ),
             Output(parent.uuid("response-info-text"), "children"),
@@ -363,7 +354,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         Output(parent.uuid("correlation-store-xindex"), "data"),
         [
             Input(
-                {"id": parent.uuid("response-overview"), "type": parent.uuid("graph")},
+                parent.uuid("response-overview"),
                 "clickData",
             ),
             Input(parent.uuid("parameter-selection-store-resp"), "data"),
@@ -394,10 +385,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         Output(parent.uuid("correlation-store-selection"), "data"),
         [
             Input(
-                {
-                    "id": parent.uuid("response-heatmap"),
-                    "type": parent.uuid("graph"),
-                },
+                parent.uuid("response-heatmap"),
                 "clickData",
             ),
             Input(parent.uuid("parameter-selection-store-resp"), "data"),

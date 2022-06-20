@@ -128,7 +128,6 @@ class ResponseCorrelation(WebvizErtPluginABC):
                     [
                         dbc.Col(
                             correlation_view(
-                                parent=self,
                                 id_view=self.uuid("response-overview"),
                             ),
                             width=3,
@@ -136,7 +135,6 @@ class ResponseCorrelation(WebvizErtPluginABC):
                         ),
                         dbc.Col(
                             correlation_view(
-                                parent=self,
                                 id_view=self.uuid("response-scatterplot"),
                             ),
                             width=3,
@@ -144,7 +142,6 @@ class ResponseCorrelation(WebvizErtPluginABC):
                         ),
                         dbc.Col(
                             correlation_view(
-                                parent=self,
                                 id_view=self.uuid("response-correlation"),
                             ),
                             width=3,
@@ -152,7 +149,6 @@ class ResponseCorrelation(WebvizErtPluginABC):
                         ),
                         dbc.Col(
                             correlation_view(
-                                parent=self,
                                 id_view=self.uuid("response-heatmap"),
                             ),
                             width=3,

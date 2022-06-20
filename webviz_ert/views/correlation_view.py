@@ -5,16 +5,13 @@ from dash import html
 from dash import dcc
 
 
-def correlation_view(parent: WebvizPluginABC, id_view: str) -> Component:
+def correlation_view(id_view: str) -> Component:
     return html.Div(
-        id=id_view,
+        id=f"container_{id_view}",
         className="ert-view-container",
         children=[
             dcc.Graph(
-                id={
-                    "id": id_view,
-                    "type": parent.uuid("graph"),
-                },
+                id=id_view,
                 className="ert-view-cell",
                 config={"responsive": True},
             )
