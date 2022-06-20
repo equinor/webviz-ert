@@ -1,3 +1,4 @@
+import pytest
 import dash
 from webviz_ert.plugins._response_comparison import ResponseComparison
 from tests.conftest import (
@@ -7,6 +8,8 @@ from tests.conftest import (
     select_response,
     wait_a_bit,
 )
+from webviz_ert.plugins import *
+from webviz_ert.plugins._webviz_ert import *
 
 
 def test_plot_view(
@@ -148,3 +151,51 @@ def test_axis_labels(mock_data, dash_duo):
     assert x_axis_title_index.text == "Index"
 
     # assert dash_duo.get_logs() == [], "browser console should contain no error"
+
+
+skip_responses = "resp"
+skip_parameters = "param"
+
+
+@pytest.mark.parametrize(
+    "plugin_class,skip",
+    [
+        pytest.param(ResponseComparison, [], id="ResponseComparison"),
+        pytest.param(
+            ObservationAnalyzer,
+            [skip_responses, skip_parameters],
+            id="ObservationAnalyzer",
+        ),
+        pytest.param(ParameterComparison, [skip_responses], id="ParameterComparison"),
+        pytest.param(ResponseCorrelation, [], id="ResponseCorrelation"),
+    ],
+)
+def test_selectors_visibility_toggle_button(plugin_class, skip, mock_data, dash_duo):
+    # we test whether the selector visibility toggle button changes class on
+    # all selectors, as expected
+
+    def check_element_is_hidden(find_by: str) -> None:
+        element = dash_duo.find_element(find_by)
+        assert "hide" in element.get_attribute("class")
+
+    plugin = setup_plugin(dash_duo, __name__, plugin_class, (2048, 1536))
+    app = dash.Dash(__name__)
+
+    visibility_toggler = dash_duo.find_element(
+        "#" + plugin.uuid("parameter-selector-button")
+    )
+    visibility_toggler.click()
+
+    check_element_is_hidden("#" + plugin.uuid("container-ensemble-selector-multi"))
+
+    if not skip_responses in skip:
+        check_element_is_hidden(
+            "#" + plugin.uuid("container-parameter-selector-multi-resp")
+        )
+
+    if not skip_parameters in skip:
+        check_element_is_hidden(
+            "#" + plugin.uuid("container-parameter-selector-multi-param")
+        )
+
+    assert dash_duo.get_logs() == [], "browser console should contain no error"
