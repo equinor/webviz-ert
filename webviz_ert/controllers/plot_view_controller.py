@@ -11,79 +11,77 @@ import webviz_ert.assets as assets
 
 from webviz_ert.views import response_view, parameter_view
 from webviz_ert.plugins import WebvizErtPluginABC
+from webviz_ert.models import DataType
 
 
-def _new_child(parent: WebvizErtPluginABC, plot: Dict) -> Component:
-    if plot["type"] == "response":
-        p = response_view(parent=parent, index=plot["name"])
-    elif plot["type"] == "parameter":
-        p = parameter_view(parent=parent, index=plot["name"])
-    else:
-        raise ValueError(f"Plots of undefined type {plot['type']}")
+def _new_child(parent: WebvizErtPluginABC, plot: str, data_type: DataType) -> Component:
+    if data_type == DataType.RESPONSE:
+        p = response_view(parent=parent, index=plot)
+    if data_type == DataType.PARAMETER:
+        p = parameter_view(parent=parent, index=plot)
 
     return dbc.Col(
-        html.Div(id=parent.uuid(plot["name"]), children=p),
+        html.Div(id=parent.uuid(plot), children=p),
         xl=12,
         lg=6,
         style=assets.ERTSTYLE["dbc-column"],
-        key=plot["name"],
+        key=plot,
     )
 
 
-def plot_view_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:
-    webviz_ert.controllers.multi_response_controller(parent, app)
-    webviz_ert.controllers.multi_parameter_controller(parent, app)
+def plot_view_controller(
+    parent: WebvizErtPluginABC, app: dash.Dash, data_type: DataType
+) -> None:
+    if data_type == DataType.PARAMETER:
+        webviz_ert.controllers.multi_parameter_controller(parent, app)
+    elif data_type == DataType.RESPONSE:
+        webviz_ert.controllers.multi_response_controller(parent, app)
+    else:
+        raise Exception(f"Unexpected data type `{data_type}`")
 
     @app.callback(
-        Output(parent.uuid("plot-selection-store"), "data"),
+        Output(parent.uuid(f"plot-selection-store-{data_type}"), "data"),
         [
-            Input(parent.uuid("parameter-selection-store-param"), "modified_timestamp"),
-            Input(parent.uuid("parameter-selection-store-resp"), "modified_timestamp"),
+            Input(
+                parent.uuid(f"parameter-selection-store-{data_type}"),
+                "modified_timestamp",
+            ),
         ],
         [
-            State(parent.uuid("parameter-selection-store-param"), "data"),
-            State(parent.uuid("parameter-selection-store-resp"), "data"),
-            State(parent.uuid("plot-selection-store"), "data"),
+            State(parent.uuid(f"parameter-selection-store-{data_type}"), "data"),
+            State(parent.uuid(f"plot-selection-store-{data_type}"), "data"),
         ],
     )
     def update_plot_selection(
         _: Any,
-        __: Any,
-        parameters: Optional[List[str]],
-        responses: Optional[List[str]],
-        current_selection: Optional[List[Mapping[str, str]]],
-    ) -> List[Mapping[str, str]]:
-        parameters = [] if not parameters else parameters
-        responses = [] if not responses else responses
-        current_selection = [] if not current_selection else current_selection
-        for plot in current_selection.copy():
-            if plot["name"] not in parameters and plot["name"] not in responses:
-                current_selection.remove(plot)
-        for param in parameters:
-            new_plot = {"name": param, "type": "parameter"}
-            if new_plot not in current_selection:
-                current_selection.append(new_plot)
-        for response in responses:
-            new_plot = {"name": response, "type": "response"}
-            if new_plot not in current_selection:
-                current_selection.append(new_plot)
+        selection: Optional[List[str]],
+        current_plots: Optional[List[str]],
+    ) -> List[str]:
+        selection = [] if not selection else selection
+        current_plots = [] if not current_plots else current_plots
+        for plot in current_plots.copy():
+            if plot not in selection:
+                current_plots.remove(plot)
+        for selected in selection:
+            if selected not in current_plots:
+                current_plots.append(selected)
 
-        return current_selection
+        return current_plots
 
     @app.callback(
-        Output(parent.uuid("plotting-content"), "children"),
-        Input(parent.uuid("plot-selection-store"), "data"),
-        State(parent.uuid("plotting-content"), "children"),
+        Output(parent.uuid(f"plotting-content-{data_type}"), "children"),
+        Input(parent.uuid(f"plot-selection-store-{data_type}"), "data"),
+        State(parent.uuid(f"plotting-content-{data_type}"), "children"),
     )
     def create_grid(
-        plots: List[Dict],
-        boostrap_col_childeren: Union[None, Component, List[Component]],
+        plots: List[str],
+        bootstrap_col_children: Union[None, Component, List[Component]],
     ) -> List[Component]:
         if not plots:
             return []
 
         children: List[Component] = (
-            [] if boostrap_col_childeren is None else boostrap_col_childeren
+            [] if bootstrap_col_children is None else bootstrap_col_children
         )
         if type(children) is not list:
             children = [children]
@@ -95,13 +93,12 @@ def plot_view_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:
         if len(plots) > len(children_names):
             # Add new plots to the grid
             for plot in plots:
-                if plot["name"] not in children_names:
-                    children.append(_new_child(parent, plot))
+                if plot not in children_names:
+                    children.append(_new_child(parent, plot, data_type))
         elif len(plots) < len(children_names):
             # Remove no longer selected plots from grid
-            plot_names = [p["name"] for p in plots]
             children = list(
-                filter(lambda child: child["props"]["key"] in plot_names, children)
+                filter(lambda child: child["props"]["key"] in plots, children)
             )
 
         for c in children:

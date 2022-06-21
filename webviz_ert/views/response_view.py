@@ -7,7 +7,7 @@ from dash import dcc
 import dash_bootstrap_components as dbc
 
 
-def response_view(parent: WebvizPluginABC, index: int = 0) -> List[Component]:
+def response_view(parent: WebvizPluginABC, index: str = "") -> List[Component]:
     return [
         dcc.Store(
             id={"index": index, "type": parent.uuid("response-id-store")}, data=index
