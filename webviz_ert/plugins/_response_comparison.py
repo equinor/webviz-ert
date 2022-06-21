@@ -118,4 +118,9 @@ class ResponseComparison(WebvizErtPluginABC):
         webviz_ert.controllers.parameter_selector_controller(
             self, app, data_type=DataType.RESPONSE, extra_input=True
         )
-        webviz_ert.controllers.plot_view_controller(self, app)
+        webviz_ert.controllers.plot_view_controller(
+            self, app, webviz_ert.models.DataType.RESPONSE
+        )
+        webviz_ert.controllers.plot_view_controller(
+            self, app, webviz_ert.models.DataType.PARAMETER
+        )

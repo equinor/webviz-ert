@@ -47,14 +47,18 @@ def plot_view_header(parent: WebvizErtPluginABC) -> List[Component]:
                 ),
             ]
         ),
-        dcc.Store(id=parent.uuid("plot-selection-store"), storage_type="session"),
+        dcc.Store(id=parent.uuid("plot-selection-store-resp"), storage_type="session"),
+        dcc.Store(id=parent.uuid("plot-selection-store-param"), storage_type="session"),
     ]
 
 
 def plot_view_body(parent: WebvizErtPluginABC) -> List[Component]:
     return [
         html.Div(
-            [dbc.Row(children=[], id=parent.uuid("plotting-content"))],
+            [
+                dbc.Row(children=[], id=parent.uuid("plotting-content-resp")),
+                dbc.Row(children=[], id=parent.uuid("plotting-content-param")),
+            ],
             id=parent.uuid("plotting-content-container"),
         ),
     ]

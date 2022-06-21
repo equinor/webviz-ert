@@ -9,7 +9,7 @@ import dash_bootstrap_components as dbc
 import webviz_ert.assets as assets
 
 
-def parameter_view(parent: WebvizPluginABC, index: int = 0) -> List[Component]:
+def parameter_view(parent: WebvizPluginABC, index: str = "") -> List[Component]:
     return [
         dcc.Store(
             id={"index": index, "type": parent.uuid("parameter-id-store")}, data=index
