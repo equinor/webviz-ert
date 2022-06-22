@@ -177,13 +177,19 @@ def test_parallel_coordinates_representation():
 def test_univariate_misfits_boxplot_representation():
     data = np.random.rand(200).reshape(-1, 20)
     missfits_df = pd.DataFrame(data=data, index=range(10), columns=range(20))
-    plots = _get_univariate_misfits_boxplots(missfits_df.copy(), color="rgb(255,0,0)")
+    ensemble_name = "test-ensemble"
+    plots = _get_univariate_misfits_boxplots(
+        missfits_df.copy(), ensemble_name=ensemble_name, color="rgb(255,0,0)"
+    )
     assert len(plots) == 20
     for id_plot, plot in enumerate(plots):
         np.testing.assert_equal(0.3, plot.repr.jitter)
         np.testing.assert_equal("all", plot.repr.boxpoints)
         x_pos = missfits_df.columns[id_plot]
-        name = f"{x_pos}"
+        if isinstance(x_pos, int):
+            name = f"Value {x_pos}"
+        else:
+            name = f"{x_pos} - {ensemble_name}"
         assert name == plot.repr.name
 
 
