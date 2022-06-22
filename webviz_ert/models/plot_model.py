@@ -108,16 +108,27 @@ class BoxPlotModel:
         self._y_axis = kwargs["y_axis"]
         self._name = kwargs["name"]
         self._color = kwargs["color"]
+        self._customdata = kwargs["customdata"] if "customdata" in kwargs else None
+        self._hovertemplate = (
+            kwargs["hovertemplate"] if "hovertemplate" in kwargs else None
+        )
+        self._ensemble_name = (
+            kwargs["ensemble_name"] if "ensemble_name" in kwargs else None
+        )
 
     @property
     def repr(self) -> go.Box:
         repr_dict = dict(
             y=self._y_axis,
+            x0=f"{self._name}",
+            legendgroup=self.name,
             name=self.display_name,
             boxpoints="all",
             jitter=0.3,
             pointpos=-1.8,
             marker_color=self._color,
+            customdata=self._customdata,
+            hovertemplate=self._hovertemplate,
         )
 
         return go.Box(repr_dict)
@@ -131,7 +142,11 @@ class BoxPlotModel:
         if isinstance(self._name, int):
             return f"Value {self._name}"
         else:
-            return self._name
+            return (
+                f"{self._name} - {self._ensemble_name}"
+                if self._ensemble_name
+                else self._name
+            )
 
 
 class BarChartPlotModel:

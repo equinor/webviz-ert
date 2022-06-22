@@ -19,28 +19,33 @@ from webviz_ert import assets
 
 
 def _get_univariate_misfits_boxplots(
-    misfits_df: Optional[pd.DataFrame], color: str
+    misfits_df: Optional[pd.DataFrame], ensemble_name: str, color: str
 ) -> List[BoxPlotModel]:
     if misfits_df is None:
         return []
     x_axis = misfits_df.columns
-    misfits_data = list()
+    realization_names = [f"Realization {name}" for name in misfits_df.index.values]
+    misfit_plots = list()
     for misfits in misfits_df:
         plot = BoxPlotModel(
             y_axis=misfits_df[misfits].abs().values,
-            name=f"{misfits}",
+            name=misfits,
+            ensemble_name=ensemble_name,
             color=color,
+            customdata=realization_names,
+            hovertemplate="(%{x}, %{y}) - %{customdata}",
         )
-        misfits_data.append(plot)
-    return misfits_data
+        misfit_plots.append(plot)
+    return misfit_plots
 
 
 def _create_misfits_plot(
-    response: Response, selected_realizations: List[int], color: str
+    response: Response, selected_realizations: List[int], color: str, ensemble_name: str
 ) -> ResponsePlotModel:
 
     realizations = _get_univariate_misfits_boxplots(
         response.univariate_misfits_df(selected_realizations),
+        ensemble_name=ensemble_name,
         color=color,
     )
     ensemble_plot = ResponsePlotModel(
@@ -128,7 +133,7 @@ def observation_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                     selection=None
                 )  # What about selections?
                 if summary_df is not None:
-                    data_dict[ensemble.name] = summary_df
+                    data_dict[ensemble.name] = summary_df.transpose()
                 colors[ensemble.name] = assets.get_color(index=index)
             if data_dict:
                 plot = MultiHistogramPlotModel(
@@ -143,7 +148,7 @@ def observation_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         def _generate_plot(ensemble_id: str, color: str) -> ResponsePlotModel:
             ensemble = load_ensemble(parent, ensemble_id)
             resp = ensemble.responses[str(response)]
-            plot = _create_misfits_plot(resp, [], color)
+            plot = _create_misfits_plot(resp, [], color, ensemble.name)
             return plot
 
         response_plots = [
