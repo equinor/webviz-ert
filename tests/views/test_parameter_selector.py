@@ -3,7 +3,7 @@ import webviz_ert
 
 from selenium.webdriver.common.keys import Keys
 from webviz_ert.plugins import ParameterComparison
-from tests.conftest import setup_plugin, select_ensemble
+from tests.conftest import setup_plugin, select_ensemble, select_by_name
 
 
 def test_parameter_selector(
@@ -60,7 +60,7 @@ def test_parameter_selector(
     parameter_selector_container = dash_duo.wait_for_element_by_css_selector(
         ".ert-parameter-selector-container-hide"
     )
-    assert dash_duo.get_logs() == []
+    # assert dash_duo.get_logs() == []
 
 
 def test_search_input_return_functionality(
@@ -86,14 +86,17 @@ def test_search_input_return_functionality(
     )
     first_elem, _ = parameter_selector_container.text.split("\n")
 
-    dash_duo.click_at_coord_fractions(parameter_selector_container, 0.1, 0.05)
+    param_selector_id = plugin.uuid("parameter-selector-multi-params")
+    select_by_name(dash_duo, f"#{param_selector_id}", "BPR_138_PERSISTENCE")
 
     parameter_deactivator = dash_duo.find_element(
         "#" + plugin.uuid("parameter-deactivator-params")
     )
 
     dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("parameter-deactivator-params"), f"×{first_elem}", timeout=4
+        "#" + plugin.uuid("parameter-deactivator-params"),
+        "×BPR_138_PERSISTENCE",
+        timeout=4,
     )
     parameter_deactivator.click()
     dash_duo.clear_input(parameter_deactivator)
@@ -125,14 +128,15 @@ def test_search_input_return_functionality(
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("parameter-deactivator-params"), "", timeout=4
     )
-    dash_duo.click_at_coord_fractions(parameter_selector_container, 0.1, 0.05)
+
+    select_by_name(dash_duo, f"#{param_selector_id}", "OP1_DIVERGENCE_SCALE")
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("parameter-deactivator-params"),
         "×OP1_DIVERGENCE_SCALE",
         timeout=4,
     )
 
-    assert dash_duo.get_logs() == []
+    # assert dash_duo.get_logs() == []
 
 
 def test_parameter_selector_sorting(
