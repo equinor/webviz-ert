@@ -72,10 +72,12 @@ def _requests_post(url, **kwargs):
 
 
 def select_first(dash_duo, selector):
-    parameter_selector_input = dash_duo.find_element(selector)
-    options = parameter_selector_input.text.split("\n")
-    dash_duo.click_at_coord_fractions(parameter_selector_input, 0.1, 0.05)
-    return options[0]
+    options = dash_duo.find_elements(selector + " option")
+    if not options:
+        raise AssertionError(f"No selection option for selector {selector}")
+    text = options[0].text
+    options[0].click()
+    return text
 
 
 def select_by_name(dash_duo, selector, name):
