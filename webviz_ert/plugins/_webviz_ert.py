@@ -30,7 +30,7 @@ class WebvizErtPluginABC(WebvizPluginABC):
             if WebvizErtPluginABC._state_path is None:
                 WebvizErtPluginABC._state_path = (
                     project_root
-                    / f"storage/webviz/{WebvizErtPluginABC._state_file_name}"
+                    / f".webviz/{WebvizErtPluginABC._state_file_name}"
                 )
             if not WebvizErtPluginABC._state_path.exists():
                 WebvizErtPluginABC._state_path.parent.mkdir(parents=True, exist_ok=True)
