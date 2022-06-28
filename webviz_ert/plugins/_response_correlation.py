@@ -12,6 +12,7 @@ from webviz_ert.views import (
 )
 import webviz_ert.assets as assets
 import webviz_ert.models
+from webviz_ert.models.data_model import DataType
 from webviz_ert.plugins import WebvizErtPluginABC
 import webviz_ert.controllers
 
@@ -98,7 +99,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
                             [
                                 html.Label("Responses", className="ert-label"),
                                 parameter_selector_view(
-                                    self, data_type="response", suffix="resp"
+                                    self, data_type=DataType.RESPONSE
                                 ),
                             ],
                             width=6,
@@ -107,7 +108,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
                             [
                                 html.Label("Parameters", className="ert-label"),
                                 parameter_selector_view(
-                                    self, data_type="parameter", suffix="param"
+                                    self, data_type=DataType.PARAMETER
                                 ),
                             ],
                             width=6,
@@ -170,7 +171,9 @@ class ResponseCorrelation(WebvizErtPluginABC):
     def set_callbacks(self, app: dash.Dash) -> None:
         webviz_ert.controllers.ensemble_list_selector_controller(self, app)
         webviz_ert.controllers.parameter_selector_controller(
-            self, app, suffix="param", union_keys=False
+            self, app, data_type=DataType.PARAMETER, union_keys=False
         )
-        webviz_ert.controllers.parameter_selector_controller(self, app, suffix="resp")
+        webviz_ert.controllers.parameter_selector_controller(
+            self, app, data_type=DataType.RESPONSE
+        )
         webviz_ert.controllers.response_correlation_controller(self, app)

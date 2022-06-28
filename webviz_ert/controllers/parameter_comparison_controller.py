@@ -11,21 +11,17 @@ from webviz_ert.plugins import WebvizErtPluginABC
 from webviz_ert import assets
 
 
-def parameter_comparison_controller(
-    parent: WebvizErtPluginABC, app: dash.Dash, suffix: str = ""
-) -> None:
+def parameter_comparison_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:
     graph_id = {"id": parent.uuid("parallel-coor"), "type": parent.uuid("graph")}
 
     @app.callback(
         [Output(graph_id, "figure"), Output(graph_id, "style")],
         [
-            Input(
-                parent.uuid("parameter-selection-store-" + suffix), "modified_timestamp"
-            ),
+            Input(parent.uuid("parameter-selection-store-param"), "modified_timestamp"),
             Input(parent.uuid("ensemble-selection-store"), "modified_timestamp"),
         ],
         [
-            State(parent.uuid("parameter-selection-store-" + suffix), "data"),
+            State(parent.uuid("parameter-selection-store-param"), "data"),
             State(parent.uuid("ensemble-selection-store"), "data"),
         ],
     )

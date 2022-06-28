@@ -13,48 +13,48 @@ def test_parameter_selector(
     plugin = setup_plugin(dash_duo, __name__, ParameterComparison)
     select_ensemble(dash_duo, plugin)
 
-    dash_duo.wait_for_element("#" + plugin.uuid("parameter-selector-multi-params"))
+    dash_duo.wait_for_element("#" + plugin.uuid("parameter-selector-multi-param"))
 
     dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("parameter-selector-multi-params"),
+        "#" + plugin.uuid("parameter-selector-multi-param"),
         "BPR_138_PERSISTENCE",
         timeout=4,
     )
 
     dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("parameter-selector-multi-params"),
+        "#" + plugin.uuid("parameter-selector-multi-param"),
         "OP1_DIVERGENCE_SCALE",
         timeout=4,
     )
 
     paremeter_deactivator = dash_duo.find_element(
-        "#" + plugin.uuid("parameter-deactivator-params")
+        "#" + plugin.uuid("parameter-deactivator-param")
     )
 
     paremeter_deactivator.click()
 
     parameter_selector_input = dash_duo.find_element(
-        "#" + plugin.uuid("parameter-selector-filter-params")
+        "#" + plugin.uuid("parameter-selector-filter-param")
     )
 
     parameter_selector_input.send_keys("OP1")
 
     dash_duo.wait_for_text_to_equal(
-        "#" + plugin.uuid("parameter-selector-filter-params"), "OP1", timeout=4
+        "#" + plugin.uuid("parameter-selector-filter-param"), "OP1", timeout=4
     )
     dash_duo.wait_for_text_to_equal(
-        "#" + plugin.uuid("parameter-selector-multi-params"),
+        "#" + plugin.uuid("parameter-selector-multi-param"),
         "OP1_DIVERGENCE_SCALE",
         timeout=4,
     )
 
     parameter_selector_container = dash_duo.find_element(
-        "#" + plugin.uuid("container-parameter-selector-multi-params")
+        "#" + plugin.uuid("container-parameter-selector-multi-param")
     )
 
     assert parameter_selector_container.is_displayed() is True
     button_hide = dash_duo.find_element(
-        "#" + plugin.uuid("parameter-selector-button-params")
+        "#" + plugin.uuid("parameter-selector-button-param")
     )
     button_hide.click()
     parameter_selector_container = dash_duo.wait_for_element_by_css_selector(
@@ -71,30 +71,30 @@ def test_search_input_return_functionality(
     select_ensemble(dash_duo, plugin)
 
     parameter_selector_container = dash_duo.find_element(
-        "#" + plugin.uuid("container-parameter-selector-multi-params")
+        "#" + plugin.uuid("container-parameter-selector-multi-param")
     )
 
     dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("parameter-selector-multi-params"),
+        "#" + plugin.uuid("parameter-selector-multi-param"),
         "BPR_138_PERSISTENCE",
         timeout=4,
     )
     dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("parameter-selector-multi-params"),
+        "#" + plugin.uuid("parameter-selector-multi-param"),
         "OP1_DIVERGENCE_SCALE",
         timeout=4,
     )
     first_elem, _ = parameter_selector_container.text.split("\n")
 
-    param_selector_id = plugin.uuid("parameter-selector-multi-params")
+    param_selector_id = plugin.uuid("parameter-selector-multi-param")
     select_by_name(dash_duo, f"#{param_selector_id}", "BPR_138_PERSISTENCE")
 
     parameter_deactivator = dash_duo.find_element(
-        "#" + plugin.uuid("parameter-deactivator-params")
+        "#" + plugin.uuid("parameter-deactivator-param")
     )
 
     dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("parameter-deactivator-params"),
+        "#" + plugin.uuid("parameter-deactivator-param"),
         "×BPR_138_PERSISTENCE",
         timeout=4,
     )
@@ -102,36 +102,36 @@ def test_search_input_return_functionality(
     dash_duo.clear_input(parameter_deactivator)
 
     dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("parameter-deactivator-params"), "", timeout=4
+        "#" + plugin.uuid("parameter-deactivator-param"), "", timeout=4
     )
 
     parameter_selector_input = dash_duo.find_element(
-        "#" + plugin.uuid("parameter-selector-filter-params")
+        "#" + plugin.uuid("parameter-selector-filter-param")
     )
     parameter_selector_input.send_keys(Keys.ENTER)
     dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("parameter-deactivator-params"), "", timeout=4
+        "#" + plugin.uuid("parameter-deactivator-param"), "", timeout=4
     )
 
     parameter_selector_input.send_keys("OP1")
 
     dash_duo.wait_for_text_to_equal(
-        "#" + plugin.uuid("parameter-selector-filter-params"), "OP1", timeout=4
+        "#" + plugin.uuid("parameter-selector-filter-param"), "OP1", timeout=4
     )
     dash_duo.wait_for_text_to_equal(
-        "#" + plugin.uuid("parameter-selector-multi-params"),
+        "#" + plugin.uuid("parameter-selector-multi-param"),
         "OP1_DIVERGENCE_SCALE",
         timeout=4,
     )
     parameter_selector_input.send_keys(Keys.ENTER)
 
     dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("parameter-deactivator-params"), "", timeout=4
+        "#" + plugin.uuid("parameter-deactivator-param"), "", timeout=4
     )
 
     select_by_name(dash_duo, f"#{param_selector_id}", "OP1_DIVERGENCE_SCALE")
     dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("parameter-deactivator-params"),
+        "#" + plugin.uuid("parameter-deactivator-param"),
         "×OP1_DIVERGENCE_SCALE",
         timeout=4,
     )
@@ -149,7 +149,7 @@ def test_parameter_selector_sorting(
     select_ensemble(dash_duo, plugin, wanted_ensemble_name)
 
     parameter_selector_container = dash_duo.find_element(
-        "#" + plugin.uuid("container-parameter-selector-multi-params")
+        "#" + plugin.uuid("container-parameter-selector-multi-param")
     )
     parameter_list = parameter_selector_container.text.split("\n")
 

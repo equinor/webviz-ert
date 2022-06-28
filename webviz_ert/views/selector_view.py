@@ -6,9 +6,11 @@ from dash import dcc
 import webviz_core_components as wcc
 import dash_bootstrap_components as dbc
 
+from webviz_ert.models.data_model import DataType
+
 
 def parameter_selector_view(
-    parent: WebvizErtPluginABC, data_type: str = "parameter", suffix: str = ""
+    parent: WebvizErtPluginABC, data_type: DataType
 ) -> Component:
     return html.Div(
         [
@@ -24,7 +26,7 @@ def parameter_selector_view(
                     ),
                     dbc.Col(
                         dcc.Input(
-                            id=parent.uuid(f"parameter-selector-filter-{suffix}"),
+                            id=parent.uuid(f"parameter-selector-filter-{data_type}"),
                             type="search",
                             placeholder="Substring...",
                             persistence="session",
@@ -33,7 +35,7 @@ def parameter_selector_view(
                     ),
                     dbc.Col(
                         html.Button(
-                            id=parent.uuid(f"parameter-selector-button-{suffix}"),
+                            id=parent.uuid(f"parameter-selector-button-{data_type}"),
                             children=("Toggle selector visibility"),
                         ),
                         align="right",
@@ -42,30 +44,25 @@ def parameter_selector_view(
             ),
             html.Div(
                 wcc.Select(
-                    id=parent.uuid(f"parameter-selector-multi-{suffix}"),
+                    id=parent.uuid(f"parameter-selector-multi-{data_type}"),
                     multi=True,
                     size=10,
                     persistence="session",
                 ),
-                id=parent.uuid(f"container-parameter-selector-multi-{suffix}"),
+                id=parent.uuid(f"container-parameter-selector-multi-{data_type}"),
                 className="ert-parameter-selector-container-show",
             ),
             dcc.Dropdown(
-                id=parent.uuid(f"parameter-deactivator-{suffix}"),
+                id=parent.uuid(f"parameter-deactivator-{data_type}"),
                 multi=True,
                 searchable=False,
                 placeholder="",
                 persistence="session",
             ),
             dcc.Store(
-                id=parent.uuid(f"parameter-selection-store-{suffix}"),
+                id=parent.uuid(f"parameter-selection-store-{data_type}"),
                 storage_type="session",
-                data=parent.load_state(f"{suffix}", []),
-            ),
-            dcc.Store(
-                id=parent.uuid(f"parameter-type-store-{suffix}"),
-                storage_type="session",
-                data=data_type,
+                data=parent.load_state(f"{data_type}", []),
             ),
         ],
     )
