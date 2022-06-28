@@ -60,7 +60,7 @@ def parameter_selector_view(
             dcc.Store(
                 id=parent.uuid(f"parameter-selection-store-{suffix}"),
                 storage_type="session",
-                data=parent.load_state(f"parameter-selection-store-{suffix}", []),
+                data=parent.load_state(f"{suffix}", []),
             ),
             dcc.Store(
                 id=parent.uuid(f"parameter-type-store-{suffix}"),

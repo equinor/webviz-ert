@@ -15,7 +15,7 @@ def _get_non_selected_options(store: Dict[str, List]) -> List[Dict[str, str]]:
 
 
 def _setup_ensemble_selection_store(parent: WebvizErtPluginABC) -> Dict[str, List]:
-    stored_selection = parent.load_state(key="selected_ensembles", default=[])
+    stored_selection = parent.load_state(key="ensembles", default=[])
     ensemble_selection_store: Dict[str, List] = {"options": [], "selected": []}
 
     if not parent.get_ensembles():
@@ -77,7 +77,7 @@ def ensemble_list_selector_controller(
             )
             ensemble_selection_store["selected"].append(element)
             parent.save_state(
-                "selected_ensembles",
+                "ensembles",
                 [el["label"] for el in ensemble_selection_store["selected"]],
             )
 
@@ -89,14 +89,14 @@ def ensemble_list_selector_controller(
             ]:
                 ensemble_selection_store["selected"].remove(element)
             parent.save_state(
-                "selected_ensembles",
+                "ensembles",
                 [el["label"] for el in ensemble_selection_store["selected"]],
             )
 
         if triggered_id == parent.uuid(f"ensemble-refresh-button"):
             parent.clear_ensembles()
             refresh_data(project_id=parent.project_identifier)
-            parent.save_state("selected_ensembles", [])
+            parent.save_state("ensembles", [])
             ensemble_selection_store = _setup_ensemble_selection_store(parent)
 
         ens_selector_options = _get_non_selected_options(ensemble_selection_store)

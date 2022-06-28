@@ -116,7 +116,7 @@ def parameter_selector_controller(
             )
             stored_parameters = selected_params + parameters
 
-        parent.save_state(f"parameter-selection-store-{suffix}", stored_parameters)
+        parent.save_state(f"{suffix}", stored_parameters)
 
         return stored_parameters
 

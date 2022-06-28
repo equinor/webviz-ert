@@ -20,7 +20,7 @@ def response_obs_view(parent: WebvizErtPluginABC) -> List[Component]:
                 ),
                 dcc.Store(
                     id=parent.uuid("response-selector-store"),
-                    data=parent.load_state("response-selector-store"),
+                    data=parent.load_state("response"),
                     storage_type="session",
                 ),
             ],

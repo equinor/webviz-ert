@@ -94,7 +94,7 @@ def observation_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             selected_resp = None
             selected_resp_store = None
 
-        parent.save_state("response-selector-store", selected_resp_store)
+        parent.save_state("response", selected_resp_store)
 
         return [options, selected_resp, selected_resp_store]
 
