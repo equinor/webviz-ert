@@ -13,6 +13,7 @@ from webviz_ert.views import (
 
 import webviz_ert.controllers
 from webviz_ert.plugins import WebvizErtPluginABC
+from webviz_ert.models.data_model import DataType
 
 
 class ParameterComparison(WebvizErtPluginABC):
@@ -33,7 +34,7 @@ class ParameterComparison(WebvizErtPluginABC):
                     children=[
                         html.H5("Multi parameter selector:"),
                         parameter_selector_view(
-                            parent=self, data_type="parameter", suffix="params"
+                            parent=self, data_type=DataType.PARAMETER
                         ),
                         parallel_coordinates_view(parent=self),
                     ],
@@ -59,7 +60,7 @@ class ParameterComparison(WebvizErtPluginABC):
                 ),
             },
             {
-                "id": self.uuid(f"parameter-selector-multi-params"),
+                "id": self.uuid(f"parameter-selector-multi-param"),
                 "content": (
                     "List of parameters. This list is populated only"
                     " if at least one ensemble is selected."
@@ -68,7 +69,7 @@ class ParameterComparison(WebvizErtPluginABC):
                 ),
             },
             {
-                "id": self.uuid(f"parameter-deactivator-params"),
+                "id": self.uuid(f"parameter-deactivator-param"),
                 "content": (
                     "List of currently selected parameters."
                     "Every selected parameter is visualized in the parallel coordinates plot,"
@@ -77,7 +78,7 @@ class ParameterComparison(WebvizErtPluginABC):
                 ),
             },
             {
-                "id": self.uuid(f"parameter-selector-filter-params"),
+                "id": self.uuid(f"parameter-selector-filter-param"),
                 "content": (
                     "Search field. The parameter list will show only"
                     " elements that contain the search characters"
@@ -89,8 +90,6 @@ class ParameterComparison(WebvizErtPluginABC):
     def set_callbacks(self, app: dash.Dash) -> None:
         webviz_ert.controllers.ensemble_list_selector_controller(self, app)
         webviz_ert.controllers.parameter_selector_controller(
-            self, app, suffix="params", union_keys=False
+            self, app, data_type=DataType.PARAMETER, union_keys=False
         )
-        webviz_ert.controllers.parameter_comparison_controller(
-            self, app, suffix="params"
-        )
+        webviz_ert.controllers.parameter_comparison_controller(self, app)

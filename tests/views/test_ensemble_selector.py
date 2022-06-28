@@ -20,22 +20,22 @@ def test_ensemble_refresh(
 
     # Select a parameter
     param_name = select_first(
-        dash_duo, "#" + plugin.uuid("parameter-selector-multi-params")
+        dash_duo, "#" + plugin.uuid("parameter-selector-multi-param")
     )
 
     dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("parameter-deactivator-params"), f"×{param_name}", timeout=4
+        "#" + plugin.uuid("parameter-deactivator-param"), f"×{param_name}", timeout=4
     )
 
     selected_params = get_options(
-        dash_duo, "#" + plugin.uuid("parameter-deactivator-params")
+        dash_duo, "#" + plugin.uuid("parameter-deactivator-param")
     )
 
     # Select second ensemble
     second_ensemble_name = select_ensemble(dash_duo, plugin)
 
     selected_params_2 = get_options(
-        dash_duo, "#" + plugin.uuid("parameter-deactivator-params")
+        dash_duo, "#" + plugin.uuid("parameter-deactivator-param")
     )
 
     # Check selected parameters are not duplicated
@@ -59,13 +59,13 @@ def test_ensemble_refresh(
 
     # Check clicking refresh button also removes the selected parameters and options
     dash_duo.wait_for_text_to_equal(
-        "#" + plugin.uuid("parameter-selector-multi-params"),
+        "#" + plugin.uuid("parameter-selector-multi-param"),
         "",
         timeout=4,
     )
 
     dash_duo.wait_for_text_to_equal(
-        "#" + plugin.uuid("parameter-deactivator-params"),
+        "#" + plugin.uuid("parameter-deactivator-param"),
         "",
         timeout=4,
     )

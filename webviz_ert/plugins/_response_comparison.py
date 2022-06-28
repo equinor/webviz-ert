@@ -13,6 +13,7 @@ from webviz_ert.views import (
 )
 
 import webviz_ert.controllers
+from webviz_ert.models.data_model import DataType
 from webviz_ert.plugins import WebvizErtPluginABC
 
 
@@ -111,8 +112,10 @@ class ResponseComparison(WebvizErtPluginABC):
 
     def set_callbacks(self, app: dash.Dash) -> None:
         webviz_ert.controllers.ensemble_list_selector_controller(self, app)
-        webviz_ert.controllers.parameter_selector_controller(self, app, suffix="param")
         webviz_ert.controllers.parameter_selector_controller(
-            self, app, suffix="resp", extra_input=True
+            self, app, data_type=DataType.PARAMETER
+        )
+        webviz_ert.controllers.parameter_selector_controller(
+            self, app, data_type=DataType.RESPONSE, extra_input=True
         )
         webviz_ert.controllers.plot_view_controller(self, app)

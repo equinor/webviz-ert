@@ -37,7 +37,7 @@ def test_webviz_parameter_comparison(get_ensemble_id, dash_duo):
 
     ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
     _verify_keys_in_menu(
-        dash_duo, plugin, parameter_keys, "parameter-selector-multi-params"
+        dash_duo, plugin, parameter_keys, "parameter-selector-multi-param"
     )
 
 

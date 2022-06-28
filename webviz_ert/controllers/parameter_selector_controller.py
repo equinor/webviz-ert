@@ -9,6 +9,7 @@ from webviz_ert.models import (
     load_ensemble,
 )
 from webviz_ert.controllers import parameter_options, response_options
+from webviz_ert.models.data_model import DataType
 
 
 def _filter_match(_filter: str, key: str) -> bool:
@@ -18,15 +19,14 @@ def _filter_match(_filter: str, key: str) -> bool:
 def parameter_selector_controller(
     parent: WebvizErtPluginABC,
     app: dash.Dash,
-    suffix: str = "",
+    data_type: DataType,
     union_keys: bool = True,
     extra_input: bool = False,
 ) -> None:
-    parameter_selector_multi_id = parent.uuid(f"parameter-selector-multi-{suffix}")
-    parameter_type_store_id = parent.uuid(f"parameter-type-store-{suffix}")
-    parameter_selector_filter_id = parent.uuid(f"parameter-selector-filter-{suffix}")
-    parameter_deactivator_id = parent.uuid(f"parameter-deactivator-{suffix}")
-    parameter_selection_store_id = parent.uuid(f"parameter-selection-store-{suffix}")
+    parameter_selector_multi_id = parent.uuid(f"parameter-selector-multi-{data_type}")
+    parameter_selector_filter_id = parent.uuid(f"parameter-selector-filter-{data_type}")
+    parameter_deactivator_id = parent.uuid(f"parameter-deactivator-{data_type}")
+    parameter_selection_store_id = parent.uuid(f"parameter-selection-store-{data_type}")
     options_inputs = [
         Input(parent.uuid("selected-ensemble-dropdown"), "value"),
         Input(parameter_selector_filter_id, "value"),
@@ -43,7 +43,6 @@ def parameter_selector_controller(
             Output(parameter_selector_multi_id, "value"),
         ],
         options_inputs,
-        [State(parameter_type_store_id, "data")],
     )
     def update_parameters_options(
         selected_ensembles: List[str],
@@ -55,21 +54,19 @@ def parameter_selector_controller(
             # Reset selection list
             return [], []
 
-        store_type = args[0]
         response_filter = []
         if extra_input:
-            store_type = args[1]
             response_filter = args[0]
         selected_set = set() if not selected else set(selected)
         ensembles = [
             load_ensemble(parent, ensemble_id) for ensemble_id in selected_ensembles
         ]
-        if store_type == "parameter":
+        if data_type == DataType.PARAMETER:
             options = parameter_options(ensembles, union_keys=union_keys)
-        elif store_type == "response":
+        elif data_type == DataType.RESPONSE:
             options = response_options(response_filter, ensembles)
         else:
-            raise ValueError(f"Undefined parameter type {store_type}")
+            raise ValueError(f"Undefined parameter type {data_type}")
 
         options = options.difference(selected_set)
         if filter_search:
@@ -116,7 +113,7 @@ def parameter_selector_controller(
             )
             stored_parameters = selected_params + parameters
 
-        parent.save_state(f"{suffix}", stored_parameters)
+        parent.save_state(f"{data_type}", stored_parameters)
 
         return stored_parameters
 
@@ -140,9 +137,9 @@ def parameter_selector_controller(
         return selected_opts, shown_parameters
 
     container_parameter_selector_multi_id = parent.uuid(
-        f"container-parameter-selector-multi-{suffix}"
+        f"container-parameter-selector-multi-{data_type}"
     )
-    parameter_selector_button_id = parent.uuid(f"parameter-selector-button-{suffix}")
+    parameter_selector_button_id = parent.uuid(f"parameter-selector-button-{data_type}")
 
     @app.callback(
         Output(container_parameter_selector_multi_id, "className"),

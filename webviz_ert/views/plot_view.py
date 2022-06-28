@@ -6,6 +6,7 @@ from dash import html
 from dash import dcc
 import dash_bootstrap_components as dbc
 from .selector_view import parameter_selector_view
+from webviz_ert.models.data_model import DataType
 
 
 def plot_view_header(parent: WebvizErtPluginABC) -> List[Component]:
@@ -15,9 +16,7 @@ def plot_view_header(parent: WebvizErtPluginABC) -> List[Component]:
                 dbc.Col(
                     [
                         html.Label("Responses", className="ert-label"),
-                        parameter_selector_view(
-                            parent, data_type="response", suffix="resp"
-                        ),
+                        parameter_selector_view(parent, data_type=DataType.RESPONSE),
                         dcc.Checklist(
                             id=parent.uuid("response-observations-check"),
                             options=[
@@ -41,9 +40,7 @@ def plot_view_header(parent: WebvizErtPluginABC) -> List[Component]:
                 dbc.Col(
                     [
                         html.Label("Parameters", className="ert-label"),
-                        parameter_selector_view(
-                            parent, data_type="parameter", suffix="param"
-                        ),
+                        parameter_selector_view(parent, data_type=DataType.PARAMETER),
                     ],
                     width=6,
                     id=parent.uuid("parameter-section"),
