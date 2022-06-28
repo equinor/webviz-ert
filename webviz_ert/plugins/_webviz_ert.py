@@ -29,8 +29,7 @@ class WebvizErtPluginABC(WebvizPluginABC):
         if not WebvizErtPluginABC._state:
             if WebvizErtPluginABC._state_path is None:
                 WebvizErtPluginABC._state_path = (
-                    project_root
-                    / f".webviz/{WebvizErtPluginABC._state_file_name}"
+                    project_root / f".webviz/{WebvizErtPluginABC._state_file_name}"
                 )
             if not WebvizErtPluginABC._state_path.exists():
                 WebvizErtPluginABC._state_path.parent.mkdir(parents=True, exist_ok=True)
@@ -57,8 +56,9 @@ class WebvizErtPluginABC(WebvizPluginABC):
         cls._ensembles.clear()
 
     def save_state(self, key: str, data: Any) -> None:
-        key = f"{self._class_name}_{key}"
-        WebvizErtPluginABC._state[key] = data
+        page_state = WebvizErtPluginABC._state.get(self._class_name, {})
+        page_state[key] = data
+        WebvizErtPluginABC._state[self._class_name] = page_state
         if WebvizErtPluginABC._state_path is not None:
             with open(WebvizErtPluginABC._state_path, "w", encoding="utf-8") as f:
                 json.dump(WebvizErtPluginABC._state, f, indent=4, sort_keys=True)
@@ -67,7 +67,7 @@ class WebvizErtPluginABC(WebvizPluginABC):
         self, key: Optional[str] = None, default: Optional[Any] = None
     ) -> MutableMapping[str, Any]:
         if key is not None:
-            key = f"{self._class_name}_{key}"
-            return WebvizErtPluginABC._state.get(key, default)
+            page_state = WebvizErtPluginABC._state.get(self._class_name, {})
+            return page_state.get(key, default)
 
         return WebvizErtPluginABC._state

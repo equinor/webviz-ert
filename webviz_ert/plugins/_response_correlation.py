@@ -83,7 +83,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
                 dcc.Store(
                     id=self.uuid("correlation-store-selection"),
                     data=self.load_state(
-                        "correlation-store-selection",
+                        "active_correlation",
                         {"parameter": None, "response": None},
                     ),
                     storage_type="session",

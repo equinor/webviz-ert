@@ -437,5 +437,5 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             corr_param_resp["parameter"] = None
             corr_param_resp["response"] = None
 
-        parent.save_state("correlation-store-selection", corr_param_resp)
+        parent.save_state("active_correlation", corr_param_resp)
         return corr_param_resp

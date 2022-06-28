@@ -28,13 +28,13 @@ def test_state_saved(mock_data, dash_duo, tmpdir):
 
     # Check state has been saved
     plugin_state = plugin.load_state()
-    assert plugin_state[f"{plugin._class_name}_selected_ensembles"] == [ens_name]
-    assert plugin_state[f"{plugin._class_name}_parameter-selection-store-param"] == [
-        param_name
-    ]
-    assert plugin_state[f"{plugin._class_name}_parameter-selection-store-resp"] == [
-        resp_name
-    ]
+    assert plugin_state[f"{plugin._class_name}"]["ensembles"] == [ens_name]
+    assert plugin_state[f"{plugin._class_name}"]["param"] == [param_name]
+    assert plugin_state[f"{plugin._class_name}"]["resp"] == [resp_name]
+
+    state_before_quit = plugin_state
+
+    # Simulate application exit by killing the driver
     dash_duo.driver.quit()
     # Manually reset the global state
     WebvizErtPluginABC._state = {}
@@ -44,7 +44,6 @@ def test_state_saved(mock_data, dash_duo, tmpdir):
     # Check initializing new plugin will load state from disk if state is not set
     app = dash.Dash(__name__)
     new_plugin = ResponseComparison(app, project_identifier=root_path)
-    new_plugin_state = new_plugin.load_state()
+    state_after_loading = new_plugin.load_state()
 
-    assert new_plugin_state == plugin_state
-    assert new_plugin_state == plugin.load_state()
+    assert state_after_loading == state_before_quit
