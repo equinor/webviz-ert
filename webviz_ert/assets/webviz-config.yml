@@ -13,9 +13,9 @@ pages:
  - title: Parameter Comparison Viewer
    content:
     - ParameterComparison:
-   experimental: True
+   experimental: False
 
  - title: Response Correlation Viewer
    content:
     - ResponseCorrelation:
-   experimental: True
+   experimental: False
