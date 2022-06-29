@@ -77,6 +77,7 @@ def select_first(dash_duo, selector):
         raise AssertionError(f"No selection option for selector {selector}")
     text = options[0].text
     options[0].click()
+    wait_a_bit(dash_duo, time_seconds=0.5)
     return text
 
 
@@ -87,6 +88,7 @@ def select_by_name(dash_duo, selector, name):
     for option in options:
         if option.text == name:
             option.click()
+            wait_a_bit(dash_duo, time_seconds=0.5)
             return name
     raise AssertionError(f" Option {name} not available in {selector}")
 
