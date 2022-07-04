@@ -98,8 +98,7 @@ def test_axes_labels(mock_data, dash_duo):
         )
         selected_response_closer.click()
 
-    # wait for deselected option to reappear among available options
-    # response_selector_id = plugin.uuid("parameter-selector-multi-resp")
-    # dash_duo.wait_for_element(f"#{response_selector_id}
+        # wait for deselected option to reappear among available options
+        dash_duo.wait_for_contains_text(f"#{response_selector_id}", wanted_response)
 
     # assert dash_duo.get_logs() == [], "browser console should contain no error"
