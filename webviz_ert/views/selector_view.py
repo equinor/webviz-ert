@@ -40,13 +40,6 @@ def parameter_selector_view(
                                 persistence="session",
                             ),
                         ],
-                        align="left",
-                    ),
-                    dbc.Col(
-                        html.Button(
-                            id=parent.uuid(f"parameter-selector-button-{data_type}"),
-                            children=("Toggle selector visibility"),
-                        ),
                         align="right",
                         width="auto",
                     ),
