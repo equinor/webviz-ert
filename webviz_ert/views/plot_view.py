@@ -8,11 +8,20 @@ import webviz_core_components as wcc
 import dash_bootstrap_components as dbc
 from .selector_view import parameter_selector_view
 from webviz_ert.models.data_model import DataType
-from .ensemble_selector_view import ensemble_selector_list
+from .ensemble_selector_view import ensemble_selector_list, selector_buttons
 
 
 def plot_view_header(parent: WebvizErtPluginABC) -> List[Component]:
     return [
+        dbc.Row(
+            [
+                dbc.Col(
+                    id=parent.uuid("selector-buttons"),
+                    children=selector_buttons(parent=parent),
+                    width=12,
+                ),
+            ]
+        ),
         dbc.Row(
             [
                 dbc.Col(

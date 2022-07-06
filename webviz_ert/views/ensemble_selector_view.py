@@ -8,6 +8,30 @@ import webviz_core_components as wcc
 import dash_bootstrap_components as dbc
 
 
+def selector_buttons(parent: WebvizErtPluginABC) -> List[Component]:
+    return [
+        html.Div(
+            dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                            html.Button(
+                                id=parent.uuid(f"ensemble-refresh-button"),
+                                children="Refresh",
+                                n_clicks=0,
+                            ),
+                            html.Button(
+                                id=parent.uuid(f"parameter-selector-button"),
+                                children=("Hide Selectors"),
+                            ),
+                        ]
+                    ),
+                ],
+            )
+        )
+    ]
+
+
 def ensemble_selector_list(parent: WebvizErtPluginABC) -> List[Component]:
     return [
         html.Div(
@@ -16,22 +40,6 @@ def ensemble_selector_list(parent: WebvizErtPluginABC) -> List[Component]:
                     dbc.Col(
                         html.H6("Ensembles", className="ert-label"),
                         align="left",
-                        width="auto",
-                    ),
-                    dbc.Col(
-                        html.Button(
-                            id=parent.uuid(f"ensemble-refresh-button"),
-                            children="Refresh",
-                            n_clicks=0,
-                        ),
-                        align="right",
-                    ),
-                    dbc.Col(
-                        html.Button(
-                            id=parent.uuid(f"parameter-selector-button"),
-                            children=("Hide Selectors"),
-                        ),
-                        align="right",
                         width="auto",
                     ),
                 ],
