@@ -1,30 +1,41 @@
 import dash
+import webviz_ert.models
+import webviz_ert.controllers
 from dash.development.base_component import Component
 from typing import List, Dict
-from dash import html
-
-import webviz_ert.models
-
 from webviz_ert.views import ensemble_selector_list, response_obs_view
-
 from webviz_ert.plugins import WebvizErtPluginABC
-import webviz_ert.controllers
 
 
 class ObservationAnalyzer(WebvizErtPluginABC):
-    def __init__(self, app: dash.Dash, project_identifier: str):
+    def __init__(self, app: dash.Dash, project_identifier: str, beta: bool = False):
         super().__init__(app, project_identifier)
         self.set_callbacks(app)
+        self.beta = beta
 
     @property
     def layout(self) -> Component:
-        return html.Div(
+        return dash.html.Div(
             [
-                html.Div(
+                dash.html.Div(
+                    children=[
+                        dash.html.P(
+                            [
+                                "This page is considered a ",
+                                dash.html.B("beta"),
+                                " version and could be changed or removed. You are encouraged to use it and give feedback to us regarding functionality and / or bugs.",
+                            ],
+                            className="ert-beta-warning",
+                            id=self.uuid("beta-warning"),
+                        )
+                    ],
+                    hidden=not self.beta,
+                ),
+                dash.html.Div(
                     id=self.uuid("ensemble-content"),
                     children=ensemble_selector_list(parent=self),
                 ),
-                html.Div(
+                dash.html.Div(
                     id=self.uuid("plotting-content"),
                     children=response_obs_view(parent=self),
                 ),

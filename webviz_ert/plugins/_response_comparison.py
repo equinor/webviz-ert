@@ -1,42 +1,53 @@
 import dash
+import webviz_ert.controllers
+import webviz_ert.models
 from dash.development.base_component import Component
 from typing import List, Dict
-
-import webviz_ert.models
-from dash import html
-
 from webviz_ert.views import (
     ensemble_selector_list,
     plot_view_body,
     plot_view_header,
     plot_view_menu,
 )
-
-import webviz_ert.controllers
 from webviz_ert.models.data_model import DataType
 from webviz_ert.plugins import WebvizErtPluginABC
 
 
 class ResponseComparison(WebvizErtPluginABC):
-    def __init__(self, app: dash.Dash, project_identifier: str):
+    def __init__(self, app: dash.Dash, project_identifier: str, beta: bool = False):
         super().__init__(app, project_identifier)
         self.set_callbacks(app)
+        self.beta = beta
 
     @property
     def layout(self) -> Component:
-        return html.Div(
+        return dash.html.Div(
             [
-                html.Div(
+                dash.html.Div(
+                    children=[
+                        dash.html.P(
+                            [
+                                "This page is considered a ",
+                                dash.html.B("beta"),
+                                " version and could be changed or removed. You are encouraged to use it and give feedback to us regarding functionality and / or bugs.",
+                            ],
+                            className="ert-beta-warning",
+                            id=self.uuid("beta-warning"),
+                        )
+                    ],
+                    hidden=not self.beta,
+                ),
+                dash.html.Div(
                     id=self.uuid("ensemble-content"),
                     children=ensemble_selector_list(parent=self),
                 ),
-                html.Div(
+                dash.html.Div(
                     children=plot_view_header(parent=self),
                 ),
-                html.Div(
+                dash.html.Div(
                     children=plot_view_body(parent=self),
                 ),
-                html.Div(
+                dash.html.Div(
                     children=plot_view_menu(parent=self),
                 ),
             ]

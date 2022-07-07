@@ -1,4 +1,4 @@
-import dash
+import pytest
 from webviz_ert.plugins._response_comparison import ResponseComparison
 from tests.conftest import (
     setup_plugin,
@@ -148,3 +148,10 @@ def test_axis_labels(mock_data, dash_duo):
     assert x_axis_title_index.text == "Index"
 
     # assert dash_duo.get_logs() == [], "browser console should contain no error"
+
+
+@pytest.mark.parametrize("input", [True, False])
+def test_displaying_beta_warning(input: bool, dash_duo):
+    plugin = setup_plugin(dash_duo, __name__, ResponseComparison, beta=input)
+    beta_warning_element = dash_duo.find_element("#" + plugin.uuid("beta-warning"))
+    assert beta_warning_element.is_displayed() == input

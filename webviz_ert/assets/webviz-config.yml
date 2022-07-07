@@ -18,4 +18,5 @@ pages:
  - title: Response Correlation Viewer
    content:
     - ResponseCorrelation:
+        beta: True
    experimental: False

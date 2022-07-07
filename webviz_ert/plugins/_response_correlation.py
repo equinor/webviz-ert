@@ -1,26 +1,24 @@
 import dash
+import webviz_ert.assets as assets
+import webviz_ert.models
+import webviz_ert.controllers
+import dash_bootstrap_components as dbc
 from dash.development.base_component import Component
 from typing import List, Dict
-
-from dash import html
-from dash import dcc
-import dash_bootstrap_components as dbc
 from webviz_ert.views import (
     ensemble_selector_list,
     correlation_view,
     parameter_selector_view,
 )
-import webviz_ert.assets as assets
-import webviz_ert.models
 from webviz_ert.models.data_model import DataType
 from webviz_ert.plugins import WebvizErtPluginABC
-import webviz_ert.controllers
 
 
 class ResponseCorrelation(WebvizErtPluginABC):
-    def __init__(self, app: dash.Dash, project_identifier: str):
+    def __init__(self, app: dash.Dash, project_identifier: str, beta: bool = False):
         super().__init__(app, project_identifier)
         self.set_callbacks(app)
+        self.beta = beta
 
     @property
     def tour_steps(self) -> List[Dict[str, str]]:
@@ -75,13 +73,27 @@ class ResponseCorrelation(WebvizErtPluginABC):
 
     @property
     def layout(self) -> Component:
-        return html.Div(
+        return dash.html.Div(
             [
-                dcc.Store(
+                dash.html.Div(
+                    children=[
+                        dash.html.P(
+                            [
+                                "This page is considered a ",
+                                dash.html.B("beta"),
+                                " version and could be changed or removed. You are encouraged to use it and give feedback to us regarding functionality and / or bugs.",
+                            ],
+                            className="ert-beta-warning",
+                            id=self.uuid("beta-warning"),
+                        )
+                    ],
+                    hidden=not self.beta,
+                ),
+                dash.dcc.Store(
                     id=self.uuid("correlation-store-xindex"),
                     data={},
                 ),
-                dcc.Store(
+                dash.dcc.Store(
                     id=self.uuid("correlation-store-selection"),
                     data=self.load_state(
                         "active_correlation",
@@ -89,7 +101,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
                     ),
                     storage_type="session",
                 ),
-                html.Div(
+                dash.html.Div(
                     id=self.uuid("ensemble-content"),
                     children=ensemble_selector_list(parent=self),
                 ),
@@ -97,7 +109,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
                     [
                         dbc.Col(
                             [
-                                html.Label("Responses", className="ert-label"),
+                                dash.html.Label("Responses", className="ert-label"),
                                 parameter_selector_view(
                                     self, data_type=DataType.RESPONSE
                                 ),
@@ -106,7 +118,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
                         ),
                         dbc.Col(
                             [
-                                html.Label("Parameters", className="ert-label"),
+                                dash.html.Label("Parameters", className="ert-label"),
                                 parameter_selector_view(
                                     self, data_type=DataType.PARAMETER
                                 ),
@@ -115,7 +127,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
                         ),
                     ],
                 ),
-                dcc.RadioItems(
+                dash.dcc.RadioItems(
                     id=self.uuid("correlation-metric"),
                     options=[
                         {"label": "spearman", "value": "spearman"},
@@ -156,10 +168,10 @@ class ResponseCorrelation(WebvizErtPluginABC):
                         ),
                     ]
                 ),
-                html.Div(
+                dash.html.Div(
                     id=self.uuid("response-info-text"),
                     className="ert-label",
-                    children=[dcc.Markdown("INFO")],
+                    children=[dash.dcc.Markdown("INFO")],
                 ),
             ]
         )
