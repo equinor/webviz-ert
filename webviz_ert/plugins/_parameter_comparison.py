@@ -1,38 +1,49 @@
 import dash
+import webviz_ert.controllers
+import webviz_ert.models
 from dash.development.base_component import Component
 from typing import List, Dict
-from dash import html
-
-import webviz_ert.models
-
 from webviz_ert.views import (
     ensemble_selector_list,
     parallel_coordinates_view,
     parameter_selector_view,
 )
-
-import webviz_ert.controllers
 from webviz_ert.plugins import WebvizErtPluginABC
 from webviz_ert.models.data_model import DataType
 
 
 class ParameterComparison(WebvizErtPluginABC):
-    def __init__(self, app: dash.Dash, project_identifier: str):
+    def __init__(self, app: dash.Dash, project_identifier: str, beta: bool = False):
         super().__init__(app, project_identifier)
         self.set_callbacks(app)
+        self.beta = beta
 
     @property
     def layout(self) -> Component:
-        return html.Div(
+        return dash.html.Div(
             [
-                html.Div(
+                dash.html.Div(
+                    children=[
+                        dash.html.P(
+                            [
+                                "This page is considered a ",
+                                dash.html.B("beta"),
+                                " version and could be changed or removed. You are encouraged to use it and give feedback to us regarding functionality and / or bugs.",
+                            ],
+                            className="ert-beta-warning",
+                            id=self.uuid("beta-warning"),
+                        )
+                    ],
+                    hidden=not self.beta,
+                ),
+                dash.html.Div(
                     id=self.uuid("ensemble-content"),
                     children=ensemble_selector_list(parent=self),
                 ),
-                html.Div(
+                dash.html.Div(
                     id=self.uuid("parallel-coor-content"),
                     children=[
-                        html.H5("Multi parameter selector:"),
+                        dash.html.H5("Multi parameter selector:"),
                         parameter_selector_view(
                             parent=self, data_type=DataType.PARAMETER
                         ),

@@ -1,5 +1,4 @@
-import dash
-import webviz_ert
+import pytest
 
 from selenium.webdriver.common.keys import Keys
 from webviz_ert.plugins import ParameterComparison
@@ -158,3 +157,10 @@ def test_parameter_selector_sorting(
     assert parameter_list[2] == "test_parameter_2::a"
     assert parameter_list[3] == "test_parameter_2::b"
     assert parameter_list[4] == "test_parameter_77"
+
+
+@pytest.mark.parametrize("input", [True, False])
+def test_displaying_beta_warning(input: bool, dash_duo):
+    plugin = setup_plugin(dash_duo, __name__, ParameterComparison, beta=input)
+    beta_warning_element = dash_duo.find_element("#" + plugin.uuid("beta-warning"))
+    assert beta_warning_element.is_displayed() == input

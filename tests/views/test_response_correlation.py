@@ -1,4 +1,4 @@
-import dash
+import pytest
 from webviz_ert.plugins._response_correlation import ResponseCorrelation
 from tests.conftest import (
     setup_plugin,
@@ -102,3 +102,10 @@ def test_axes_labels(mock_data, dash_duo):
         dash_duo.wait_for_contains_text(f"#{response_selector_id}", wanted_response)
 
     # assert dash_duo.get_logs() == [], "browser console should contain no error"
+
+
+@pytest.mark.parametrize("input", [True, False])
+def test_displaying_beta_warning(input: bool, dash_duo):
+    plugin = setup_plugin(dash_duo, __name__, ResponseCorrelation, beta=input)
+    beta_warning_element = dash_duo.find_element("#" + plugin.uuid("beta-warning"))
+    assert beta_warning_element.is_displayed() == input

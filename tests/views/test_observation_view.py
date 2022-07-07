@@ -1,11 +1,12 @@
 import dash
-
+import pytest
 from webviz_ert.plugins import ObservationAnalyzer
 from tests.conftest import (
     select_first,
     get_options,
     select_by_name,
     verify_key_in_dropdown,
+    setup_plugin,
 )
 
 
@@ -69,3 +70,10 @@ def test_observation_analyzer_view_ensemble_with_observations(
     verify_key_in_dropdown(dash_duo, plugin.uuid("response-selector"), "FOPR")
 
     # assert dash_duo.get_logs() == [], "browser console should contain no error"
+
+
+@pytest.mark.parametrize("input", [True, False])
+def test_displaying_beta_warning(input: bool, dash_duo):
+    plugin = setup_plugin(dash_duo, __name__, ObservationAnalyzer, beta=input)
+    beta_warning_element = dash_duo.find_element("#" + plugin.uuid("beta-warning"))
+    assert beta_warning_element.is_displayed() == input

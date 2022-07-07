@@ -101,10 +101,15 @@ def get_options(dash_duo, selector):
 
 
 def setup_plugin(
-    dash_duo, name, plugin_class, window_size=(630, 2000), project_identifier=None
+    dash_duo,
+    name,
+    plugin_class,
+    window_size=(630, 2000),
+    project_identifier=None,
+    beta: bool = False,
 ):
     app = dash.Dash(name)
-    plugin = plugin_class(app, project_identifier=project_identifier)
+    plugin = plugin_class(app, project_identifier=project_identifier, beta=beta)
     layout = plugin.layout
     app.layout = layout
     dash_duo.start_server(app)
