@@ -45,3 +45,22 @@ ert vis
 # classic ert storage solution:
 ert vis poly.ert
 ```
+
+### Webviz-ert example
+
+#### Start up 
+
+![startup](https://user-images.githubusercontent.com/4508053/186850915-4b53c4fb-273d-4c15-961c-299966c3232c.gif)
+
+#### Plot viewer 
+
+![plot_viewer](https://user-images.githubusercontent.com/4508053/186850936-38a13f16-f795-4691-8455-fc12f8372d8e.gif)
+
+#### Observation Analyzer
+
+![observation_analyzer](https://user-images.githubusercontent.com/4508053/186850964-68b137eb-17c4-4bf9-9436-81c8c86e5956.gif)
+
+#### Parameter comparison 
+
+![parameter_comparison](https://user-images.githubusercontent.com/4508053/186851000-e5b750e1-d7ae-4da4-a612-b6c3740f5698.gif)
+
