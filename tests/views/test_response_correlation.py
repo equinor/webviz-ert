@@ -5,6 +5,7 @@ from tests.conftest import (
     select_by_name,
     select_ensemble,
     wait_a_bit,
+    get_options,
 )
 
 
@@ -109,3 +110,24 @@ def test_displaying_beta_warning(input: bool, dash_duo):
     plugin = setup_plugin(dash_duo, __name__, ResponseCorrelation, beta=input)
     beta_warning_element = dash_duo.find_element("#" + plugin.uuid("beta-warning"))
     assert beta_warning_element.is_displayed() == input
+
+
+def test_show_respo_with_obs(mock_data, dash_duo):
+    """Test response observation filter works as expected"""
+    plugin = setup_plugin(dash_duo, __name__, ResponseCorrelation)
+
+    select_ensemble(dash_duo, plugin, "default3")
+
+    resp_selector_id = plugin.uuid("parameter-selector-multi-resp")
+    default_responses = get_options(dash_duo, "#" + resp_selector_id)
+
+    expected_def_responses = ["FGPT", "FOPR", "SNAKE_OIL_GPR_DIFF", "WOPR:OP1"]
+    assert default_responses == expected_def_responses
+
+    expected_obs_responses = ["FOPR", "WOPR:OP1"]
+    obs_radio_btn = dash_duo.find_element(
+        "#" + plugin.uuid("response-observations-check")
+    )
+    obs_radio_btn.click()
+    obs_responses = get_options(dash_duo, "#" + resp_selector_id)
+    assert obs_responses == expected_obs_responses
