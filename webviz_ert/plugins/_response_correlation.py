@@ -113,6 +113,17 @@ class ResponseCorrelation(WebvizErtPluginABC):
                                 parameter_selector_view(
                                     self, data_type=DataType.RESPONSE
                                 ),
+                                dash.dcc.Checklist(
+                                    id=self.uuid("response-observations-check"),
+                                    options=[
+                                        {
+                                            "label": "Show only responses with observations",
+                                            "value": "obs",
+                                        },
+                                    ],
+                                    value=[],
+                                    labelStyle={"display": "block"},
+                                ),
                             ],
                             width=6,
                         ),
@@ -182,6 +193,6 @@ class ResponseCorrelation(WebvizErtPluginABC):
             self, app, data_type=DataType.PARAMETER, union_keys=False
         )
         webviz_ert.controllers.parameter_selector_controller(
-            self, app, data_type=DataType.RESPONSE
+            self, app, data_type=DataType.RESPONSE, extra_input=True
         )
         webviz_ert.controllers.response_correlation_controller(self, app)
