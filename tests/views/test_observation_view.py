@@ -1,10 +1,8 @@
-import dash
 import pytest
 from webviz_ert.plugins import ObservationAnalyzer
 from tests.conftest import (
-    select_first,
     get_options,
-    select_by_name,
+    select_ensemble,
     verify_key_in_dropdown,
     setup_plugin,
 )
@@ -17,16 +15,9 @@ def test_observation_analyzer_view_ensemble_no_observations(
     # This test selects an ensemble from the ensemble-multi-selector
     # then selects a response and parameter and checks that the
     # DOM element for both are created.
-    app = dash.Dash(__name__)
+    plugin = setup_plugin(dash_duo, __name__, ObservationAnalyzer)
 
-    plugin = ObservationAnalyzer(app, project_identifier=None)
-    layout = plugin.layout
-    app.layout = layout
-    dash_duo.start_server(app)
-    windowsize = (630, 1200)
-    dash_duo.driver.set_window_size(*windowsize)
-
-    ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
+    ensemble_name = select_ensemble(dash_duo, plugin)
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("selected-ensemble-dropdown"),
         ensemble_name,
@@ -46,20 +37,9 @@ def test_observation_analyzer_view_ensemble_with_observations(
     # This test selects an ensemble from the ensemble-multi-selector
     # then selects a response and parameter and checks that the
     # DOM element for both are created.
-    app = dash.Dash(__name__)
+    plugin = setup_plugin(dash_duo, __name__, ObservationAnalyzer)
 
-    plugin = ObservationAnalyzer(app, project_identifier=None)
-    layout = plugin.layout
-    app.layout = layout
-    dash_duo.start_server(app)
-    windowsize = (630, 1200)
-    dash_duo.driver.set_window_size(*windowsize)
-
-    ensemble_name = select_by_name(
-        dash_duo=dash_duo,
-        selector="#" + plugin.uuid("ensemble-multi-selector"),
-        name="default3",
-    )
+    ensemble_name = select_ensemble(dash_duo, plugin, "default3")
 
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("selected-ensemble-dropdown"),
