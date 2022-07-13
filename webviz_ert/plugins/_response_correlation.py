@@ -81,7 +81,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
                             [
                                 "This page is considered a ",
                                 dash.html.B("beta"),
-                                " version and could be changed or removed. You are encouraged to use it and give feedback to us regarding functionality and / or bugs.",
+                                " version and could be changed or removed. You are encouraged to use it and give feedback regarding functionality and / or bugs.",
                             ],
                             className="ert-beta-warning",
                             id=self.uuid("beta-warning"),
@@ -156,28 +156,28 @@ class ResponseCorrelation(WebvizErtPluginABC):
                             correlation_view(
                                 id_view=self.uuid("response-overview"),
                             ),
-                            width=3,
                             style=assets.ERTSTYLE["dbc-column"],
                         ),
                         dbc.Col(
                             correlation_view(
                                 id_view=self.uuid("response-scatterplot"),
                             ),
-                            width=3,
                             style=assets.ERTSTYLE["dbc-column"],
                         ),
+                    ]
+                ),
+                dbc.Row(
+                    [
                         dbc.Col(
                             correlation_view(
                                 id_view=self.uuid("response-correlation"),
                             ),
-                            width=3,
                             style=assets.ERTSTYLE["dbc-column"],
                         ),
                         dbc.Col(
                             correlation_view(
                                 id_view=self.uuid("response-heatmap"),
                             ),
-                            width=3,
                             style=assets.ERTSTYLE["dbc-column"],
                         ),
                     ]
