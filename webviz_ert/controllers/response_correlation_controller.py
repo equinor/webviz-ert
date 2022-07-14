@@ -265,21 +265,6 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         fig.update_layout(clickmode="event+select")
         return fig
 
-    def _get_first_observation_x(obs_data: pd.DataFrame) -> Union[int, str]:
-        """
-        :return: The first x value in the observation data, converted
-            to type suitable for lookup in the response vector.
-        """
-        if type(obs_data["x_axis"][0]) == str:
-            return int(obs_data["x_axis"][0])
-        elif type(obs_data["x_axis"][0]) == pd._libs.tslibs.timestamps.Timestamp:
-            return str(obs_data["x_axis"][0])
-        else:
-            observation_data_type = type(obs_data["x_axis"][0])
-            raise ValueError(
-                f"obs_data type should be a str or Timestamp, but it is {observation_data_type}."
-            )
-
     @app.callback(
         [
             Output(
@@ -479,3 +464,19 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
 
         parent.save_state("active_correlation", corr_param_resp)
         return corr_param_resp
+
+
+def _get_first_observation_x(obs_data: pd.DataFrame) -> Union[int, str]:
+    """
+    :return: The first x value in the observation data, converted
+        to type suitable for lookup in the response vector.
+    """
+    if type(obs_data["x_axis"][0]) == str:
+        return int(obs_data["x_axis"][0])
+    elif type(obs_data["x_axis"][0]) == pd._libs.tslibs.timestamps.Timestamp:
+        return str(obs_data["x_axis"][0])
+    else:
+        observation_data_type = type(obs_data["x_axis"][0])
+        raise ValueError(
+            f"invalid obs_data type: should be a str or Timestamp, but it is {observation_data_type}."
+        )
