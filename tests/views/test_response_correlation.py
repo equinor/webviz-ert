@@ -1,5 +1,9 @@
 import pytest
+import pandas as pd
 from webviz_ert.plugins._response_correlation import ResponseCorrelation
+from webviz_ert.controllers.response_correlation_controller import (
+    _get_first_observation_x,
+)
 from tests.conftest import (
     setup_plugin,
     select_by_name,
@@ -131,3 +135,26 @@ def test_show_respo_with_obs(mock_data, dash_duo):
     obs_radio_btn.click()
     obs_responses = get_options(dash_duo, "#" + resp_selector_id)
     assert obs_responses == expected_obs_responses
+
+
+@pytest.mark.parametrize(
+    "df_observation,expected",
+    [
+        (pd.DataFrame([str(1)], columns=["x_axis"]), int(1)),
+        (
+            pd.DataFrame(
+                [pd._libs.tslibs.timestamps.Timestamp("01-01-2020")], columns=["x_axis"]
+            ),
+            str("2020-01-01 00:00:00"),
+        ),
+    ],
+)
+def test_get_first_observation_x_valid(df_observation, expected):
+    result = _get_first_observation_x(df_observation)
+    assert result == expected
+
+
+def test_get_first_observation_x_invalid():
+    df_observation = pd.DataFrame([int(1)], columns=["x_axis"])
+    with pytest.raises(ValueError, match="invalid obs_data type"):
+        _get_first_observation_x(df_observation)
