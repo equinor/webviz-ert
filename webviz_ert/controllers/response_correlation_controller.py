@@ -115,11 +115,13 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                 cols=len(heatmaps),
                 subplot_titles=[f"ENS_{idx + 1}" for idx, _ in enumerate(heatmaps)],
             )
+
             for idx, heatmap in enumerate(heatmaps):
                 heatmap_plot.add_trace(heatmap, 1, 1 + idx)
                 heatmap_plot.update_yaxes(showticklabels=False, row=1, col=1 + idx)
                 heatmap_plot.update_xaxes(showticklabels=False, row=1, col=1 + idx)
             _layout = assets.ERTSTYLE["figure"]["layout"].copy()
+
             _layout.update(
                 {
                     "clickmode": "event+select",
@@ -128,6 +130,22 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                 }
             )
             heatmap_plot.update_layout(_layout)
+
+            y_pos = len(corrdf[valid_responses].index)
+            for i, _ in enumerate(heatmaps):
+                for j, label in enumerate(corrdf[valid_responses].columns):
+                    heatmap_plot.add_annotation(
+                        x=j,
+                        y=y_pos - 0.55,
+                        text=label,
+                        textangle=90,
+                        showarrow=False,
+                        col=1 + i,
+                        row=1,
+                        yref="paper",
+                        yanchor="top",
+                    )
+
             return correlation_plot.repr, heatmap_plot
         raise PreventUpdate
 
