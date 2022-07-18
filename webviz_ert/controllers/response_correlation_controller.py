@@ -39,6 +39,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             Input(parent.uuid("correlation-store-xindex"), "data"),
             Input(parent.uuid("correlation-store-selection"), "data"),
             Input(parent.uuid("correlation-metric"), "value"),
+            Input(parent.uuid("sort-parameters"), "on"),
         ],
         [
             State(parent.uuid("parameter-selection-store-param"), "data"),
@@ -50,6 +51,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         corr_xindex: Dict,
         corr_param_resp: Dict,
         correlation_metric: str,
+        sort_parameters: bool,
         parameters: List[str],
         responses: List[str],
         ensembles: List[str],
@@ -86,9 +88,8 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             corrdf = corrdf.drop(valid_responses, axis=0).fillna(0)
             if selected_response not in valid_responses:
                 continue
-            if df_index is None:
-                df_index = corrdf[selected_response].abs().sort_values().index.copy()
-            corrdf = corrdf.reindex(df_index)
+            if sort_parameters:
+                corrdf, df_index = sort_dataframe(corrdf, df_index, selected_response)
             # create heatmap
             data_heatmap = {
                 "type": "heatmap",
@@ -458,6 +459,17 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
 
         parent.save_state("active_correlation", corr_param_resp)
         return corr_param_resp
+
+
+def sort_dataframe(
+    dataframe: pd.core.frame.DataFrame,
+    index: Optional[pd.core.indexes.base.Index],
+    sort_by_column: str,
+) -> Tuple[pd.core.frame.DataFrame, pd.core.indexes.base.Index]:
+    if index is None:
+        index = dataframe[sort_by_column].abs().sort_values().index.copy()
+    dataframe = dataframe.reindex(index)
+    return dataframe, index
 
 
 def _define_style_ensemble(index: int, x_axis: pd.DataFrame) -> Dict:
