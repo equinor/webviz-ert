@@ -1,4 +1,4 @@
-from typing import List, Any, Dict, Mapping, Optional, TYPE_CHECKING
+from typing import List, Any, Dict, Mapping, Optional, TYPE_CHECKING, Union
 import numpy as np
 import math
 import pandas as pd
@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 import plotly.figure_factory as ff
 from scipy.stats import norm, lognorm, truncnorm, uniform, loguniform, triang
 import webviz_ert.assets as assets
+from webviz_ert.models.data_model import AxisType
 
 if TYPE_CHECKING:
     from webviz_ert.models.parameter_model import PriorModel
@@ -204,10 +205,11 @@ class PlotModel:
         self._line = kwargs["line"]
         self._marker = kwargs["marker"]
         self._error_y = kwargs.get("error_y")
+        self._xaxis = kwargs.get("xaxis")
         self.selected = True
 
     @property
-    def repr(self) -> go.Scattergl:
+    def repr(self) -> Union[go.Scattergl, go.Scatter]:
         repr_dict = dict(
             x=self._x_axis,
             y=self._y_axis,
@@ -215,16 +217,19 @@ class PlotModel:
             name=self.display_name,
             mode=self._mode,
             error_y=self._error_y,
+            xaxis=self._xaxis,
             connectgaps=True,
         )
         if self._line:
             repr_dict["line"] = self._line
         if self._marker:
             repr_dict["marker"] = self._marker
+            repr_dict["unselected"] = {"marker": {"size": 9}}
         if self.selected:
             repr_dict["visible"] = True
         else:
             repr_dict["visible"] = "legendonly"
+
         return go.Scattergl(repr_dict)
 
     @property
@@ -237,6 +242,12 @@ class PlotModel:
             return f"Realization {self._name}"
         else:
             return self._name
+
+    @property
+    def axis_type(self) -> Any:
+        if str(self._x_axis[0]).isnumeric():
+            return AxisType.INDEX
+        return AxisType.TIMESTAMP
 
 
 class ResponsePlotModel:

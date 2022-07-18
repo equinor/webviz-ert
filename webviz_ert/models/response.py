@@ -45,6 +45,10 @@ class Response:
             )
         return self._data
 
+    @property
+    def empty(self) -> bool:
+        return self.data.empty
+
     def univariate_misfits_df(
         self, selection: Optional[List[int]] = None
     ) -> pd.DataFrame:
