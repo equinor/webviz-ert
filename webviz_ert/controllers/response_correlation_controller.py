@@ -209,7 +209,8 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             if isinstance(x_axis, pd.Index) and x_axis.empty:
                 continue
 
-            style = _define_style_ensemble(index, x_axis)
+            if x_axis is not None:
+                style = _define_style_ensemble(index, x_axis)
 
             data_df = response.data_df().copy()
             plots += [
@@ -227,26 +228,18 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                 for obs in response.observations:
                     obs_plots.append(_get_observation_plots(obs.data_df()))
 
-                if corr_xindex[selected_response] == 0:
-                    x_axis_default_observation = _get_first_observation_x(
-                        response.observations[0].data_df()
+                if corr_xindex[selected_response] == 0 and isinstance(
+                    x_axis, (pd.Index, list)
+                ):
+                    corr_xindex[selected_response] = _update_corr_index_dict(
+                        x_axis, response.observations[0].data_df()
                     )
-                    if isinstance(x_axis, pd.Index):
-                        corr_xindex[selected_response] = x_axis.get_loc(
-                            x_axis_default_observation
-                        )
-                    elif isinstance(x_axis, list):
-                        corr_xindex[selected_response] = x_axis.index(
-                            x_axis_default_observation
-                        )
 
         fig = go.Figure()
         for plot in plots:
             fig.add_trace(plot.repr)
 
-        layout = assets.ERTSTYLE["figure"]["layout"].copy()
-        layout.update(dict(showlegend=False))
-        fig.update_layout(layout)
+        fig.update_layout(_layout_figure())
 
         x_axis_label = axis_label_for_ensemble_response(
             loaded_ensembles[0], selected_response
@@ -486,11 +479,10 @@ def sort_dataframe(
 
 
 def _define_style_ensemble(index: int, x_axis: pd.DataFrame) -> Dict:
-    if x_axis is not None:
-        if str(x_axis[0]).isnumeric():
-            style = deepcopy(assets.ERTSTYLE["response-plot"]["response-index"])
-        else:
-            style = deepcopy(assets.ERTSTYLE["response-plot"]["response"])
+    if str(x_axis[0]).isnumeric():
+        style = deepcopy(assets.ERTSTYLE["response-plot"]["response-index"])
+    else:
+        style = deepcopy(assets.ERTSTYLE["response-plot"]["response"])
     ensemble_color = assets.get_color(index=index)
     style.update({"marker": {"color": ensemble_color}})
     style.update({"line": {"color": ensemble_color}})
@@ -498,17 +490,34 @@ def _define_style_ensemble(index: int, x_axis: pd.DataFrame) -> Dict:
     return style
 
 
+def _update_corr_index_dict(
+    response_x_axis: Union[pd.Index, list], observation_x_axis: pd.Index
+) -> int:
+    x_axis_default_observation = _get_first_observation_x(observation_x_axis)
+    if isinstance(response_x_axis, pd.Index):
+        updated_index = response_x_axis.get_loc(x_axis_default_observation)
+    elif isinstance(response_x_axis, list):
+        updated_index = response_x_axis.index(x_axis_default_observation)
+
+    return updated_index
+
+
+def _layout_figure() -> dict:
+    layout = assets.ERTSTYLE["figure"]["layout"].copy()
+    layout.update(dict(showlegend=False))
+    return layout
+
+
 def _get_first_observation_x(obs_data: pd.DataFrame) -> Union[int, str]:
     """
     :return: The first x value in the observation data, converted
         to type suitable for lookup in the response vector.
     """
-    if type(obs_data["x_axis"][0]) == str:
-        return int(obs_data["x_axis"][0])
-    elif type(obs_data["x_axis"][0]) == pd._libs.tslibs.timestamps.Timestamp:
-        return str(obs_data["x_axis"][0])
-    else:
-        observation_data_type = type(obs_data["x_axis"][0])
+    first_observation = obs_data["x_axis"][0]
+    caster = {str: int, pd._libs.tslibs.timestamps.Timestamp: str}
+    if type(first_observation) not in caster.keys():
         raise ValueError(
-            f"invalid obs_data type: should be a str or Timestamp, but it is {observation_data_type}."
+            f"invalid obs_data type: should be a str or Timestamp, but it is {type(first_observation)}."
         )
+
+    return caster.get(type(first_observation), lambda *args: False)(first_observation)

@@ -1,10 +1,5 @@
 import pytest
-import pandas as pd
 from webviz_ert.plugins._response_correlation import ResponseCorrelation
-from webviz_ert.controllers.response_correlation_controller import (
-    _get_first_observation_x,
-    _define_style_ensemble,
-)
 from tests.conftest import (
     setup_plugin,
     select_by_name,
@@ -136,48 +131,3 @@ def test_show_respo_with_obs(mock_data, dash_duo):
     obs_radio_btn.click()
     obs_responses = get_options(dash_duo, "#" + resp_selector_id)
     assert obs_responses == expected_obs_responses
-
-
-@pytest.mark.parametrize(
-    "observation,expected",
-    [
-        ([str(1)], int(1)),
-        (
-            [pd._libs.tslibs.timestamps.Timestamp("01-01-2020")],
-            str("2020-01-01 00:00:00"),
-        ),
-    ],
-)
-def test_get_first_observation_x_valid(observation, expected):
-    df_observation = pd.DataFrame(observation, columns=["x_axis"])
-    result = _get_first_observation_x(df_observation)
-    assert result == expected
-
-
-def test_get_first_observation_x_invalid():
-    df_observation = pd.DataFrame([int(1)], columns=["x_axis"])
-    with pytest.raises(ValueError, match="invalid obs_data type"):
-        _get_first_observation_x(df_observation)
-
-
-@pytest.mark.parametrize(
-    "index,expected_color", [(0, "rgba(56,108,176,0.8)"), (1, "rgba(127,201,127,0.8)")]
-)
-def test_define_style_ensemble_color(index, expected_color):
-    x_axis = pd.DataFrame([1])
-    style = _define_style_ensemble(index, x_axis)
-    assert style["line"]["color"] == expected_color
-    assert style["marker"]["color"] == expected_color
-
-
-@pytest.mark.parametrize(
-    "x_axis_element,expected_mode",
-    [
-        ([pd._libs.tslibs.timestamps.Timestamp("01-01-2020")], "markers+lines"),
-        ([str(1)], "markers"),
-    ],
-)
-def test_define_style_ensemble_mode(x_axis_element, expected_mode):
-    x_axis = pd.Index(x_axis_element)
-    style = _define_style_ensemble(0, x_axis)
-    assert style["mode"] == expected_mode
