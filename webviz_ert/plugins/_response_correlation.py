@@ -1,4 +1,5 @@
 import dash
+import dash_daq
 import webviz_ert.assets as assets
 import webviz_ert.models
 import webviz_ert.controllers
@@ -182,10 +183,27 @@ class ResponseCorrelation(WebvizErtPluginABC):
                         ),
                     ]
                 ),
-                dash.html.Div(
-                    id=self.uuid("response-info-text"),
-                    className="ert-label",
-                    children=[dash.dcc.Markdown("INFO")],
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            dash.html.Div(
+                                id=self.uuid("response-info-text"),
+                                className="ert-label",
+                                children=[dash.dcc.Markdown("INFO")],
+                            ),
+                        ),
+                        dbc.Col(
+                            children=[
+                                dash_daq.BooleanSwitch(
+                                    id=self.uuid("sort-parameters"),
+                                    on=True,
+                                    label="Sort parameters by correlation",
+                                ),
+                            ],
+                            align="right",
+                            width="auto",
+                        ),
+                    ]
                 ),
             ]
         )
