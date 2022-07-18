@@ -40,6 +40,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             Input(parent.uuid("correlation-store-selection"), "data"),
             Input(parent.uuid("correlation-metric"), "value"),
             Input(parent.uuid("sort-parameters"), "on"),
+            Input(parent.uuid("hide-hover"), "on"),
         ],
         [
             State(parent.uuid("parameter-selection-store-param"), "data"),
@@ -52,6 +53,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         corr_param_resp: Dict,
         correlation_metric: str,
         sort_parameters: bool,
+        hide_hover: bool,
         parameters: List[str],
         responses: List[str],
         ensembles: List[str],
@@ -121,6 +123,12 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                 heatmap_plot.add_trace(heatmap, 1, 1 + idx)
                 heatmap_plot.update_yaxes(showticklabels=False, row=1, col=1 + idx)
                 heatmap_plot.update_xaxes(showticklabels=False, row=1, col=1 + idx)
+                if hide_hover:
+                    heatmap_plot.update_traces(patch={"hoverinfo": "none"})
+                else:
+                    heatmap_plot.update_traces(
+                        patch={"hovertemplate": "%{y}: %{z}<extra></extra>"}
+                    )
             _layout = assets.ERTSTYLE["figure"]["layout"].copy()
 
             _layout.update(
@@ -128,6 +136,11 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                     "clickmode": "event+select",
                     "showlegend": False,
                     "annotations": [{"font": {"color": colors[ens]}} for ens in colors],
+                    "hoverlabel": {
+                        "font": {
+                            "size": 10,
+                        },
+                    },
                 }
             )
             heatmap_plot.update_layout(_layout)
