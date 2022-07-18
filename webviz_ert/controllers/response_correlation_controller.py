@@ -195,16 +195,9 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             if isinstance(x_axis, pd.Index) and x_axis.empty:
                 continue
 
-            if x_axis is not None:
-                if str(x_axis[0]).isnumeric():
-                    style = deepcopy(assets.ERTSTYLE["response-plot"]["response-index"])
-                else:
-                    style = deepcopy(assets.ERTSTYLE["response-plot"]["response"])
-            data_df = response.data_df().copy()
-            ensemble_color = assets.get_color(index=index)
-            style.update({"marker": {"color": ensemble_color}})
-            style.update({"line": {"color": ensemble_color}})
+            style = _define_style_ensemble(index, x_axis)
 
+            data_df = response.data_df().copy()
             plots += [
                 PlotModel(
                     x_axis=x_axis,
@@ -464,6 +457,19 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
 
         parent.save_state("active_correlation", corr_param_resp)
         return corr_param_resp
+
+
+def _define_style_ensemble(index: int, x_axis: pd.DataFrame) -> Dict:
+    if x_axis is not None:
+        if str(x_axis[0]).isnumeric():
+            style = deepcopy(assets.ERTSTYLE["response-plot"]["response-index"])
+        else:
+            style = deepcopy(assets.ERTSTYLE["response-plot"]["response"])
+    ensemble_color = assets.get_color(index=index)
+    style.update({"marker": {"color": ensemble_color}})
+    style.update({"line": {"color": ensemble_color}})
+
+    return style
 
 
 def _get_first_observation_x(obs_data: pd.DataFrame) -> Union[int, str]:
