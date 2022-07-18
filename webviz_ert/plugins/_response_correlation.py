@@ -199,6 +199,11 @@ class ResponseCorrelation(WebvizErtPluginABC):
                                     on=True,
                                     label="Sort parameters by correlation",
                                 ),
+                                dash_daq.BooleanSwitch(
+                                    id=self.uuid("hide-hover"),
+                                    on=False,
+                                    label="Hide heatmap hover",
+                                ),
                             ],
                             align="right",
                             width="auto",
