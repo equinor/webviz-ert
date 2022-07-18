@@ -94,6 +94,12 @@ class ResponseCorrelation(WebvizErtPluginABC):
                     id=self.uuid("correlation-store-xindex"),
                     data={},
                 ),
+                dash.dcc.Store(id=self.uuid("correlation-store-selected-obs"), data={}),
+                dash.dcc.Store(
+                    id=self.uuid("correlation-store-obs-range"),
+                    data=self.load_state("correlation-store-obs-range", {}),
+                    storage_type="session",
+                ),
                 dash.dcc.Store(
                     id=self.uuid("correlation-store-selection"),
                     data=self.load_state(
@@ -150,6 +156,17 @@ class ResponseCorrelation(WebvizErtPluginABC):
                     ],
                     value="pearson",
                     labelStyle={"display": "inline-block"},
+                ),
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            correlation_view(
+                                id_view=self.uuid("obs_index_selector"),
+                            ),
+                            style={"min-height": "10px"},
+                            id=self.uuid("obs_index_selector_container"),
+                        )
+                    ]
                 ),
                 dbc.Row(
                     [
