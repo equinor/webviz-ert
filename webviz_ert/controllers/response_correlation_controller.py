@@ -213,17 +213,18 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                 for obs in response.observations:
                     obs_plots.append(_get_observation_plots(obs.data_df()))
 
-                x_axis_default_observation = _get_first_observation_x(
-                    response.observations[0].data_df()
-                )
-                if isinstance(x_axis, pd.Index):
-                    corr_xindex[selected_response] = x_axis.get_loc(
-                        x_axis_default_observation
+                if corr_xindex[selected_response] == 0:
+                    x_axis_default_observation = _get_first_observation_x(
+                        response.observations[0].data_df()
                     )
-                elif isinstance(x_axis, list):
-                    corr_xindex[selected_response] = x_axis.index(
-                        x_axis_default_observation
-                    )
+                    if isinstance(x_axis, pd.Index):
+                        corr_xindex[selected_response] = x_axis.get_loc(
+                            x_axis_default_observation
+                        )
+                    elif isinstance(x_axis, list):
+                        corr_xindex[selected_response] = x_axis.index(
+                            x_axis_default_observation
+                        )
 
         fig = go.Figure()
         for plot in plots:
