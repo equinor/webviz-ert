@@ -176,7 +176,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         ],
         [
             State(parent.uuid("parameter-selection-store-resp"), "data"),
-            State(parent.uuid("selected-ensemble-dropdown"), "value"),
+            State(parent.uuid("ensemble-selection-store"), "data"),
             State(parent.uuid("correlation-store-xindex"), "data"),
             State(parent.uuid("correlation-store-selection"), "data"),
         ],
@@ -187,10 +187,17 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         ___: Any,
         ____: Any,
         responses: Optional[List[str]],
-        ensembles: List[str],
+        ensemble_selection_store: Dict[str, List],
         corr_xindex: Dict,
         corr_param_resp: Dict,
     ) -> Optional[go.Figure]:
+        if ensemble_selection_store:
+            ensembles = [
+                selected_ensemble["value"]
+                for selected_ensemble in ensemble_selection_store["selected"]
+            ]
+        else:
+            ensembles = None
         if not (ensembles and responses and corr_param_resp["response"] in responses):
             raise PreventUpdate
         selected_response = corr_param_resp["response"]
