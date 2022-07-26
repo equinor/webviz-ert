@@ -475,7 +475,7 @@ def sort_dataframe(
     return dataframe, index
 
 
-def _define_style_ensemble(index: int, x_axis: pd.DataFrame) -> Dict:
+def _define_style_ensemble(index: int, x_axis: pd.Index) -> Dict:
     if str(x_axis[0]).isnumeric():
         style = deepcopy(assets.ERTSTYLE["response-plot"]["response-index"])
     else:
@@ -488,7 +488,7 @@ def _define_style_ensemble(index: int, x_axis: pd.DataFrame) -> Dict:
 
 
 def _update_corr_index_dict(
-    response_x_axis: Union[pd.Index, list], observation_x_axis: pd.Index
+    response_x_axis: Union[pd.Index, list], observation_x_axis: pd.DataFrame
 ) -> int:
     x_axis_default_observation = _get_first_observation_x(observation_x_axis)
     if isinstance(response_x_axis, pd.Index):
