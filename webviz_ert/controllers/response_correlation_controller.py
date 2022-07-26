@@ -239,13 +239,11 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         for plot in plots:
             fig.add_trace(plot.repr)
 
-        fig.update_layout(_layout_figure())
-
         x_axis_label = axis_label_for_ensemble_response(
             loaded_ensembles[0], selected_response
         )
-        fig.update_layout({"xaxis": {"title": {"text": x_axis_label}}})
-        fig.update_layout(assets.ERTSTYLE["figure"]["layout-value-y-axis-label"])
+
+        fig.update_layout(_layout_figure(x_axis_label))
 
         default_index = 0
         x_index = corr_xindex.get(selected_response, default_index)
@@ -259,11 +257,10 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                 yref="paper",
                 line=dict(color="rgb(30, 30, 30)", dash="dash", width=3),
             )
-        # draw observations on top
+
         for plot in obs_plots:
             fig.add_trace(plot.repr)
 
-        fig.update_layout(clickmode="event+select")
         return fig
 
     @app.callback(
@@ -502,9 +499,13 @@ def _update_corr_index_dict(
     return updated_index
 
 
-def _layout_figure() -> dict:
+def _layout_figure(x_axis_label: str) -> dict:
     layout = assets.ERTSTYLE["figure"]["layout"].copy()
     layout.update(dict(showlegend=False))
+    layout.update(clickmode="event+select")
+    layout.update({"xaxis": {"title": {"text": x_axis_label}}})
+    layout.update(assets.ERTSTYLE["figure"]["layout-value-y-axis-label"])
+
     return layout
 
 

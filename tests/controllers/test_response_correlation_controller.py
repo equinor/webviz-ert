@@ -4,6 +4,7 @@ from webviz_ert.controllers.response_correlation_controller import (
     _get_first_observation_x,
     _define_style_ensemble,
     _update_corr_index_dict,
+    _layout_figure,
 )
 
 from webviz_ert.controllers.response_correlation_controller import (
@@ -75,6 +76,22 @@ def test_update_corr_index_dict(
     observation_x_axis = pd.DataFrame(observation_x_axis_list, columns=["x_axis"])
     updated_index = _update_corr_index_dict(response_x_axis, observation_x_axis)
     assert expected_index == updated_index
+
+
+def test_layout_figure():
+    layout = _layout_figure(x_axis_label="Index")  # "Date" is also possible
+    expected_layout = {
+        "hovermode": "closest",
+        "uirevision": True,
+        "margin": {"l": 5, "b": 5, "t": 25, "r": 5},
+        "autosize": True,
+        "showlegend": False,
+        "clickmode": "event+select",
+        "xaxis": {"title": {"text": "Index"}},
+        "yaxis": {"title": {"text": "Value"}},
+    }
+
+    assert layout == expected_layout
 
 
 @pytest.mark.parametrize(
