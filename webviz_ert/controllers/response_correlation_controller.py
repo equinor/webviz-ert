@@ -194,34 +194,34 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         if not (ensembles and responses and corr_param_resp["response"] in responses):
             raise PreventUpdate
         selected_response = corr_param_resp["response"]
-        plots = []
-        obs_plots: List[PlotModel] = []
-
         loaded_ensembles = [
             load_ensemble(parent, ensemble_id) for ensemble_id in ensembles
         ]
 
+        response_plots = []
+        obs_plots: List[PlotModel] = []
+
         for index, ensemble in enumerate(loaded_ensembles):
             response = ensemble.responses[selected_response]
 
-            x_axis = response.axis
+            response_x_axis = response.axis
 
-            if isinstance(x_axis, pd.Index) and x_axis.empty:
+            if isinstance(response_x_axis, pd.Index) and response_x_axis.empty:
                 continue
 
-            if x_axis is not None:
-                style = _define_style_ensemble(index, x_axis)
+            if response_x_axis is not None:
+                style = _define_style_ensemble(index, response_x_axis)
 
-            data_df = response.data_df().copy()
-            plots += [
+            response_df = response.data_df().copy()
+            response_plots += [
                 PlotModel(
-                    x_axis=x_axis,
-                    y_axis=data_df[realization],
+                    x_axis=response_x_axis,
+                    y_axis=response_df[realization],
                     text=realization,
                     name=realization,
                     **style,
                 )
-                for realization in data_df
+                for realization in response_df
             ]
 
             if response.observations:
@@ -229,14 +229,14 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                     obs_plots.append(_get_observation_plots(obs.data_df()))
 
                 if corr_xindex[selected_response] == 0 and isinstance(
-                    x_axis, (pd.Index, list)
+                    response_x_axis, (pd.Index, list)
                 ):
                     corr_xindex[selected_response] = _update_corr_index_dict(
-                        x_axis, response.observations[0].data_df()
+                        response_x_axis, response.observations[0].data_df()
                     )
 
         fig = go.Figure()
-        for plot in plots:
+        for plot in response_plots:
             fig.add_trace(plot.repr)
 
         x_axis_label = axis_label_for_ensemble_response(
@@ -247,12 +247,12 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
 
         default_index = 0
         x_index = corr_xindex.get(selected_response, default_index)
-        if isinstance(x_axis, pd.Index) and not x_axis.empty:
+        if isinstance(response_x_axis, pd.Index) and not response_x_axis.empty:
             fig.add_shape(
                 type="line",
-                x0=x_axis[x_index],
+                x0=response_x_axis[x_index],
                 y0=0,
-                x1=x_axis[x_index],
+                x1=response_x_axis[x_index],
                 y1=1,
                 yref="paper",
                 line=dict(color="rgb(30, 30, 30)", dash="dash", width=3),
