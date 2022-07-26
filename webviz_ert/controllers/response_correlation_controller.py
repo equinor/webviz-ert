@@ -90,7 +90,8 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             and responses
             and corr_param_resp["response"] in responses
         ):
-            raise PreventUpdate
+            return ({}, {})
+
         selected_response = corr_param_resp["response"]
         data = {}
         colors = {}
@@ -382,7 +383,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         else:
             ensembles = None
         if not (ensembles and responses and corr_param_resp["response"] in responses):
-            raise PreventUpdate
+            return {}
         selected_response = corr_param_resp["response"]
         loaded_ensembles = [
             load_ensemble(parent, ensemble_id) for ensemble_id in ensembles
@@ -484,7 +485,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             and corr_param_resp["parameter"] in parameters
             and corr_param_resp["response"] in responses
         ):
-            raise PreventUpdate
+            return ({}, [])
 
         selected_parameter = corr_param_resp["parameter"]
         selected_response = corr_param_resp["response"]
