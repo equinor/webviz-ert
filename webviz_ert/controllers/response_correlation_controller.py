@@ -62,6 +62,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             ),
         ],
         [
+            Input(parent.uuid("ensemble-selection-store"), "data"),
             Input(parent.uuid("correlation-store-selected-obs"), "data"),
             Input(parent.uuid("correlation-store-selection"), "data"),
             Input(parent.uuid("correlation-metric"), "value"),
@@ -71,10 +72,10 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         [
             State(parent.uuid("parameter-selection-store-param"), "data"),
             State(parent.uuid("parameter-selection-store-resp"), "data"),
-            State(parent.uuid("selected-ensemble-dropdown"), "value"),
         ],
     )
     def update_correlation_plot(
+        ensemble_selection_store: Dict[str, List],
         selected_obs: Dict,
         corr_param_resp: Dict,
         correlation_metric: str,
@@ -82,8 +83,8 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         hide_hover: bool,
         parameters: List[str],
         responses: List[str],
-        ensembles: List[str],
     ) -> Optional[Tuple[go.Figure, go.Figure]]:
+        ensembles = _get_selected_ensembles_from_store(ensemble_selection_store)
         if not (
             ensembles
             and parameters
@@ -375,13 +376,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         corr_param_resp: Dict,
         selected_obs: Dict,
     ) -> Optional[go.Figure]:
-        if ensemble_selection_store:
-            ensembles = [
-                selected_ensemble["value"]
-                for selected_ensemble in ensemble_selection_store["selected"]
-            ]
-        else:
-            ensembles = None
+        ensembles = _get_selected_ensembles_from_store(ensemble_selection_store)
         if not (ensembles and responses and corr_param_resp["response"] in responses):
             return {}
         selected_response = corr_param_resp["response"]
@@ -461,23 +456,23 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         [
             Input(parent.uuid("correlation-store-xindex"), "data"),
             Input(parent.uuid("correlation-store-selection"), "data"),
+            Input(parent.uuid("ensemble-selection-store"), "data"),
         ],
         [
             State(parent.uuid("parameter-selection-store-param"), "data"),
             State(parent.uuid("parameter-selection-store-resp"), "data"),
-            State(parent.uuid("selected-ensemble-dropdown"), "value"),
             State(parent.uuid("correlation-store-selected-obs"), "data"),
         ],
     )
     def update_response_parameter_scatterplot(
         corr_xindex: Dict,
         corr_param_resp: Dict,
+        ensemble_selection_store: Dict[str, List],
         parameters: List[str],
         responses: List[str],
-        ensembles: List[str],
         selected_obs: Dict,
     ) -> Optional[Tuple[go.Figure, Component]]:
-
+        ensembles = _get_selected_ensembles_from_store(ensemble_selection_store)
         if not (
             parameters
             and ensembles
@@ -657,6 +652,15 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
 
         parent.save_state("active_correlation", corr_param_resp)
         return corr_param_resp, corr_xindex
+
+    def _get_selected_ensembles_from_store(
+        ensemble_selection_store: Dict[str, List]
+    ) -> Optional[List[str]]:
+        if ensemble_selection_store:
+            return [
+                selection["value"] for selection in ensemble_selection_store["selected"]
+            ]
+        return None
 
 
 def sort_dataframe(
