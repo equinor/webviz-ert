@@ -29,7 +29,7 @@ def test_sort_dataframe():
     "index,expected_color", [(0, "rgba(56,108,176,0.8)"), (1, "rgba(127,201,127,0.8)")]
 )
 def test_define_style_ensemble_color(index, expected_color):
-    x_axis = pd.DataFrame([1])
+    x_axis = pd.Index([1])
     style = _define_style_ensemble(index, x_axis)
     assert style["line"]["color"] == expected_color
     assert style["marker"]["color"] == expected_color
