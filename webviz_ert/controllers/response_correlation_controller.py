@@ -689,18 +689,3 @@ def _layout_figure(x_axis_label: str) -> dict:
     layout.update(assets.ERTSTYLE["figure"]["layout-value-y-axis-label"])
 
     return layout
-
-
-def _get_first_observation_x(obs_data: pd.DataFrame) -> Union[int, str]:
-    """
-    :return: The first x value in the observation data, converted
-        to type suitable for lookup in the response vector.
-    """
-    first_observation = obs_data["x_axis"][0]
-    caster = {str: int, Timestamp: str, numpy.int64: int}
-    if type(first_observation) not in caster.keys():
-        raise ValueError(
-            f"Invalid obs_data type: should be an Int or Timestamp, but it is {type(first_observation)}."
-        )
-
-    return caster.get(type(first_observation), lambda *args: False)(first_observation)

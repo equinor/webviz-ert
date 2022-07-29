@@ -4,7 +4,6 @@ import pytest
 from pandas._libs.tslibs.timestamps import Timestamp
 
 from webviz_ert.controllers.response_correlation_controller import (
-    _get_first_observation_x,
     _define_style_ensemble,
     _layout_figure,
 )
@@ -77,29 +76,6 @@ def test_layout_figure():
     }
 
     assert layout == expected_layout
-
-
-@pytest.mark.parametrize(
-    "observation,expected",
-    [
-        ([1], 1),
-        ([str(1)], 1),
-        (
-            [Timestamp("01-01-2020")],
-            str("2020-01-01 00:00:00"),
-        ),
-    ],
-)
-def test_get_first_observation_x_valid(observation, expected):
-    df_observation = pd.DataFrame(observation, columns=["x_axis"])
-    result = _get_first_observation_x(df_observation)
-    assert result == expected
-
-
-def test_get_first_observation_x_invalid():
-    df_observation = pd.DataFrame(["NAN"], columns=["x_axis"])
-    with pytest.raises(ValueError):
-        _get_first_observation_x(df_observation)
 
 
 @pytest.mark.parametrize(
