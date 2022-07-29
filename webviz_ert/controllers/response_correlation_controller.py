@@ -23,32 +23,6 @@ from webviz_ert.controllers.multi_response_controller import (
 from webviz_ert import assets
 
 
-def _get_selected_indexes(
-    plots: List[PlotModel], selected_data: Optional[Dict]
-) -> Dict:
-    selected_indexes: Dict = {}
-    if not selected_data:
-        return selected_indexes
-    for plot in plots:
-        selected_indexes[plot.name] = []
-        x_data_range = selected_data["range"].get("x")
-        x2_data_range = selected_data["range"].get("x2")
-        if plot.axis_type == AxisType.INDEX:
-            if not x2_data_range:
-                continue
-            x_start, x_end = x2_data_range
-        elif not x_data_range:
-            continue
-        else:
-            x_start = dateutil.parser.isoparse(x_data_range[0])
-            x_end = dateutil.parser.isoparse(x_data_range[1])
-
-        for val in plot._x_axis:
-            if x_start <= val <= x_end:
-                selected_indexes[plot.name].append(val)
-    return selected_indexes
-
-
 def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:
     @app.callback(
         [
@@ -667,6 +641,32 @@ def _sort_dataframe(
         index = dataframe[sort_by_column].abs().sort_values().index.copy()
     dataframe = dataframe.reindex(index)
     return dataframe, index
+
+
+def _get_selected_indexes(
+    plots: List[PlotModel], selected_data: Optional[Dict]
+) -> Dict:
+    selected_indexes: Dict = {}
+    if not selected_data:
+        return selected_indexes
+    for plot in plots:
+        selected_indexes[plot.name] = []
+        x_data_range = selected_data["range"].get("x")
+        x2_data_range = selected_data["range"].get("x2")
+        if plot.axis_type == AxisType.INDEX:
+            if not x2_data_range:
+                continue
+            x_start, x_end = x2_data_range
+        elif not x_data_range:
+            continue
+        else:
+            x_start = dateutil.parser.isoparse(x_data_range[0])
+            x_end = dateutil.parser.isoparse(x_data_range[1])
+
+        for val in plot._x_axis:
+            if x_start <= val <= x_end:
+                selected_indexes[plot.name].append(val)
+    return selected_indexes
 
 
 def _define_style_ensemble(index: int, x_axis: pd.Index) -> Dict:
