@@ -3,7 +3,7 @@ import pytest
 from webviz_ert.controllers.response_correlation_controller import (
     _get_first_observation_x,
     _define_style_ensemble,
-    _update_corr_index_dict,
+    _get_first_observation_index,
     _layout_figure,
 )
 
@@ -70,11 +70,11 @@ def test_define_style_ensemble_mode(x_axis_list, expected_mode):
         (pd.Index([0, 1]), [str(1)], 1),
     ],
 )
-def test_update_corr_index_dict(
+def test_get_first_observation_index(
     response_x_axis, observation_x_axis_list, expected_index
 ):
     observation_x_axis = pd.DataFrame(observation_x_axis_list, columns=["x_axis"])
-    updated_index = _update_corr_index_dict(response_x_axis, observation_x_axis)
+    updated_index = _get_first_observation_index(response_x_axis, observation_x_axis)
     assert expected_index == updated_index
 
 
