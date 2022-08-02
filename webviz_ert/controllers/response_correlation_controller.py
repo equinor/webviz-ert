@@ -207,16 +207,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             store_obs_range = {}
         if store_obs_range and not selected_data:
             selected_data = {"range": store_obs_range}
-        ensembles = []
-        if ensemble_selection_store:
-            ensembles = [
-                selected_ensemble["value"]
-                for selected_ensemble in ensemble_selection_store["selected"]
-            ]
-        obs_plots: List[PlotModel] = []
-        loaded_ensembles = [
-            load_ensemble(parent, ensemble_id) for ensemble_id in ensembles
-        ]
+        loaded_ensembles = _get_loaded_ensembles(ensemble_selection_store, parent)
 
         obs_plots, index_axis, time_axis = _get_obs_plots_obs_selector(
             responses, loaded_ensembles
@@ -590,6 +581,20 @@ def _get_triggered_id() -> str:
     ctx = dash.callback_context
     triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
     return triggered_id
+
+
+def _get_loaded_ensembles(ensemble_selection_store: dict, parent: Any) -> list:
+    # type(parent) returns <class 'webviz_ert.plugins._response_correlation.ResponseCorrelation'>
+    if ensemble_selection_store:
+        ensembles = [
+            selected_ensemble["value"]
+            for selected_ensemble in ensemble_selection_store["selected"]
+        ]
+    else:
+        ensembles = []
+    loaded_ensembles = [load_ensemble(parent, ensemble_id) for ensemble_id in ensembles]
+
+    return loaded_ensembles
 
 
 def _get_obs_plots_obs_selector(
