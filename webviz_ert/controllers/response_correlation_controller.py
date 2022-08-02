@@ -15,6 +15,7 @@ from webviz_ert.models import (
     load_ensemble,
     BarChartPlotModel,
     PlotModel,
+    Response,
 )
 from webviz_ert.controllers.multi_response_controller import (
     _get_observation_plots,
@@ -24,6 +25,8 @@ from webviz_ert import assets
 
 
 def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:
+    DEFAULT_X_INDEX = 0
+
     @app.callback(
         [
             Output(
@@ -230,13 +233,6 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                 for obs in response.observations:
                     obs_plots.append(_get_observation_plots(obs.data_df()))
 
-                if corr_xindex[selected_response] == 0 and isinstance(
-                    response_x_axis, (pd.Index, list)
-                ):
-                    corr_xindex[selected_response] = _update_corr_index_dict(
-                        response_x_axis, response.observations[0].data_df()
-                    )
-
         fig = go.Figure()
         for plot in response_plots:
             fig.add_trace(plot.repr)
@@ -247,8 +243,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
 
         fig.update_layout(_layout_figure(x_axis_label))
 
-        default_index = 0
-        x_index = corr_xindex.get(selected_response, default_index)
+        x_index = corr_xindex.get(selected_response, DEFAULT_X_INDEX)
         if isinstance(response_x_axis, pd.Index) and not response_x_axis.empty:
             fig.add_shape(
                 type="line",
@@ -395,28 +390,85 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         [
             State(parent.uuid("correlation-store-xindex"), "data"),
             State(parent.uuid("correlation-store-selection"), "data"),
+            State(parent.uuid("ensemble-selection-store"), "data"),
         ],
     )
     def update_corr_index(
-        click_data: Dict, responses: List[str], corr_xindex: Dict, corr_param_resp: Dict
-    ) -> Optional[Dict]:
-        if not responses:
+        click_data: Dict,
+        responses: List[str],
+        corr_xindex: Dict,
+        corr_param_resp: Dict,
+        ensemble_selection_store: Dict[str, List],
+    ) -> Dict:
+        """
+        One of the data points we keep track of in the response correlation
+        plugin is the current index, representing a point on the x-axis, for
+        each selected response.
+        Some data shown is a function of the x value represented by that index,
+        for example the correlation scatterplot, as well as the heatmap and the
+        tornado plot.
+
+        This function updates a dictionary with responses as keys, and the
+        current index for each response as values.
+
+        It gets triggered when a user
+
+        - clicks on the response overview plot, effectively choosing an index
+        - changes the selection of responses - a default index is assigned
+
+        The default index for a response is
+        - zero for responses without observations, representing the smallest
+          value for comparable domains, or the first value for categorical
+          domains (the domain is represented by the x-axis)
+        - the (index of the) smallest or first observation for responses with
+          observations
+
+        This dictionary is identical for all ensembles - an assumption in the
+        data is that given a response, x-axis and observations for that
+        response do not change between ensembles. Yet we need one ensemble to
+        determine the default values.
+        """
+        if ensemble_selection_store:
+            ensembles = [
+                selected_ensemble["value"]
+                for selected_ensemble in ensemble_selection_store["selected"]
+            ]
+        else:
+            ensembles = None
+        if not (responses and ensembles):
             raise PreventUpdate
+        ensemble_id = ensembles[0]
+        loaded_ensemble = load_ensemble(parent, ensemble_id)
 
         ctx = dash.callback_context
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-        if triggered_id == parent.uuid("parameter-selection-store-resp"):
-            default_index = 0
-            return {
-                response: corr_xindex.get(response, default_index)
-                for response in responses
-            }
-        if click_data:
+        first_invocation = triggered_id == "" and not click_data
+
+        if triggered_id == parent.uuid("parameter-selection-store-resp") or (
+            first_invocation
+        ):
+            for response_name in responses:
+                default_index = _get_default_x_index(
+                    loaded_ensemble.responses[response_name]
+                )
+                corr_xindex[response_name] = corr_xindex.get(
+                    response_name, default_index
+                )
+        elif click_data:
             corr_xindex[corr_param_resp["response"]] = click_data["points"][0][
                 "pointIndex"
             ]
         return corr_xindex
+
+    def _get_default_x_index(response: Response) -> int:
+        response_x_axis = response.axis
+        if response.observations:
+            if isinstance(response_x_axis, (pd.Index, list)):
+                return _get_first_observation_index(
+                    response_x_axis, response.observations[0].data_df()
+                )
+        return DEFAULT_X_INDEX
 
     @app.callback(
         Output(parent.uuid("correlation-store-selection"), "data"),
@@ -498,16 +550,16 @@ def _define_style_ensemble(index: int, x_axis: pd.Index) -> Dict:
     return style
 
 
-def _update_corr_index_dict(
+def _get_first_observation_index(
     response_x_axis: Union[pd.Index, list], observation_x_axis: pd.DataFrame
 ) -> int:
     x_axis_default_observation = _get_first_observation_x(observation_x_axis)
     if isinstance(response_x_axis, pd.Index):
-        updated_index = response_x_axis.get_loc(x_axis_default_observation)
+        first_observation_index = response_x_axis.get_loc(x_axis_default_observation)
     elif isinstance(response_x_axis, list):
-        updated_index = response_x_axis.index(x_axis_default_observation)
+        first_observation_index = response_x_axis.index(x_axis_default_observation)
 
-    return updated_index
+    return first_observation_index
 
 
 def _layout_figure(x_axis_label: str) -> dict:
