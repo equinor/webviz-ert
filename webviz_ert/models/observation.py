@@ -1,8 +1,6 @@
-from typing import Dict, Optional, List, Union
+from typing import Dict
 import pandas as pd
-import datetime
-
-from webviz_ert.models import indexes_to_axis, AxisType
+from webviz_ert.models import indexes_to_axis
 
 
 class Observation:
@@ -28,15 +26,3 @@ class Observation:
                 "active": self._active,
             }
         )
-
-    @property
-    def axis(self) -> Optional[List[Union[int, str, datetime.datetime]]]:
-        return indexes_to_axis(self._x_axis)
-
-    @property
-    def axis_type(self) -> Optional[AxisType]:
-        if self.axis is None:
-            return None
-        if str(self.axis[0]).isnumeric():
-            return AxisType.INDEX
-        return AxisType.TIMESTAMP

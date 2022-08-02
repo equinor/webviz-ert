@@ -33,14 +33,6 @@
         ],
         "default_color": "rgba(128,128,128,0.3)"
     },
-    "observation-selection-plot":{
-        "mode": "markers",
-        "line": null,
-        "marker": {
-            "color": "rgba(56,108,176,0.8)",
-            "size": 9
-        }
-    },
     "observation-response-plot": {
         "observation": {
             "mode": "markers",

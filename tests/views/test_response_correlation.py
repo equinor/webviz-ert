@@ -34,7 +34,7 @@ def test_response_correlation_view(
     dash_duo.click_at_coord_fractions(param_select, x, y)
 
     response_views = dash_duo.find_elements(".ert-view-cell")
-    assert len(response_views) == 5
+    assert len(response_views) == 4
 
     # assert dash_duo.get_logs() == [], "browser console should contain no error"
 
@@ -129,6 +129,5 @@ def test_show_respo_with_obs(mock_data, dash_duo):
         "#" + plugin.uuid("response-observations-check")
     )
     obs_radio_btn.click()
-    wait_a_bit(dash_duo, 0.2)
     obs_responses = get_options(dash_duo, "#" + resp_selector_id)
     assert obs_responses == expected_obs_responses
