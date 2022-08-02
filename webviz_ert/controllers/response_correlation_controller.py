@@ -218,37 +218,9 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             load_ensemble(parent, ensemble_id) for ensemble_id in ensembles
         ]
 
-        index_axis = False
-        time_axis = False
-        for ens_idx, ensemble in enumerate(loaded_ensembles):
-            for idx, response_name in enumerate(responses):
-                response = ensemble.responses[response_name]
-                if response.observations:
-                    for obs in response.observations:
-                        x_axis = obs.axis
-                        if (
-                            x_axis is None
-                            or isinstance(x_axis, pd.Index)
-                            and x_axis.empty
-                        ):
-                            continue
-                        style = deepcopy(assets.ERTSTYLE["observation-selection-plot"])
-                        if obs.axis_type == AxisType.INDEX:
-                            index_axis = True
-                            style.update({"xaxis": "x2"})
-                        else:
-                            time_axis = True
-                        obs_color = assets.get_color(index=idx)
-                        style["marker"].update({"color": obs_color})
-                        obs_plots.append(
-                            PlotModel(
-                                x_axis=x_axis,
-                                y_axis=[str(idx) for _ in range(len(x_axis))],
-                                text=obs.name,
-                                name=obs.name,
-                                **style,
-                            )
-                        )
+        obs_plots, index_axis, time_axis = _get_obs_plots_obs_selector(
+            responses, loaded_ensembles
+        )
 
         if not obs_plots:
             store_obs_range = {}
@@ -618,6 +590,40 @@ def _get_triggered_id() -> str:
     ctx = dash.callback_context
     triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
     return triggered_id
+
+
+def _get_obs_plots_obs_selector(
+    responses: list, loaded_ensembles: list
+) -> Tuple[list, bool, bool]:  # Testable?
+    obs_plots: List[PlotModel] = []
+    index_axis = False
+    time_axis = False
+    for _, ensemble in enumerate(loaded_ensembles):
+        for idx, response_name in enumerate(responses):
+            response = ensemble.responses[response_name]
+            if response.observations:
+                for obs in response.observations:
+                    x_axis = obs.axis
+                    if x_axis is None or isinstance(x_axis, pd.Index) and x_axis.empty:
+                        continue
+                    style = deepcopy(assets.ERTSTYLE["observation-selection-plot"])
+                    if obs.axis_type == AxisType.INDEX:
+                        index_axis = True
+                        style.update({"xaxis": "x2"})
+                    else:
+                        time_axis = True
+                    obs_color = assets.get_color(index=idx)
+                    style["marker"].update({"color": obs_color})
+                    obs_plots.append(
+                        PlotModel(
+                            x_axis=x_axis,
+                            y_axis=[str(idx) for _ in range(len(x_axis))],
+                            text=obs.name,
+                            name=obs.name,
+                            **style,
+                        )
+                    )
+    return obs_plots, index_axis, time_axis
 
 
 def _layout_obs_selector(index_axis: bool) -> dict:
