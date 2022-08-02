@@ -12,6 +12,7 @@ from webviz_ert.controllers.response_correlation_controller import (
     _sort_dataframe,
     _get_selected_indexes,
     _get_x_range_obs,
+    _layout_obs_selector,
 )
 from webviz_ert.models import PlotModel
 
@@ -77,6 +78,15 @@ def test_layout_figure():
     }
 
     assert layout == expected_layout
+
+
+@pytest.mark.parametrize(
+    "index_axis,keys_expected_in_layout",
+    [(False, {"xaxis"}), (True, {"xaxis", "xaxis2"})],
+)
+def test_layout_obs_selector(index_axis, keys_expected_in_layout):
+    layout = _layout_obs_selector(index_axis)
+    assert keys_expected_in_layout <= layout.keys()
 
 
 @pytest.mark.parametrize(

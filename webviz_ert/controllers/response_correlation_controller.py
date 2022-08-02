@@ -263,27 +263,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             )
 
         fig = go.Figure(layout_yaxis_range=[-1, len(obs_plots)])
-        layout = assets.ERTSTYLE["figure"]["layout"].copy()
-        layout.update(
-            dict(
-                xaxis=XAxis(title="Date", showgrid=False),
-                dragmode="select",
-                template="plotly_white",
-            )
-        )
-
-        if index_axis:
-            layout.update(
-                dict(
-                    xaxis2=XAxis(
-                        overlaying="x",
-                        title="Index",
-                        side="top",
-                        showgrid=False,
-                    )
-                )
-            )
-        fig.update_layout(layout)
+        fig.update_layout(_layout_obs_selector(index_axis))
 
         selected_indexes = _get_selected_indexes(obs_plots, selected_data)
         for plot in obs_plots:
@@ -633,6 +613,30 @@ def _sort_dataframe(
         index = dataframe[sort_by_column].abs().sort_values().index.copy()
     dataframe = dataframe.reindex(index)
     return dataframe, index
+
+
+def _layout_obs_selector(index_axis: bool) -> dict:
+    layout = assets.ERTSTYLE["figure"]["layout"].copy()
+    layout.update(
+        dict(
+            xaxis=XAxis(title="Date", showgrid=False),
+            dragmode="select",
+            template="plotly_white",
+        )
+    )
+
+    if index_axis:
+        layout.update(
+            dict(
+                xaxis2=XAxis(
+                    overlaying="x",
+                    title="Index",
+                    side="top",
+                    showgrid=False,
+                )
+            )
+        )
+    return layout
 
 
 def _get_x_range_obs(
