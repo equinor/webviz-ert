@@ -199,8 +199,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
     ) -> Optional[Tuple[Dict, go.Figure, Dict, Dict]]:
         if responses is None:
             responses = []
-        ctx = dash.callback_context
-        triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+        triggered_id = _get_triggered_id()
         if not ensemble_selection_store and not triggered_id:
             raise PreventUpdate
 
@@ -613,6 +612,12 @@ def _sort_dataframe(
         index = dataframe[sort_by_column].abs().sort_values().index.copy()
     dataframe = dataframe.reindex(index)
     return dataframe, index
+
+
+def _get_triggered_id() -> str:
+    ctx = dash.callback_context
+    triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    return triggered_id
 
 
 def _layout_obs_selector(index_axis: bool) -> dict:
