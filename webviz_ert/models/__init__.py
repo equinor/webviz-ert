@@ -9,8 +9,6 @@ def indexes_to_axis(
     try:
         if indexes and type(indexes[0]) is str and not str(indexes[0]).isnumeric():
             return list(map(lambda dt: dateutil.parser.isoparse(str(dt)), indexes))
-        if indexes and type(indexes[0]) is str and str(indexes[0]).isnumeric():
-            return list(map(lambda idx: int(str(idx)), indexes))
         return indexes
     except ValueError as e:
         raise ValueError("Could not parse indexes as either int or dates", e)
@@ -34,7 +32,7 @@ def load_ensemble(
     return ensemble
 
 
-from .data_model import DataType, AxisType
+from .data_model import DataType
 from .observation import Observation
 from .realization import Realization
 from .response import Response

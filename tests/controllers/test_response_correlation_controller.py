@@ -1,27 +1,15 @@
 import pandas as pd
 import pytest
-
-from pandas._libs.tslibs.timestamps import Timestamp
-
 from webviz_ert.controllers.response_correlation_controller import (
     _get_first_observation_x,
     _define_style_ensemble,
+    _update_corr_index_dict,
     _layout_figure,
 )
 
 from webviz_ert.controllers.response_correlation_controller import (
     sort_dataframe,
-    _get_selected_indexes,
 )
-from webviz_ert.models import PlotModel
-
-
-PLOT_STYLE = {
-    "mode": "markers",
-    "line": None,
-    "marker": {"color": "rgba(56,108,176,0.8)", "size": 9},
-    "text": "NA",
-}
 
 
 def test_sort_dataframe():
@@ -51,7 +39,7 @@ def test_define_style_ensemble_color(index, expected_color):
     "x_axis_list,expected_mode",
     [
         (
-            [Timestamp("01-01-2020")],
+            [pd._libs.tslibs.timestamps.Timestamp("01-01-2020")],
             "markers+lines",
         ),
         ([str(1)], "markers"),
@@ -61,6 +49,33 @@ def test_define_style_ensemble_mode(x_axis_list, expected_mode):
     x_axis = pd.Index(x_axis_list)
     style = _define_style_ensemble(0, x_axis)
     assert style["mode"] == expected_mode
+
+
+@pytest.mark.parametrize(
+    "response_x_axis,observation_x_axis_list,expected_index",
+    [
+        (
+            [
+                "2020-01-01 00:00:00",
+                "2020-01-07 00:00:00",
+                "2020-01-14 00:00:00",
+                "2020-01-21 00:00:00",
+            ],
+            [
+                pd._libs.tslibs.timestamps.Timestamp("14-01-2020"),
+                pd._libs.tslibs.timestamps.Timestamp("01-02-2020"),
+            ],
+            2,
+        ),
+        (pd.Index([0, 1]), [str(1)], 1),
+    ],
+)
+def test_update_corr_index_dict(
+    response_x_axis, observation_x_axis_list, expected_index
+):
+    observation_x_axis = pd.DataFrame(observation_x_axis_list, columns=["x_axis"])
+    updated_index = _update_corr_index_dict(response_x_axis, observation_x_axis)
+    assert expected_index == updated_index
 
 
 def test_layout_figure():
@@ -82,10 +97,9 @@ def test_layout_figure():
 @pytest.mark.parametrize(
     "observation,expected",
     [
-        ([1], 1),
-        ([str(1)], 1),
+        ([str(1)], int(1)),
         (
-            [Timestamp("01-01-2020")],
+            [pd._libs.tslibs.timestamps.Timestamp("01-01-2020")],
             str("2020-01-01 00:00:00"),
         ),
     ],
@@ -97,66 +111,6 @@ def test_get_first_observation_x_valid(observation, expected):
 
 
 def test_get_first_observation_x_invalid():
-    df_observation = pd.DataFrame(["NAN"], columns=["x_axis"])
-    with pytest.raises(ValueError):
+    df_observation = pd.DataFrame([int(1)], columns=["x_axis"])
+    with pytest.raises(ValueError, match="invalid obs_data type"):
         _get_first_observation_x(df_observation)
-
-
-@pytest.mark.parametrize(
-    "plots, selected_data, expected",
-    [
-        ([], None, {}),
-        ([], {}, {}),
-        ([], {"range": {}}, {}),
-        (
-            [
-                PlotModel(
-                    x_axis=[0, 5, 10], y_axis=[1, 1, 1], name="plot1", **PLOT_STYLE
-                )
-            ],
-            {"range": {"x": ["2020-01-01", "2020-01-03"]}},
-            {"plot1": []},
-        ),
-        (
-            [
-                PlotModel(
-                    x_axis=[0, 5, 10], y_axis=[1, 1, 1], name="plot1", **PLOT_STYLE
-                )
-            ],
-            {"range": {"x2": [1, 3]}},
-            {"plot1": []},
-        ),
-        (
-            [
-                PlotModel(
-                    x_axis=[0, 5, 10], y_axis=[1, 1, 1], name="plot1", **PLOT_STYLE
-                ),
-                PlotModel(
-                    x_axis=[Timestamp("2020-01-02")],
-                    y_axis=[1, 1, 1],
-                    name="plot2",
-                    **PLOT_STYLE
-                ),
-            ],
-            {"range": {"x": ["2020-01-01", "2020-01-03"]}},
-            {"plot1": [], "plot2": [Timestamp("2020-01-02")]},
-        ),
-        (
-            [
-                PlotModel(
-                    x_axis=[0, 5, 10], y_axis=[1, 1, 1], name="plot1", **PLOT_STYLE
-                ),
-                PlotModel(
-                    x_axis=[Timestamp("2020-01-02")],
-                    y_axis=[1, 1, 1],
-                    name="plot2",
-                    **PLOT_STYLE
-                ),
-            ],
-            {"range": {"x": ["2020-01-01", "2020-01-03"], "x2": [4, 6]}},
-            {"plot1": [5], "plot2": [Timestamp("2020-01-02")]},
-        ),
-    ],
-)
-def test_get_selected_indexes(plots, selected_data, expected):
-    assert _get_selected_indexes(plots, selected_data) == expected
