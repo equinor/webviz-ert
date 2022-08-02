@@ -11,6 +11,7 @@ from webviz_ert.controllers.response_correlation_controller import (
 from webviz_ert.controllers.response_correlation_controller import (
     _sort_dataframe,
     _get_selected_indexes,
+    _get_x_range_obs,
 )
 from webviz_ert.models import PlotModel
 
@@ -76,6 +77,41 @@ def test_layout_figure():
     }
 
     assert layout == expected_layout
+
+
+@pytest.mark.parametrize(
+    "store_keys,index_axis,time_axis,expected_x_range",
+    [
+        (["x", "x2"], False, False, None),
+        (
+            ["x", "x2"],
+            True,
+            True,
+            ["2012-07-01 00:00:00", "2012-12-01 00:00:00"],
+        ),  # This state maybe bug ?
+        (["x", "x2"], False, True, ["2012-07-01 00:00:00", "2012-12-01 00:00:00"]),
+        (["x", "x2"], True, False, [100, 120]),
+        (["x"], True, True, None),
+        (["x"], False, False, None),
+        (["x"], True, False, None),  # undefined, this state is not expected to happen
+        (["x"], False, True, ["2012-07-01 00:00:00", "2012-12-01 00:00:00"]),
+        (["x2"], False, False, None),
+        (["x2"], True, True, None),
+        (["x2"], True, True, None),  # undefined, this state is not expected to happen
+        (["x2"], True, False, [100, 120]),
+    ],
+)
+def test_get_x_range_obs(store_keys, index_axis, time_axis, expected_x_range):
+    store_obs_range_full = {
+        "x": ["2012-07-01 00:00:00", "2012-12-01 00:00:00"],
+        "x2": [100, 120],
+        "y": [-0.5, 2],
+    }
+    store_obs_range = {
+        store_key: store_obs_range_full[store_key] for store_key in store_keys
+    }
+    x_range = _get_x_range_obs(store_obs_range, index_axis, time_axis)
+    assert x_range == expected_x_range
 
 
 @pytest.mark.parametrize(

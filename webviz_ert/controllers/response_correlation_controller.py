@@ -292,23 +292,15 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         if selected_data:
             # Add selection rectangle to figure
             store_obs_range = selected_data["range"]
-            x_range = None
-            if time_axis:
-                x_range = store_obs_range.get("x")
-            elif index_axis:
-                x_range = store_obs_range.get("x2")
-            if time_axis and index_axis:
-                if "x" not in store_obs_range or "x2" not in store_obs_range:
-                    x_range = None
+            x_range = _get_x_range_obs(store_obs_range, index_axis, time_axis)
 
             if x_range:
-                x_start, x_end = x_range
                 fig.add_shape(
                     type="rect",
                     yref="paper",
-                    x0=x_start,
+                    x0=x_range[0],
                     y0=0,
-                    x1=x_end,
+                    x1=x_range[1],
                     y1=1,
                     fillcolor="PaleTurquoise",
                     opacity=0.35,
@@ -641,6 +633,20 @@ def _sort_dataframe(
         index = dataframe[sort_by_column].abs().sort_values().index.copy()
     dataframe = dataframe.reindex(index)
     return dataframe, index
+
+
+def _get_x_range_obs(
+    store_obs_range: dict, index_axis: bool, time_axis: bool
+) -> Optional[list]:
+    x_range = None
+    if time_axis:
+        x_range = store_obs_range.get("x")
+    elif index_axis:
+        x_range = store_obs_range.get("x2")
+    if time_axis and index_axis:
+        if "x" not in store_obs_range or "x2" not in store_obs_range:
+            x_range = None
+    return x_range
 
 
 def _get_selected_indexes(
