@@ -33,15 +33,16 @@ class ResponseCorrelation(WebvizErtPluginABC):
             {
                 "id": self.uuid("response-overview"),
                 "content": (
-                    "Visualization of the currently selected response "
-                    "where by clicking we can select a new index / timestep for correlation analysis."
+                    "Visualization of the currently active response "
+                    "where by clicking we can select a new active index / "
+                    "timestep for correlation analysis."
                 ),
             },
             {
                 "id": self.uuid("response-scatterplot"),
                 "content": (
-                    "Scatterplot visualization of function values between currently selected "
-                    "response and currently selected parameter. "
+                    "Scatterplot visualization of function values between currently active "
+                    "response and currently active parameter. "
                     "It is accompanied by distribution plots for both selections. "
                 ),
             },
@@ -49,7 +50,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
                 "id": self.uuid("response-heatmap"),
                 "content": (
                     "Heatmap based representation of correlation (-1, 1) among all selected responses "
-                    "and parameters, for currently active ensembles in column-wise fashion."
+                    "and parameters, for currently selected ensembles in column-wise fashion."
                     "One can select a currently active response and parameter "
                     "by clicking directly on a heatmap. "
                 ),
@@ -57,7 +58,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
             {
                 "id": self.uuid("response-correlation"),
                 "content": (
-                    "Correlation BarChart for the single selected response (from heatmap) "
+                    "Correlation BarChart for the currently active response (from heatmap) "
                     "and parameters in a descending order. "
                 ),
             },
@@ -95,7 +96,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
                     data={},
                 ),
                 dash.dcc.Store(
-                    id=self.uuid("correlation-store-selection"),
+                    id=self.uuid("correlation-store-active-resp-param"),
                     data=self.load_state(
                         "active_correlation",
                         {"parameter": None, "response": None},
