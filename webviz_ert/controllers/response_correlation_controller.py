@@ -1,6 +1,7 @@
 import pandas as pd
 import plotly.graph_objects as go
 import dash
+import datetime
 
 from typing import List, Optional, Dict, Tuple, Any, Union
 from copy import deepcopy
@@ -322,14 +323,16 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                         PlotModel(
                             x_axis=x_data.values.flatten(),
                             y_axis=y_data.values.flatten(),
-                            text="Mean",
-                            name=f"{repr(ensemble)}: {active_response}x{active_parameter}@{response.axis[x_index]}",
+                            text="Mean",  # TODO ask about this!
+                            name=(f"{ensemble.name}"),
+                            hoverlabel={"namelength": -1},
                             **style,
                         )
                     ]
                     _resp_plots[str(ensemble)] = x_data.values.flatten()
                     _param_plots[str(ensemble)] = y_data.values.flatten()
 
+        formatted_x_value = _format_index_value(response.axis, x_index)
         fig = make_subplots(
             rows=4,
             cols=2,
@@ -339,28 +342,42 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                 [None, None],
                 [{"rowspan": 1}, {"rowspan": 1}],
             ],
+            subplot_titles=[
+                f"Scatterplot - {active_response} x {active_parameter} @ {formatted_x_value}",
+                f"{active_parameter}",
+                f"{active_response}",
+            ],
+            row_titles=["Histograms"],
         )
         for plot in _plots:
             fig.add_trace(plot.repr, 1, 1)
 
-        for key in _param_plots:
+        for ensemble_name in _param_plots:
             fig.add_trace(
                 {
                     "type": "histogram",
-                    "x": _param_plots[key],
+                    "name": f"{ensemble_name}",
+                    "hoverlabel": {
+                        "namelength": -1,
+                    },
+                    "x": _param_plots[ensemble_name],
                     "showlegend": False,
-                    "marker_color": _colors[key],
+                    "marker_color": _colors[ensemble_name],
                 },
                 4,
                 1,
             )
-        for key in _resp_plots:
+        for ensemble_name in _resp_plots:
             fig.add_trace(
                 {
                     "type": "histogram",
-                    "x": _resp_plots[key],
+                    "name": f"{ensemble_name}",
+                    "hoverlabel": {
+                        "namelength": -1,
+                    },
+                    "x": _resp_plots[ensemble_name],
                     "showlegend": False,
-                    "marker_color": _colors[key],
+                    "marker_color": _colors[ensemble_name],
                 },
                 4,
                 2,
@@ -550,6 +567,16 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                 selection["value"] for selection in ensemble_selection_store["selected"]
             ]
         return None
+
+    def _format_index_value(axis: pd.Index, index: int) -> Union[int, datetime.date]:
+        raw_value = axis[index]
+        if isinstance(raw_value, str):
+            try:
+                datetime_value = pd.to_datetime(raw_value)
+                return datetime_value.date()
+            except (pd.errors.ParserError):
+                pass
+        return raw_value
 
 
 def sort_dataframe(
