@@ -198,12 +198,13 @@ class PlotModel:
     def __init__(self, **kwargs: Any):
         self._x_axis = kwargs["x_axis"]
         self._y_axis = kwargs["y_axis"]
-        self._text = kwargs["text"]
+        self._text = kwargs["text"] if "text" in kwargs else None
         self._name = kwargs["name"]
         self._mode = kwargs["mode"]
         self._line = kwargs["line"]
         self._marker = kwargs["marker"]
         self._error_y = kwargs.get("error_y")
+        self._hoverlabel = kwargs.get("hoverlabel")
         self.selected = True
 
     @property
@@ -216,6 +217,7 @@ class PlotModel:
             mode=self._mode,
             error_y=self._error_y,
             connectgaps=True,
+            hoverlabel=self._hoverlabel,
         )
         if self._line:
             repr_dict["line"] = self._line
