@@ -5,10 +5,11 @@ from webviz_ert.controllers.response_correlation_controller import (
     _define_style_ensemble,
     _get_first_observation_index,
     _layout_figure,
+    _format_index_value,
 )
 
 from webviz_ert.controllers.response_correlation_controller import (
-    sort_dataframe,
+    _sort_dataframe,
 )
 
 
@@ -20,7 +21,7 @@ def test_sort_dataframe():
     data[other_key] = [0.3, 0.8, -0.1]
     dataframe = pd.DataFrame(data=data)
     index = None
-    sorted_dataframe, _ = sort_dataframe(dataframe, index, other_key)
+    sorted_dataframe, _ = _sort_dataframe(dataframe, index, other_key)
     assert list(sorted_dataframe[other_key]) == sorted(data[other_key])
     assert list(sorted_dataframe[one_key]) == [0.2, -0.4, 0.6]
 
@@ -114,3 +115,19 @@ def test_get_first_observation_x_invalid():
     df_observation = pd.DataFrame([int(1)], columns=["x_axis"])
     with pytest.raises(ValueError, match="invalid obs_data type"):
         _get_first_observation_x(df_observation)
+
+
+@pytest.mark.parametrize(
+    "raw_value,expected_formatted_value",
+    [
+        ("2022-08-05 14:25:00", "2022-08-05"),
+        ("2022-09-21 14:25:00", "2022-09-21"),
+        (14, "14"),
+        ("213", "213"),
+        ("SPAM", "SPAM"),
+    ],
+    ids=["date1", "date2", "numeric", "numeric-as-string", "silly-string"],
+)
+def test_format_index_value(raw_value: str, expected_formatted_value: str):
+    axis = pd.Index(data=[raw_value])
+    assert _format_index_value(axis, 0).__str__() == expected_formatted_value

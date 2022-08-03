@@ -1,6 +1,8 @@
 import pandas as pd
 import plotly.graph_objects as go
 import dash
+import datetime
+import numpy as np
 
 from typing import List, Optional, Dict, Tuple, Any, Union
 from copy import deepcopy
@@ -95,7 +97,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             if active_response not in valid_responses:
                 continue
             if sort_parameters:
-                corrdf, df_index = sort_dataframe(corrdf, df_index, active_response)
+                corrdf, df_index = _sort_dataframe(corrdf, df_index, active_response)
             # create heatmap
             data_heatmap = {
                 "type": "heatmap",
@@ -322,51 +324,44 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                         PlotModel(
                             x_axis=x_data.values.flatten(),
                             y_axis=y_data.values.flatten(),
-                            text="Mean",
-                            name=f"{repr(ensemble)}: {active_response}x{active_parameter}@{response.axis[x_index]}",
+                            name=(f"{ensemble.name}"),
+                            hoverlabel={"namelength": -1},
                             **style,
                         )
                     ]
                     _resp_plots[str(ensemble)] = x_data.values.flatten()
                     _param_plots[str(ensemble)] = y_data.values.flatten()
 
-        fig = make_subplots(
-            rows=4,
-            cols=2,
-            specs=[
-                [{"colspan": 2, "rowspan": 3}, None],
-                [None, None],
-                [None, None],
-                [{"rowspan": 1}, {"rowspan": 1}],
-            ],
-        )
-        for plot in _plots:
-            fig.add_trace(plot.repr, 1, 1)
+        n_rows = 10
+        histogram_row_span = 2
+        spacer_row_span = 1
+        row_histograms = n_rows - (histogram_row_span // 2)
 
-        for key in _param_plots:
-            fig.add_trace(
-                {
-                    "type": "histogram",
-                    "x": _param_plots[key],
-                    "showlegend": False,
-                    "marker_color": _colors[key],
-                },
-                4,
-                1,
-            )
-        for key in _resp_plots:
-            fig.add_trace(
-                {
-                    "type": "histogram",
-                    "x": _resp_plots[key],
-                    "showlegend": False,
-                    "marker_color": _colors[key],
-                },
-                4,
-                2,
-            )
-        fig.update_layout(assets.ERTSTYLE["figure"]["layout"])
-        fig.update_layout(showlegend=False)
+        specs = _create_scatterplot_specs(
+            n_rows, histogram_row_span, spacer_row_span, row_histograms
+        )
+        fig = make_subplots(
+            rows=n_rows,
+            cols=2,
+            specs=specs,
+        )
+
+        formatted_x_value = _format_index_value(response.axis, x_index)
+        _set_scatterplot_axes_titles(
+            fig, row_histograms, active_response, active_parameter, formatted_x_value
+        )
+
+        _style_scatterplot(fig)
+
+        _add_plots_to_multiplot(
+            fig,
+            _plots,
+            _param_plots,
+            _resp_plots,
+            _colors,
+            row_histograms,
+        )
+
         final_text = []
         for response_name in responses:
             x_axis = ensemble.responses[response_name].axis
@@ -552,7 +547,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         return None
 
 
-def sort_dataframe(
+def _sort_dataframe(
     dataframe: pd.core.frame.DataFrame,
     index: Optional[pd.core.indexes.base.Index],
     sort_by_column: str,
@@ -610,3 +605,101 @@ def _get_first_observation_x(obs_data: pd.DataFrame) -> Union[int, str]:
         )
 
     return caster.get(type(first_observation), lambda *args: False)(first_observation)
+
+
+def _format_index_value(axis: pd.Index, index: int) -> Union[np.number, datetime.date]:
+    """_format_index_value takes the value of `axis` at position `index` and
+    tries to convert it to a datetime. If this works, it returns just the date.
+    If parsing fails, it returns the value unaltered."""
+    raw_value = axis[index]
+    if isinstance(raw_value, str):
+        try:
+            datetime_value = pd.to_datetime(raw_value)
+            return datetime_value.date()
+        except (pd.errors.ParserError, ValueError):
+            pass
+    return raw_value
+
+
+def _create_scatterplot_specs(
+    n_rows: int, histogram_row_span: int, spacer_row_span: int, row_histograms: int
+) -> List[List[Optional[Dict[str, int]]]]:
+    specs: List[List[Optional[Dict[str, int]]]] = [
+        [
+            {
+                "colspan": 2,
+                "rowspan": n_rows - spacer_row_span - histogram_row_span,
+            },
+            None,
+        ]
+    ]
+    # insert blanks into rows between scatterplot and histograms
+    # sadly mypy cannot deal with this short hand notation
+    specs += (n_rows - 1 - histogram_row_span) * [[None, None]]  # type:ignore
+    specs.append([{"rowspan": histogram_row_span}, {"rowspan": histogram_row_span}])
+    # insert blanks under histograms
+    specs += (histogram_row_span - 1) * [[None, None]]  # type:ignore
+    return specs
+
+
+def _set_scatterplot_axes_titles(
+    fig: go.Figure,
+    row_histograms: int,
+    active_response: str,
+    active_parameter: str,
+    x_value: Union[datetime.date, np.number],
+) -> None:
+    fig.update_xaxes(title_text=f"{active_response} @ {x_value}", row=1, col=1)
+    fig.update_yaxes(title_text=f"{active_parameter}", row=1, col=1)
+    fig.update_xaxes(title_text=f"{active_parameter}", row=row_histograms, col=1)
+    fig.update_xaxes(title_text=f"{active_response}", row=row_histograms, col=2)
+
+
+def _style_scatterplot(
+    fig: go.Figure,
+) -> None:
+    fig.update_layout(assets.ERTSTYLE["figure"]["layout"])
+    fig.update_layout(showlegend=False)
+
+
+def _add_plots_to_multiplot(
+    fig: go.Figure,
+    _plots: List[PlotModel],
+    _param_plots: Dict[str, np.ndarray],
+    _resp_plots: Dict[str, np.ndarray],
+    _colors: Dict[str, str],
+    row_histograms: int,
+) -> None:
+    for plot in _plots:
+        fig.add_trace(plot.repr, 1, 1)
+
+    for ensemble_name in _param_plots:
+        fig.add_trace(
+            {
+                "type": "histogram",
+                "name": f"{ensemble_name}",
+                "hoverlabel": {
+                    "namelength": -1,
+                },
+                "x": _param_plots[ensemble_name],
+                "showlegend": False,
+                "marker_color": _colors[ensemble_name],
+            },
+            row_histograms,
+            1,
+        )
+    for ensemble_name in _resp_plots:
+        fig.add_trace(
+            {
+                "type": "histogram",
+                "name": f"{ensemble_name}",
+                "hoverlabel": {
+                    "namelength": -1,
+                },
+                "x": _resp_plots[ensemble_name],
+                "showlegend": False,
+                "marker_color": _colors[ensemble_name],
+            },
+            row_histograms,
+            2,
+        )
