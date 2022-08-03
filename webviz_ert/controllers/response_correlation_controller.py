@@ -41,7 +41,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         [
             Input(parent.uuid("ensemble-selection-store"), "data"),
             Input(parent.uuid("correlation-store-xindex"), "data"),
-            Input(parent.uuid("correlation-store-selection"), "data"),
+            Input(parent.uuid("correlation-store-active-resp-param"), "data"),
             Input(parent.uuid("correlation-metric"), "value"),
             Input(parent.uuid("sort-parameters"), "on"),
             Input(parent.uuid("hide-hover"), "on"),
@@ -54,7 +54,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
     def update_correlation_plot(
         ensemble_selection_store: Dict[str, List],
         corr_xindex: Dict,
-        corr_param_resp: Dict,
+        active_resp_param: Dict,
         correlation_metric: str,
         sort_parameters: bool,
         hide_hover: bool,
@@ -66,11 +66,11 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             ensembles
             and parameters
             and responses
-            and corr_param_resp["response"] in responses
+            and active_resp_param["response"] in responses
         ):
             return ({}, {})
 
-        selected_response = corr_param_resp["response"]
+        active_response = active_resp_param["response"]
         data = {}
         colors = {}
         heatmaps = []
@@ -92,10 +92,10 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
 
             corrdf = parameter_df.corr(method=correlation_metric)
             corrdf = corrdf.drop(valid_responses, axis=0).fillna(0)
-            if selected_response not in valid_responses:
+            if active_response not in valid_responses:
                 continue
             if sort_parameters:
-                corrdf, df_index = sort_dataframe(corrdf, df_index, selected_response)
+                corrdf, df_index = sort_dataframe(corrdf, df_index, active_response)
             # create heatmap
             data_heatmap = {
                 "type": "heatmap",
@@ -112,8 +112,8 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             }
             heatmaps.append(data_heatmap)
             ens_key = repr(ensemble)
-            data[ens_key] = corrdf[selected_response]
-            data[ens_key].index.name = selected_response
+            data[ens_key] = corrdf[active_response]
+            data[ens_key].index.name = active_response
             colors[ens_key] = assets.get_color(index=index)
         if data and heatmaps:
             correlation_plot = BarChartPlotModel(data, colors)
@@ -176,13 +176,15 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             Input(parent.uuid("correlation-store-xindex"), "modified_timestamp"),
             Input(parent.uuid("parameter-selection-store-resp"), "modified_timestamp"),
             Input(parent.uuid("ensemble-selection-store"), "modified_timestamp"),
-            Input(parent.uuid("correlation-store-selection"), "modified_timestamp"),
+            Input(
+                parent.uuid("correlation-store-active-resp-param"), "modified_timestamp"
+            ),
         ],
         [
             State(parent.uuid("parameter-selection-store-resp"), "data"),
             State(parent.uuid("ensemble-selection-store"), "data"),
             State(parent.uuid("correlation-store-xindex"), "data"),
-            State(parent.uuid("correlation-store-selection"), "data"),
+            State(parent.uuid("correlation-store-active-resp-param"), "data"),
         ],
     )
     def update_response_overview_plot(
@@ -193,12 +195,12 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         responses: Optional[List[str]],
         ensemble_selection_store: Dict[str, List],
         corr_xindex: Dict,
-        corr_param_resp: Dict,
+        active_resp_param: Dict,
     ) -> Optional[go.Figure]:
         ensembles = _get_selected_ensembles_from_store(ensemble_selection_store)
-        if not (ensembles and responses and corr_param_resp["response"] in responses):
+        if not (ensembles and responses and active_resp_param["response"] in responses):
             return {}
-        selected_response = corr_param_resp["response"]
+        active_response = active_resp_param["response"]
         loaded_ensembles = [
             load_ensemble(parent, ensemble_id) for ensemble_id in ensembles
         ]
@@ -207,7 +209,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         obs_plots: List[PlotModel] = []
 
         for index, ensemble in enumerate(loaded_ensembles):
-            response = ensemble.responses[selected_response]
+            response = ensemble.responses[active_response]
 
             response_x_axis = response.axis
 
@@ -238,12 +240,12 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             fig.add_trace(plot.repr)
 
         x_axis_label = axis_label_for_ensemble_response(
-            loaded_ensembles[0], selected_response
+            loaded_ensembles[0], active_response
         )
 
         fig.update_layout(_layout_figure(x_axis_label))
 
-        x_index = corr_xindex.get(selected_response, DEFAULT_X_INDEX)
+        x_index = corr_xindex.get(active_response, DEFAULT_X_INDEX)
         if isinstance(response_x_axis, pd.Index) and not response_x_axis.empty:
             fig.add_shape(
                 type="line",
@@ -270,7 +272,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         ],
         [
             Input(parent.uuid("correlation-store-xindex"), "data"),
-            Input(parent.uuid("correlation-store-selection"), "data"),
+            Input(parent.uuid("correlation-store-active-resp-param"), "data"),
             Input(parent.uuid("ensemble-selection-store"), "data"),
         ],
         [
@@ -280,7 +282,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
     )
     def update_response_parameter_scatterplot(
         corr_xindex: Dict,
-        corr_param_resp: Dict,
+        active_resp_param: Dict,
         ensemble_selection_store: Dict[str, List],
         parameters: List[str],
         responses: List[str],
@@ -290,13 +292,13 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             parameters
             and ensembles
             and responses
-            and corr_param_resp["parameter"] in parameters
-            and corr_param_resp["response"] in responses
+            and active_resp_param["parameter"] in parameters
+            and active_resp_param["response"] in responses
         ):
             return ({}, [])
 
-        selected_parameter = corr_param_resp["parameter"]
-        selected_response = corr_param_resp["response"]
+        active_parameter = active_resp_param["parameter"]
+        active_response = active_resp_param["response"]
         _plots = []
         _resp_plots = {}
         _param_plots = {}
@@ -306,11 +308,11 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             ensemble = load_ensemble(parent, ensemble_id)
 
             if ensemble.parameters and ensemble.responses:
-                y_data = ensemble.parameters[selected_parameter].data_df()
-                response = ensemble.responses[selected_response]
+                y_data = ensemble.parameters[active_parameter].data_df()
+                response = ensemble.responses[active_response]
 
                 if isinstance(response.axis, pd.Index) and not response.axis.empty:
-                    x_index = corr_xindex.get(selected_response, 0)
+                    x_index = corr_xindex.get(active_response, 0)
                     x_data = response.data_df().iloc[x_index]
                     style = deepcopy(assets.ERTSTYLE["response-plot"]["response-index"])
                     ensemble_color = assets.get_color(index=index)
@@ -321,7 +323,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                             x_axis=x_data.values.flatten(),
                             y_axis=y_data.values.flatten(),
                             text="Mean",
-                            name=f"{repr(ensemble)}: {selected_response}x{selected_parameter}@{response.axis[x_index]}",
+                            name=f"{repr(ensemble)}: {active_response}x{active_parameter}@{response.axis[x_index]}",
                             **style,
                         )
                     ]
@@ -370,12 +372,12 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             x_axis = ensemble.responses[response_name].axis
             if isinstance(x_axis, pd.Index) and not x_axis.empty:
                 x_value = x_axis[corr_xindex.get(response_name, 0)]
-                if response_name == selected_response:
+                if response_name == active_response:
                     res_text = f"**{response_name} @ {x_value}**, "
                 else:
                     res_text = f"{response_name} @ {x_value}, "
                 final_text.append(dcc.Markdown(res_text))
-        final_text += [dcc.Markdown(f"parameter: **{corr_param_resp['parameter']}**")]
+        final_text += [dcc.Markdown(f"parameter: **{active_resp_param['parameter']}**")]
         return fig, html.Div(final_text)
 
     @app.callback(
@@ -389,7 +391,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         ],
         [
             State(parent.uuid("correlation-store-xindex"), "data"),
-            State(parent.uuid("correlation-store-selection"), "data"),
+            State(parent.uuid("correlation-store-active-resp-param"), "data"),
             State(parent.uuid("ensemble-selection-store"), "data"),
         ],
     )
@@ -397,7 +399,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         click_data: Dict,
         responses: List[str],
         corr_xindex: Dict,
-        corr_param_resp: Dict,
+        active_resp_param: Dict,
         ensemble_selection_store: Dict[str, List],
     ) -> Dict:
         """
@@ -456,9 +458,8 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                     response_name, default_index
                 )
         elif click_data:
-            corr_xindex[corr_param_resp["response"]] = click_data["points"][0][
-                "pointIndex"
-            ]
+            active_response = active_resp_param["response"]
+            corr_xindex[active_response] = click_data["points"][0]["pointIndex"]
         return corr_xindex
 
     def _get_default_x_index(response: Response) -> int:
@@ -471,7 +472,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         return DEFAULT_X_INDEX
 
     @app.callback(
-        Output(parent.uuid("correlation-store-selection"), "data"),
+        Output(parent.uuid("correlation-store-active-resp-param"), "data"),
         [
             Input(
                 parent.uuid("response-heatmap"),
@@ -481,41 +482,65 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             Input(parent.uuid("parameter-selection-store-param"), "data"),
         ],
         [
-            State(parent.uuid("correlation-store-selection"), "data"),
+            State(parent.uuid("correlation-store-active-resp-param"), "data"),
         ],
     )
-    def update_corr_param_resp(
+    def update_active_resp_param(
         click_data: Dict,
         responses: List[str],
         parameters: List[str],
-        corr_param_resp: Dict,
-    ) -> Optional[Dict]:
+        active_resp_param: Dict,
+    ) -> Dict:
+        """
+        update_active_resp_param is a callback function responsible for handling
+        which response and parameter are active.
+
+        The correlation plots display correlation between a given response and
+        paramater (at an index, see `corr_xindex`) for a chosen ensemble. Hence
+        the need to keep track of which of potentially many selected responses
+        and parameters, respectively, are currently active.
+
+        It should be triggered upon
+        - modifying the selection of parameters or responses
+        - clicking on the heatmap, effectively choosing a combination of active
+          response and parameter
+
+        To avoid saying "response or parameter", we refer to either
+        collectively by "variable".
+
+        When the first variable is selected, they become active.
+        Further selection of variables does not modify the active variable.
+        Deselection of the active variable makes the first selected variable
+        active, otherwise deselection does not affect the active state.
+
+        Clicking on the heatmap makes the combination of resoponse and
+        parameter active that are represented by the area of the heatmap that
+        was clicked.
+        """
         ctx = dash.callback_context
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
-        if triggered_id == parent.uuid("parameter-selection-store-resp") and responses:
-            corr_param_resp["response"] = (
-                corr_param_resp["response"]
-                if corr_param_resp["response"] in responses
-                else responses[0]
-            )
-        elif (
-            triggered_id == parent.uuid("parameter-selection-store-param")
-            and parameters
-        ):
-            corr_param_resp["parameter"] = (
-                corr_param_resp["parameter"]
-                if corr_param_resp["parameter"] in parameters
-                else parameters[0]
-            )
+        if triggered_id == parent.uuid("parameter-selection-store-resp"):
+            if not responses:
+                active_resp_param["response"] = None
+            elif (
+                not active_resp_param["response"]
+                or not active_resp_param["response"] in responses
+            ):
+                active_resp_param["response"] = responses[0]
+        elif triggered_id == parent.uuid("parameter-selection-store-param"):
+            if not parameters:
+                active_resp_param["parameter"] = None
+            elif (
+                not active_resp_param["parameter"]
+                or not active_resp_param["parameter"] in parameters
+            ):
+                active_resp_param["parameter"] = parameters[0]
         elif click_data:
-            corr_param_resp["parameter"] = click_data["points"][0]["y"]
-            corr_param_resp["response"] = click_data["points"][0]["x"]
-        elif not parameters and not responses:
-            corr_param_resp["parameter"] = None
-            corr_param_resp["response"] = None
+            active_resp_param["parameter"] = click_data["points"][0]["y"]
+            active_resp_param["response"] = click_data["points"][0]["x"]
 
-        parent.save_state("active_correlation", corr_param_resp)
-        return corr_param_resp
+        parent.save_state("active_correlation", active_resp_param)
+        return active_resp_param
 
     def _get_selected_ensembles_from_store(
         ensemble_selection_store: Dict[str, List]
