@@ -67,9 +67,14 @@ def test_webviz_response_correlation(dash_duo):
         dash_duo, "#" + plugin.uuid("parameter-selector-multi-param")
     )
     dash_duo.wait_for_text_to_equal(
-        "#" + plugin.uuid("response-info-text"),
-        f"{response_name} @ 2015-02-01T00:00:00,\nparameter: {param_name}",
-        30,
+        "#" + plugin.uuid("info-text"),
+        "".join(
+            [
+                f"RESPONSE: {response_name}",
+                f"INDEX: 2015-02-01",
+                f"PARAMETER: {param_name}",
+            ]
+        ),
     )
 
 

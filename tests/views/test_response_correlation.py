@@ -4,6 +4,8 @@ from tests.conftest import (
     setup_plugin,
     select_by_name,
     select_ensemble,
+    select_parameter,
+    select_response,
     wait_a_bit,
 )
 
@@ -133,3 +135,23 @@ def test_show_respo_with_obs(mock_data, dash_duo):
     dash_duo.wait_for_text_to_equal(
         response_selector_id, "\n".join(expected_responses_with_observations)
     )
+
+
+def test_info_text_appears_as_expected(
+    mock_data,
+    dash_duo,
+):
+    response = "SNAKE_OIL_GPR_DIFF"
+    parameter = "BPR_138_PERSISTENCE"
+    index = "0"
+    plugin = setup_plugin(dash_duo, __name__, ResponseCorrelation)
+    select_ensemble(dash_duo, plugin)
+    select_response(dash_duo, plugin, response, wait_for_it=False)
+    select_parameter(dash_duo, plugin, parameter, wait_for_it=False)
+    info_text_selector = f"#{plugin.uuid('info-text')}"
+    expected_text = "".join(
+        [f"RESPONSE: {response}", f"INDEX: {index}", f"PARAMETER: {parameter}"]
+    )
+    dash_duo.wait_for_text_to_equal(info_text_selector, expected_text)
+
+    # assert dash_duo.get_logs() == [], "browser console should contain no error"

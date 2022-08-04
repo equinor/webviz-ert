@@ -65,3 +65,33 @@
 .webviz-config-select {
 	height: 15rem;
 }
+.active-info {
+	margin-top: 1rem;
+	text-align: center;
+}
+.active-info span {
+	font-size: 1.5rem;
+}
+.active-info > span {
+	margin-left: 1rem;
+	margin-right: 1rem;
+}
+/* for some reason necessary to vertically center text in badges */
+.active-info span.badge {
+	display: inline;
+}
+/* center correlation options vertically in row */
+.correlation-option {
+	display: flex;
+	align-items: center;
+}
+/* arrange correlation options on top of each other */
+.correlation-option label {
+	display: block;
+}
+.heatmap-options > * {
+	display: inline-block; /* arrange options next to each other */
+	/* give options a bit of space */
+	margin-left: .5rem;
+	margin-right: .5rem;
+}
