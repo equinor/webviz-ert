@@ -568,16 +568,6 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             ]
         return None
 
-    def _format_index_value(axis: pd.Index, index: int) -> Union[int, datetime.date]:
-        raw_value = axis[index]
-        if isinstance(raw_value, str):
-            try:
-                datetime_value = pd.to_datetime(raw_value)
-                return datetime_value.date()
-            except (pd.errors.ParserError):
-                pass
-        return raw_value
-
 
 def sort_dataframe(
     dataframe: pd.core.frame.DataFrame,
@@ -637,3 +627,14 @@ def _get_first_observation_x(obs_data: pd.DataFrame) -> Union[int, str]:
         )
 
     return caster.get(type(first_observation), lambda *args: False)(first_observation)
+
+
+def _format_index_value(axis: pd.Index, index: int) -> Union[int, datetime.date]:
+    raw_value = axis[index]
+    if isinstance(raw_value, str):
+        try:
+            datetime_value = pd.to_datetime(raw_value)
+            return datetime_value.date()
+        except (pd.errors.ParserError):
+            pass
+    return raw_value
