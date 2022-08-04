@@ -96,7 +96,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             if active_response not in valid_responses:
                 continue
             if sort_parameters:
-                corrdf, df_index = sort_dataframe(corrdf, df_index, active_response)
+                corrdf, df_index = _sort_dataframe(corrdf, df_index, active_response)
             # create heatmap
             data_heatmap = {
                 "type": "heatmap",
@@ -569,7 +569,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         return None
 
 
-def sort_dataframe(
+def _sort_dataframe(
     dataframe: pd.core.frame.DataFrame,
     index: Optional[pd.core.indexes.base.Index],
     sort_by_column: str,
