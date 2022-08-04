@@ -3,6 +3,7 @@ import plotly.graph_objects as go
 import dash
 import datetime
 import numpy as np
+import dash_bootstrap_components as dbc
 
 from typing import List, Optional, Dict, Tuple, Any, Union
 from copy import deepcopy
@@ -265,13 +266,10 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         return fig
 
     @app.callback(
-        [
-            Output(
-                parent.uuid("response-scatterplot"),
-                "figure",
-            ),
-            Output(parent.uuid("response-info-text"), "children"),
-        ],
+        Output(
+            parent.uuid("response-scatterplot"),
+            "figure",
+        ),
         [
             Input(parent.uuid("correlation-store-xindex"), "data"),
             Input(parent.uuid("correlation-store-active-resp-param"), "data"),
@@ -288,7 +286,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         ensemble_selection_store: Dict[str, List],
         parameters: List[str],
         responses: List[str],
-    ) -> Optional[Tuple[go.Figure, Component]]:
+    ) -> go.Figure:
         ensembles = _get_selected_ensembles_from_store(ensemble_selection_store)
         if not (
             parameters
@@ -297,7 +295,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             and active_resp_param["parameter"] in parameters
             and active_resp_param["response"] in responses
         ):
-            return ({}, [])
+            return {}
 
         active_parameter = active_resp_param["parameter"]
         active_response = active_resp_param["response"]
@@ -362,18 +360,44 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             row_histograms,
         )
 
-        final_text = []
-        for response_name in responses:
-            x_axis = ensemble.responses[response_name].axis
-            if isinstance(x_axis, pd.Index) and not x_axis.empty:
-                x_value = x_axis[corr_xindex.get(response_name, 0)]
-                if response_name == active_response:
-                    res_text = f"**{response_name} @ {x_value}**, "
-                else:
-                    res_text = f"{response_name} @ {x_value}, "
-                final_text.append(dcc.Markdown(res_text))
-        final_text += [dcc.Markdown(f"parameter: **{active_resp_param['parameter']}**")]
-        return fig, html.Div(final_text)
+        return fig
+
+    @app.callback(
+        Output(parent.uuid("info-text"), "children"),
+        [
+            Input(parent.uuid("correlation-store-xindex"), "data"),
+            Input(parent.uuid("correlation-store-active-resp-param"), "data"),
+            Input(parent.uuid("ensemble-selection-store"), "data"),
+        ],
+    )
+    def update_info_text(
+        corr_xindex: Dict,
+        active_resp_param: Dict,
+        ensemble_selection_store: Dict[str, List],
+    ) -> List[Component]:
+        ensembles = _get_selected_ensembles_from_store(ensemble_selection_store)
+        if not (
+            ensembles
+            and active_resp_param["response"]
+            and active_resp_param["parameter"]
+        ):
+            return []
+        info_text = []
+        ensemble = load_ensemble(parent, ensembles[0])
+        active_response = active_resp_param["response"]
+        x_axis = ensemble.responses[active_response].axis
+        formatted_active_index = _format_index_value(
+            x_axis, corr_xindex.get(active_response, 0)
+        )
+        active_index_text = str(formatted_active_index)
+        active_response_text = f"{active_response}"
+        active_parameter_text = f"{active_resp_param['parameter']}"
+        info_text.append(_generate_active_info_piece("RESPONSE", active_response_text))
+        info_text.append(_generate_active_info_piece("INDEX", active_index_text))
+        info_text.append(
+            _generate_active_info_piece("PARAMETER", active_parameter_text)
+        )
+        return info_text
 
     @app.callback(
         Output(parent.uuid("correlation-store-xindex"), "data"),
@@ -703,3 +727,14 @@ def _add_plots_to_multiplot(
             row_histograms,
             2,
         )
+
+
+def _generate_active_info_piece(title: str, value: str) -> Component:
+    return html.Span(
+        [
+            f"{title}: ",
+            dbc.Badge(
+                value,
+            ),
+        ]
+    )

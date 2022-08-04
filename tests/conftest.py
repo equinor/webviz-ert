@@ -142,22 +142,24 @@ def select_ensemble(dash_duo, plugin, wanted_ensemble_name=None):
     return wanted_ensemble_name
 
 
-def select_response(dash_duo, plugin, response_name):
+def select_response(dash_duo, plugin, response_name, wait_for_it=True):
     select_by_name(
         dash_duo,
         f'#{plugin.uuid("parameter-selector-multi-resp")}',
         response_name,
     )
-    dash_duo.wait_for_element(f"#{plugin.uuid(response_name)}")
+    if wait_for_it:
+        dash_duo.wait_for_element(f"#{plugin.uuid(response_name)}")
 
 
-def select_parameter(dash_duo, plugin, parameter_name):
+def select_parameter(dash_duo, plugin, parameter_name, wait_for_it=True):
     select_by_name(
         dash_duo,
         f'#{plugin.uuid("parameter-selector-multi-param")}',
         parameter_name,
     )
-    dash_duo.wait_for_element(f"#{plugin.uuid(parameter_name)}")
+    if wait_for_it:
+        dash_duo.wait_for_element(f"#{plugin.uuid(parameter_name)}")
 
 
 def wait_a_bit(dash_duo, time_seconds=0.1):

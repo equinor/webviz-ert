@@ -25,9 +25,10 @@ class ResponseCorrelation(WebvizErtPluginABC):
     def tour_steps(self) -> List[Dict[str, str]]:
         steps = [
             {
-                "id": self.uuid("correlation-metric"),
+                "id": self.uuid("info-text"),
                 "content": (
-                    "Which metric to use, all views are automatically updated. "
+                    "The currently active response, parameter, and x_index / "
+                    "timestamp"
                 ),
             },
             {
@@ -63,10 +64,9 @@ class ResponseCorrelation(WebvizErtPluginABC):
                 ),
             },
             {
-                "id": self.uuid("response-info-text"),
+                "id": self.uuid("correlation-metric"),
                 "content": (
-                    "All responses with selected their x_index / timestep; "
-                    "the currently active response and parameter are made bold. "
+                    "Which metric to use, all views are automatically updated. "
                 ),
             },
         ]
@@ -143,14 +143,14 @@ class ResponseCorrelation(WebvizErtPluginABC):
                         ),
                     ],
                 ),
-                dash.dcc.RadioItems(
-                    id=self.uuid("correlation-metric"),
-                    options=[
-                        {"label": "spearman", "value": "spearman"},
-                        {"label": "pearson", "value": "pearson"},
-                    ],
-                    value="pearson",
-                    labelStyle={"display": "inline-block"},
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            id=self.uuid("info-text"),
+                            className="active-info",
+                            children=[dash.html.Span("INFO")],
+                        ),
+                    ]
                 ),
                 dbc.Row(
                     [
@@ -185,13 +185,18 @@ class ResponseCorrelation(WebvizErtPluginABC):
                     ]
                 ),
                 dbc.Row(
-                    [
+                    children=[
                         dbc.Col(
-                            dash.html.Div(
-                                id=self.uuid("response-info-text"),
-                                className="ert-label",
-                                children=[dash.dcc.Markdown("INFO")],
+                            dash.dcc.RadioItems(
+                                id=self.uuid("correlation-metric"),
+                                options=[
+                                    {"label": "spearman", "value": "spearman"},
+                                    {"label": "pearson", "value": "pearson"},
+                                ],
+                                value="pearson",
                             ),
+                            className="correlation-option",
+                            width="auto",
                         ),
                         dbc.Col(
                             children=[
@@ -203,13 +208,14 @@ class ResponseCorrelation(WebvizErtPluginABC):
                                 dash_daq.BooleanSwitch(
                                     id=self.uuid("hide-hover"),
                                     on=False,
-                                    label="Hide heatmap hover",
+                                    label="Hide heatmap hover info",
                                 ),
                             ],
-                            align="right",
+                            className="heatmap-options",
                             width="auto",
                         ),
-                    ]
+                    ],
+                    justify="center",
                 ),
             ]
         )
