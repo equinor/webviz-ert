@@ -5,7 +5,6 @@ from tests.conftest import (
     select_by_name,
     select_ensemble,
     wait_a_bit,
-    get_options,
 )
 
 
@@ -117,16 +116,20 @@ def test_show_respo_with_obs(mock_data, dash_duo):
 
     select_ensemble(dash_duo, plugin, "default3")
 
-    resp_selector_id = plugin.uuid("parameter-selector-multi-resp")
-    default_responses = get_options(dash_duo, "#" + resp_selector_id)
+    expected_default_responses = ["FGPT", "FOPR", "SNAKE_OIL_GPR_DIFF", "WOPR:OP1"]
+    expected_responses_with_observations = ["FOPR", "WOPR:OP1"]
 
-    expected_def_responses = ["FGPT", "FOPR", "SNAKE_OIL_GPR_DIFF", "WOPR:OP1"]
-    assert default_responses == expected_def_responses
+    response_selector_id = "#" + plugin.uuid("parameter-selector-multi-resp")
 
-    expected_obs_responses = ["FOPR", "WOPR:OP1"]
+    dash_duo.wait_for_text_to_equal(
+        response_selector_id, "\n".join(expected_default_responses)
+    )
+
     obs_radio_btn = dash_duo.find_element(
         "#" + plugin.uuid("response-observations-check")
     )
     obs_radio_btn.click()
-    obs_responses = get_options(dash_duo, "#" + resp_selector_id)
-    assert obs_responses == expected_obs_responses
+
+    dash_duo.wait_for_text_to_equal(
+        response_selector_id, "\n".join(expected_responses_with_observations)
+    )
