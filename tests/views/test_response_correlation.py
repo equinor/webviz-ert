@@ -76,21 +76,20 @@ def test_axes_labels(mock_data, dash_duo):
         response_selector_id = plugin.uuid("parameter-selector-multi-resp")
         select_by_name(dash_duo, f"#{response_selector_id}", wanted_response)
 
-        # wait a bit for the graph to be drawn
-        wait_a_bit(dash_duo)
-
         plot_id = plugin.uuid("response-overview")
 
         # check that y axis label spells out "Value"
-        y_axis_title = dash_duo.find_element(f"#{plot_id} text.ytitle")
-        assert y_axis_title.text == "Value"
+        dash_duo.wait_for_text_to_equal(f"#{plot_id} text.ytitle", "Value", timeout=5)
 
         # check that one has date, the other has index as x axis label
-        x_axis_title = dash_duo.find_element(f"#{plot_id} text.xtitle")
         if wanted_response == "FOPR":
-            assert x_axis_title.text == "Date"
+            dash_duo.wait_for_text_to_equal(
+                f"#{plot_id} text.xtitle", "Date", timeout=5
+            )
         else:
-            assert x_axis_title.text == "Index"
+            dash_duo.wait_for_text_to_equal(
+                f"#{plot_id} text.xtitle", "Index", timeout=5
+            )
 
         # clear response selection so next selection can be displayed
         response_deactivator_id = plugin.uuid("parameter-deactivator-resp")
