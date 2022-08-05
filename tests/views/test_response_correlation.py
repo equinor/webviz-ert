@@ -77,7 +77,7 @@ def test_axes_labels(mock_data, dash_duo):
         select_by_name(dash_duo, f"#{response_selector_id}", wanted_response)
 
         # wait a bit for the graph to be drawn
-        wait_a_bit(dash_duo)
+        # wait_a_bit(dash_duo)
 
         plot_id = plugin.uuid("response-overview")
 
