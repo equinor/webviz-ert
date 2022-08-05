@@ -25,4 +25,4 @@ jobs:
         mypy --config-file mypy.ini --package webviz_ert
     - name: Test with pytest
       run: |
-        pytest
+        pytest tests/views/test_response_correlation.py -k respo_with_obs

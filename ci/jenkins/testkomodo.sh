@@ -14,11 +14,11 @@ start_tests () {
     then
         exit $test_result
     fi
-    pytest -vs -k "not spe1"
+    pytest -vs tests/views/test_response_correlation.py -k respo_with_obs
 }
 
 start_integration_test () {
-    
+
     echo "Downloading chromedriver ..."
     wget -O chromedriver.zip https://chromedriver.storage.googleapis.com/102.0.5005.61/chromedriver_linux64.zip
     unzip chromedriver.zip chromedriver -d ../test-kenv/root/bin
@@ -34,6 +34,6 @@ start_integration_test () {
     echo "Ert ensemble_esmeble experiment run finished"
 
     echo "Test for webviz-ert plugins ..."
-    pytest ../../../ -vs -k spe1  
+    # pytest ../../../ -vs -k spe1
     popd
 }
