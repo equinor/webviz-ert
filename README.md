@@ -19,6 +19,10 @@ pip install .
 ```
 
 ## Running tests
+Make sure that you have a browser and driver available for running the tests,
+e.g. chrome / chromium and the chrome driver, which should be installed /
+downloaded as binaries and made available in the path.
+
 ```sh
 # From the downloaded project's root folder - to run tests
 pip install -r test_requirements.txt
