@@ -4,7 +4,7 @@ pytest-mock
 pylint
 black
 scipy
-dash[testing]
+dash[testing]>=2.5.1
 selenium
 types-requests
 types-pkg_resources

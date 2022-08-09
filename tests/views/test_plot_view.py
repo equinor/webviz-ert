@@ -185,10 +185,6 @@ def test_selectors_visibility_toggle_button(plugin_class, skip, mock_data, dash_
     # we test whether the selector visibility toggle button changes class on
     # all selectors, as expected
 
-    def check_element_is_hidden(find_by: str) -> None:
-        element = dash_duo.find_element(find_by)
-        assert "hide" in element.get_attribute("class")
-
     plugin = setup_plugin(dash_duo, __name__, plugin_class, (2048, 1536))
     app = dash.Dash(__name__)
 
@@ -197,16 +193,23 @@ def test_selectors_visibility_toggle_button(plugin_class, skip, mock_data, dash_
     )
     visibility_toggler.click()
 
-    check_element_is_hidden("#" + plugin.uuid("container-ensemble-selector-multi"))
+    ensemble_container_class_prefix = "ert-ensemble-selector-container"
+    dash_duo.wait_for_class_to_equal(
+        f'#{plugin.uuid("container-ensemble-selector-multi")}',
+        f"{ensemble_container_class_prefix}-hide",
+    )
 
-    if not skip_responses in skip:
-        check_element_is_hidden(
-            "#" + plugin.uuid("container-parameter-selector-multi-resp")
+    variable_container_class_prefix = "ert-parameter-selector-container"
+    if skip_responses not in skip:
+        dash_duo.wait_for_class_to_equal(
+            f'#{plugin.uuid("container-parameter-selector-multi-resp")}',
+            f"{variable_container_class_prefix}-hide",
         )
 
-    if not skip_parameters in skip:
-        check_element_is_hidden(
-            "#" + plugin.uuid("container-parameter-selector-multi-param")
+    if skip_parameters not in skip:
+        dash_duo.wait_for_class_to_equal(
+            f'#{plugin.uuid("container-parameter-selector-multi-param")}',
+            f"{variable_container_class_prefix}-hide",
         )
 
     # assert dash_duo.get_logs() == [], "browser console should contain no error"
