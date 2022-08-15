@@ -1,23 +1,62 @@
+import argparse
+import logging
+import os
+import pathlib
 import shutil
 import signal
 import sys
-import os
-import logging
 import tempfile
+from typing import Any, Dict, Optional
+
 import yaml
-import pathlib
-import argparse
-from typing import Any, Optional, Dict
 
 from webviz_ert.assets import WEBVIZ_CONFIG
-
 
 logger = logging.getLogger()
 
 
+def run_webviz_ert(experimental_mode: bool = False, verbose: bool = False) -> None:
+    signal.signal(signal.SIGINT, handle_exit)
+    # The entry point of webviz is to call it from command line, and so do we.
+
+    webviz = shutil.which("webviz")
+    if webviz:
+        send_ready()
+        with tempfile.NamedTemporaryFile() as temp_config:
+            project_identifier = os.getenv("ERT_PROJECT_IDENTIFIER", os.getcwd())
+            if project_identifier is None:
+                logger.error("Unable to find ERT project!")
+            create_config(
+                project_identifier, WEBVIZ_CONFIG, temp_config, experimental_mode
+            )
+            os.execl(
+                webviz,
+                webviz,
+                "build",
+                temp_config.name,
+                "--theme",
+                "equinor",
+                "--loglevel",
+                "DEBUG" if verbose else "WARNING",
+            )
+    else:
+        logger.error("Failed to find webviz")
+
+
+def send_ready() -> None:
+    """
+    Tell ERT's BaseService that we're ready, even though we're not actually
+    ready to accept requests. At the moment, ERT doesn't interface with
+    webviz-ert in any way, so it's not necessary to send the signal later.
+    """
+    fd = int(os.environ["ERT_COMM_FD"])
+    with os.fdopen(fd, "w") as f:
+        f.write("{}")  # Empty, but valid JSON
+
+
 def handle_exit(
-    *args: Any,
-) -> None:  # pylint: disable=unused-argument
+    *_: Any,
+) -> None:
     # pylint: disable=logging-not-lazy
     logger.info("\n" + "=" * 32)
     logger.info("Session terminated by the user.\nThank you for using webviz-ert!")
@@ -62,45 +101,6 @@ def create_config(
     output_str = yaml.dump(new_config_dict)
     temp_config.write(str.encode(output_str))
     temp_config.seek(0)
-
-
-def send_ready() -> None:
-    """
-    Tell ERT's BaseService that we're ready, even though we're not actually
-    ready to accept requests. At the moment, ERT doesn't interface with
-    webviz-ert in any way, so it's not necessary to send the signal later.
-    """
-    fd = int(os.environ["ERT_COMM_FD"])
-    with os.fdopen(fd, "w") as f:
-        f.write("{}")  # Empty, but valid JSON
-
-
-def run_webviz_ert(experimental_mode: bool = False, verbose: bool = False) -> None:
-    signal.signal(signal.SIGINT, handle_exit)
-    # The entry point of webviz is to call it from command line, and so do we.
-
-    webviz = shutil.which("webviz")
-    if webviz:
-        send_ready()
-        with tempfile.NamedTemporaryFile() as temp_config:
-            project_identifier = os.getenv("ERT_PROJECT_IDENTIFIER", os.getcwd())
-            if project_identifier is None:
-                logger.error("Unable to find ERT project!")
-            create_config(
-                project_identifier, WEBVIZ_CONFIG, temp_config, experimental_mode
-            )
-            os.execl(
-                webviz,
-                webviz,
-                "build",
-                temp_config.name,
-                "--theme",
-                "equinor",
-                "--loglevel",
-                "DEBUG" if verbose else "WARNING",
-            )
-    else:
-        logger.error("Failed to find webviz")
 
 
 if __name__ == "__main__":
