@@ -49,6 +49,9 @@ def send_ready() -> None:
     ready to accept requests. At the moment, ERT doesn't interface with
     webviz-ert in any way, so it's not necessary to send the signal later.
     """
+    if "ERT_COMM_FD" not in os.environ:
+        logger.info("webviz ert is running outside of ert context")
+        return
     fd = int(os.environ["ERT_COMM_FD"])
     with os.fdopen(fd, "w") as f:
         f.write("{}")  # Empty, but valid JSON
