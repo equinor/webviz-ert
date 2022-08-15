@@ -29,9 +29,6 @@ setup(
             "ParameterComparison = webviz_ert.plugins:ParameterComparison",
             "ResponseCorrelation = webviz_ert.plugins:ResponseCorrelation",
         ],
-        "ert": [
-            "webviz_ert = webviz_ert.ert_hooks",
-        ],
     },
     install_requires=[
         "dash-bootstrap-components",
