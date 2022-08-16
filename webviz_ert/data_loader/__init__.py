@@ -13,7 +13,7 @@ connection_info_map: dict = {}
 
 
 def get_connection_info(project_id: str = None) -> Mapping[str, str]:
-    from ert_shared.storage.connection import get_info
+    from ert.shared.storage.connection import get_info
 
     if project_id not in connection_info_map:
         info = get_info(project_id)
