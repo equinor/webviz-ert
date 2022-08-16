@@ -4,35 +4,21 @@ from tests.conftest import (
     setup_plugin,
     select_by_name,
     select_ensemble,
-    select_parameter,
     select_response,
+    select_parameter,
     wait_a_bit,
 )
 
 
-def test_response_correlation_view(
+def test_response_correlation_view_shows_plots(
     mock_data,
     dash_duo,
 ):
     plugin = setup_plugin(dash_duo, __name__, ResponseCorrelation)
 
     select_ensemble(dash_duo, plugin)
-
-    resp_select = dash_duo.find_element(
-        "#" + plugin.uuid("parameter-selector-multi-resp")
-    )
-
-    x, y = (0.5, 0.1)
-    dash_duo.click_at_coord_fractions(resp_select, x, y)
-
-    param_select = dash_duo.find_element(
-        "#" + plugin.uuid("parameter-selector-multi-param")
-    )
-    param_select.click()
-
-    x, y = (0.5, 0.1)
-    # double click's for the sake if other parameter comes first
-    dash_duo.click_at_coord_fractions(param_select, x, y)
+    select_response(dash_duo, plugin, wait_for_plot=False)
+    select_parameter(dash_duo, plugin, wait_for_plot=False)
 
     response_views = dash_duo.find_elements(".ert-view-cell")
     assert len(response_views) == 4
@@ -80,17 +66,13 @@ def test_axes_labels(mock_data, dash_duo):
         plot_id = plugin.uuid("response-overview")
 
         # check that y axis label spells out "Value"
-        dash_duo.wait_for_text_to_equal(f"#{plot_id} text.ytitle", "Value", timeout=5)
+        dash_duo.wait_for_text_to_equal(f"#{plot_id} text.ytitle", "Value")
 
         # check that one has date, the other has index as x axis label
         if wanted_response == "FOPR":
-            dash_duo.wait_for_text_to_equal(
-                f"#{plot_id} text.xtitle", "Date", timeout=5
-            )
+            dash_duo.wait_for_text_to_equal(f"#{plot_id} text.xtitle", "Date")
         else:
-            dash_duo.wait_for_text_to_equal(
-                f"#{plot_id} text.xtitle", "Index", timeout=5
-            )
+            dash_duo.wait_for_text_to_equal(f"#{plot_id} text.xtitle", "Index")
 
         # clear response selection so next selection can be displayed
         response_deactivator_id = plugin.uuid("parameter-deactivator-resp")
@@ -103,13 +85,6 @@ def test_axes_labels(mock_data, dash_duo):
         dash_duo.wait_for_contains_text(f"#{response_selector_id}", wanted_response)
 
     # assert dash_duo.get_logs() == [], "browser console should contain no error"
-
-
-@pytest.mark.parametrize("input", [True, False])
-def test_displaying_beta_warning(input: bool, dash_duo):
-    plugin = setup_plugin(dash_duo, __name__, ResponseCorrelation, beta=input)
-    beta_warning_element = dash_duo.find_element("#" + plugin.uuid("beta-warning"))
-    assert beta_warning_element.is_displayed() == input
 
 
 def test_show_respo_with_obs(mock_data, dash_duo):
@@ -146,8 +121,8 @@ def test_info_text_appears_as_expected(
     index = "0"
     plugin = setup_plugin(dash_duo, __name__, ResponseCorrelation)
     select_ensemble(dash_duo, plugin)
-    select_response(dash_duo, plugin, response, wait_for_it=False)
-    select_parameter(dash_duo, plugin, parameter, wait_for_it=False)
+    select_response(dash_duo, plugin, response, wait_for_plot=False)
+    select_parameter(dash_duo, plugin, parameter, wait_for_plot=False)
     info_text_selector = f"#{plugin.uuid('info-text')}"
     expected_text = "".join(
         [f"RESPONSE: {response}", f"INDEX: {index}", f"PARAMETER: {parameter}"]

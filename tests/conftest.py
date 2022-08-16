@@ -3,7 +3,6 @@ from requests import HTTPError
 import dash
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.common.by import By
 
 
 from tests.data.snake_oil_data import ensembles_response
@@ -31,6 +30,7 @@ def mock_data(mocker):
 
 class _MockResponse:
     def __init__(self, url, data, status_code):
+        self.url = url
         self.data = data
         self.status_code = status_code
 
@@ -52,8 +52,9 @@ class _MockResponse:
     def raise_for_status(self):
         if self.status_code == 400:
             raise HTTPError(
-                "Mocked requests raised HTTPError 400 due to missing data in test-data set!\n"
-                f"{url}"
+                "Mocked requests raised HTTPError 400 due to missing data in "
+                "test-data set!\n"
+                f"{self.url}"
             )
 
 
@@ -79,20 +80,23 @@ def select_first(dash_duo, selector):
         raise AssertionError(f"No selection option for selector {selector}")
     text = options[0].text
     options[0].click()
+    # TODO remove wait?
     wait_a_bit(dash_duo, time_seconds=0.5)
     return text
 
 
 def select_by_name(dash_duo, selector, name):
+    dash_duo.wait_for_contains_text(selector, name)
     options = dash_duo.find_elements(selector + " option")
     if not options:
-        raise AssertionError(f"No selection option for selector {selector}")
+        raise AssertionError(f"No `option`s under selector {selector}")
     for option in options:
         if option.text == name:
             option.click()
+            # TODO remove wait?
             wait_a_bit(dash_duo, time_seconds=0.5)
             return name
-    raise AssertionError(f" Option {name} not available in {selector}")
+    raise AssertionError(f"Option {name} not available in {selector}")
 
 
 def get_options(dash_duo, selector):
@@ -110,8 +114,7 @@ def setup_plugin(
 ):
     app = dash.Dash(name)
     plugin = plugin_class(app, project_identifier=project_identifier, beta=beta)
-    layout = plugin.layout
-    app.layout = layout
+    app.layout = plugin.layout
     dash_duo.start_server(app)
     windowsize = window_size
     dash_duo.driver.set_window_size(*windowsize)
@@ -142,24 +145,34 @@ def select_ensemble(dash_duo, plugin, wanted_ensemble_name=None):
     return wanted_ensemble_name
 
 
-def select_response(dash_duo, plugin, response_name, wait_for_it=True):
-    select_by_name(
-        dash_duo,
-        f'#{plugin.uuid("parameter-selector-multi-resp")}',
-        response_name,
-    )
-    if wait_for_it:
+def select_response(dash_duo, plugin, response_name=None, wait_for_plot=True) -> str:
+    response_selector_id = f'#{plugin.uuid("parameter-selector-multi-resp")}'
+    if response_name is None:
+        response_name = select_first(dash_duo, response_selector_id)
+    else:
+        select_by_name(
+            dash_duo,
+            response_selector_id,
+            response_name,
+        )
+    if wait_for_plot:
         dash_duo.wait_for_element(f"#{plugin.uuid(response_name)}")
+    return response_name
 
 
-def select_parameter(dash_duo, plugin, parameter_name, wait_for_it=True):
-    select_by_name(
-        dash_duo,
-        f'#{plugin.uuid("parameter-selector-multi-param")}',
-        parameter_name,
-    )
-    if wait_for_it:
+def select_parameter(dash_duo, plugin, parameter_name=None, wait_for_plot=True) -> str:
+    parameter_selector_id = f'#{plugin.uuid("parameter-selector-multi-param")}'
+    if parameter_name is None:
+        parameter_name = select_first(dash_duo, parameter_selector_id)
+    else:
+        select_by_name(
+            dash_duo,
+            parameter_selector_id,
+            parameter_name,
+        )
+    if wait_for_plot:
         dash_duo.wait_for_element(f"#{plugin.uuid(parameter_name)}")
+    return parameter_name
 
 
 def wait_a_bit(dash_duo, time_seconds=0.1):
@@ -169,22 +182,12 @@ def wait_a_bit(dash_duo, time_seconds=0.1):
         pass
 
 
-def _get_dropdown_options(dash_duo, selector):
-    dropdown = dash_duo.find_element(f"#{selector}")
-    dropdown.click()
-    menu = dropdown.find_element(By.CSS_SELECTOR, "div.Select-menu-outer")
-    return [
-        el.text
-        for el in menu.find_elements(By.CSS_SELECTOR, "div.VirtualizedSelectOption")
-    ]
-
-
 def verify_key_in_dropdown(dash_duo, selector, key):
-    options = _get_dropdown_options(dash_duo, selector)
-    assert key in options
+    verify_keys_in_dropdown(dash_duo, selector, [key])
 
 
 def verify_keys_in_dropdown(dash_duo, selector, keys):
-    options = _get_dropdown_options(dash_duo, selector)
+    dropdown = dash_duo.find_element(f"#{selector}")
+    dropdown.click()
     for key in keys:
-        assert key in options
+        dash_duo.wait_for_contains_text(f"#{selector} div.Select-menu-outer", key)
