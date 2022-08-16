@@ -18,7 +18,6 @@ def _verify_keys_in_menu(dash_duo_handle, plugin, keys, selector):
         dash_duo_handle.wait_for_contains_text(
             "#" + plugin.uuid(selector),
             key,
-            timeout=10,
         )
 
 
@@ -32,7 +31,6 @@ def test_webviz_parameter_comparison(get_ensemble_id, dash_duo):
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("ensemble-multi-selector"),
         "default",
-        timeout=4,
     )
 
     ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
@@ -49,7 +47,6 @@ def test_webviz_response_correlation(dash_duo):
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("ensemble-multi-selector"),
         "default",
-        timeout=4,
     )
 
     ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
@@ -86,7 +83,6 @@ def test_webviz_response_comparison(dash_duo):
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("ensemble-multi-selector"),
         "default",
-        timeout=4,
     )
 
     ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
@@ -122,14 +118,12 @@ def test_webviz_observation_analyzer(dash_duo):
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("ensemble-multi-selector"),
         "default",
-        timeout=4,
     )
 
     ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("selected-ensemble-dropdown"),
         ensemble_name,
-        timeout=4,
     )
 
     verify_key_in_dropdown(dash_duo, plugin.uuid("response-selector"), "WOPT:PROD")

@@ -12,44 +12,53 @@ def test_ensemble_refresh(
 ):
     plugin = setup_plugin(dash_duo, __name__, ParameterComparison)
 
-    ensemble_selector_id = plugin.uuid("ensemble-multi-selector")
-    initial_cases = get_options(dash_duo, "#" + ensemble_selector_id)
+    ensemble_selector_id = f"#{plugin.uuid('ensemble-multi-selector')}"
+    expected_initial_ensembles = [
+        "default",
+        "default_smoother_update",
+        "default3",
+        "nr_42",
+    ]
+    dash_duo.wait_for_text_to_equal(
+        ensemble_selector_id, "\n".join(expected_initial_ensembles)
+    )
 
     # Select first ensemble
     first_ensemble_name = select_ensemble(dash_duo, plugin)
 
     # Select a parameter
-    param_name = select_first(
+    first_parameter = select_first(
         dash_duo, "#" + plugin.uuid("parameter-selector-multi-param")
     )
 
-    dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("parameter-deactivator-param"), f"×{param_name}", timeout=4
+    selected_parameters_finder = (
+        f"#{plugin.uuid('parameter-deactivator-param')} " ".Select-value-label"
     )
-
-    selected_params = get_options(
-        dash_duo, "#" + plugin.uuid("parameter-deactivator-param")
+    dash_duo.wait_for_contains_text(selected_parameters_finder, first_parameter)
+    # for some reason, there is an empty label
+    expected_selected_parameters = [first_parameter, " "]
+    dash_duo.wait_for_text_to_equal(
+        selected_parameters_finder, "\n".join(expected_selected_parameters)
     )
 
     # Select second ensemble
     second_ensemble_name = select_ensemble(dash_duo, plugin)
 
-    selected_params_2 = get_options(
-        dash_duo, "#" + plugin.uuid("parameter-deactivator-param")
+    # Check selected parameters are unchanged (in particular, not duplicated)
+    dash_duo.wait_for_text_to_equal(
+        selected_parameters_finder, "\n".join(expected_selected_parameters)
     )
 
-    # Check selected parameters are not duplicated
-    assert len(selected_params) == len(set(selected_params_2)), "Duplicat parameter"
-
     # Check only expected selectable options are available
-    expected_cases_after_selection = list(
+    expected_ensembles_after_selection = list(
         filter(
             lambda ens: ens not in (first_ensemble_name, second_ensemble_name),
             all_ensemble_names,
         )
     )
-    cases_after_selection = get_options(dash_duo, "#" + ensemble_selector_id)
-    assert sorted(cases_after_selection) == sorted(expected_cases_after_selection)
+    dash_duo.wait_for_text_to_equal(
+        ensemble_selector_id, "\n".join(sorted(expected_ensembles_after_selection))
+    )
 
     # Click the refresh button
     ensemble_refresh = dash_duo.find_element(
@@ -61,29 +70,22 @@ def test_ensemble_refresh(
     dash_duo.wait_for_text_to_equal(
         "#" + plugin.uuid("parameter-selector-multi-param"),
         "",
-        timeout=4,
     )
 
     dash_duo.wait_for_text_to_equal(
         "#" + plugin.uuid("parameter-deactivator-param"),
         "",
-        timeout=4,
     )
 
     # Check after the refresh all the initial ensemble cases are available as
     # options
-    refreshed_cases = get_options(dash_duo, "#" + ensemble_selector_id)
-    assert refreshed_cases == initial_cases
+    dash_duo.wait_for_text_to_equal(
+        ensemble_selector_id, "\n".join(expected_initial_ensembles)
+    )
 
 
 def test_ensemble_color(mock_data, dash_duo):
-    app = dash.Dash(__name__)
-    plugin = ParameterComparison(app, project_identifier=None)
-    app.layout = plugin.layout
-    dash_duo.start_server(app)
-
-    windowsize = (630, 1200)
-    dash_duo.driver.set_window_size(*windowsize)
+    plugin = setup_plugin(dash_duo, __name__, ParameterComparison, (630, 1200))
 
     ensembles = get_options(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
 
@@ -94,11 +96,10 @@ def test_ensemble_color(mock_data, dash_duo):
         dash_duo.wait_for_contains_text(
             "#" + plugin.uuid("selected-ensemble-dropdown"),
             ensemble_name,
-            timeout=4,
         )
 
     selected_ensembles = dash_duo.find_elements(
-        "#" + plugin.uuid("selected-ensemble-dropdown") + " div div.Select-value"
+        "#" + plugin.uuid("selected-ensemble-dropdown") + " .Select-value"
     )
     for idx, ensemble in enumerate(selected_ensembles):
         color = ensemble.value_of_css_property("background-color")

@@ -1,5 +1,3 @@
-import pytest
-import dash
 from webviz_ert.plugins._response_comparison import ResponseComparison
 from tests.conftest import (
     setup_plugin,
@@ -7,12 +5,6 @@ from tests.conftest import (
     select_parameter,
     select_response,
     wait_a_bit,
-)
-from webviz_ert.plugins import (
-    ResponseComparison,
-    ObservationAnalyzer,
-    ParameterComparison,
-    ResponseCorrelation,
 )
 
 
@@ -60,15 +52,10 @@ def test_clearing_parameters_view(
     clear_all = dash_duo.find_element(
         "#" + plugin.uuid("parameter-deactivator-param") + " span.Select-clear-zone"
     )
-    dash_duo.click_at_coord_fractions(clear_all, 0.5, 0.5)
-
-    # wait a bit for the page to update
-    wait_a_bit(dash_duo)
+    clear_all.click()
 
     # verify only expected response plot is left in place
-    plots = dash_duo.find_elements(".dash-graph")
-    assert response_name in plots[0].get_attribute("id")
-    assert len(plots) == 1
+    dash_duo.find_element(f".dash-graph[id*={response_name}]")
 
     # assert dash_duo.get_logs() == [], "browser console should contain no error"
 
@@ -97,7 +84,7 @@ def test_clearing_ensembles_view(
     clear_all = dash_duo.find_element(
         "#" + plugin.uuid("selected-ensemble-dropdown") + " span.Select-clear-zone"
     )
-    dash_duo.click_at_coord_fractions(clear_all, 0.5, 0.5)
+    clear_all.click()
 
     # wait a bit for the page to update
     wait_a_bit(dash_duo)
@@ -142,74 +129,13 @@ def test_axis_labels(mock_data, dash_duo):
     # check that both have Value as y axis label
     for response in wanted_responses:
         y_axis_title_selector = f"#{plugin.uuid(response)} text.ytitle"
-        y_axis_title = dash_duo.find_element(y_axis_title_selector)
-        assert y_axis_title.text == "Value"
+        dash_duo.wait_for_text_to_equal(y_axis_title_selector, "Value")
 
     # check that one has date, the other has index as x axis label
     date_plot_id = plugin.uuid("FOPR")
-    x_axis_title_date = dash_duo.find_element(f"#{date_plot_id} text.xtitle")
-    assert x_axis_title_date.text == "Date"
+    dash_duo.wait_for_text_to_equal(f"#{date_plot_id} text.xtitle", "Date")
 
     index_plot_id = plugin.uuid("FGPT")
-    x_axis_title_index = dash_duo.find_element(f"#{index_plot_id} text.xtitle")
-    assert x_axis_title_index.text == "Index"
-
-    # assert dash_duo.get_logs() == [], "browser console should contain no error"
-
-
-@pytest.mark.parametrize("input", [True, False])
-def test_displaying_beta_warning(input: bool, dash_duo):
-    plugin = setup_plugin(dash_duo, __name__, ResponseComparison, beta=input)
-    beta_warning_element = dash_duo.find_element("#" + plugin.uuid("beta-warning"))
-    assert beta_warning_element.is_displayed() == input
-
-
-skip_responses = "resp"
-skip_parameters = "param"
-
-
-@pytest.mark.parametrize(
-    "plugin_class,skip",
-    [
-        pytest.param(ResponseComparison, [], id="ResponseComparison"),
-        pytest.param(
-            ObservationAnalyzer,
-            [skip_responses, skip_parameters],
-            id="ObservationAnalyzer",
-        ),
-        pytest.param(ParameterComparison, [skip_responses], id="ParameterComparison"),
-        pytest.param(ResponseCorrelation, [], id="ResponseCorrelation"),
-    ],
-)
-def test_selectors_visibility_toggle_button(plugin_class, skip, mock_data, dash_duo):
-    # we test whether the selector visibility toggle button changes class on
-    # all selectors, as expected
-
-    plugin = setup_plugin(dash_duo, __name__, plugin_class, (2048, 1536))
-    app = dash.Dash(__name__)
-
-    visibility_toggler = dash_duo.find_element(
-        "#" + plugin.uuid("parameter-selector-button")
-    )
-    visibility_toggler.click()
-
-    ensemble_container_class_prefix = "ert-ensemble-selector-container"
-    dash_duo.wait_for_class_to_equal(
-        f'#{plugin.uuid("container-ensemble-selector-multi")}',
-        f"{ensemble_container_class_prefix}-hide",
-    )
-
-    variable_container_class_prefix = "ert-parameter-selector-container"
-    if skip_responses not in skip:
-        dash_duo.wait_for_class_to_equal(
-            f'#{plugin.uuid("container-parameter-selector-multi-resp")}',
-            f"{variable_container_class_prefix}-hide",
-        )
-
-    if skip_parameters not in skip:
-        dash_duo.wait_for_class_to_equal(
-            f'#{plugin.uuid("container-parameter-selector-multi-param")}',
-            f"{variable_container_class_prefix}-hide",
-        )
+    dash_duo.wait_for_text_to_equal(f"#{index_plot_id} text.xtitle", "Index")
 
     # assert dash_duo.get_logs() == [], "browser console should contain no error"

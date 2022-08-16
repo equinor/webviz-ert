@@ -17,13 +17,11 @@ def test_parameter_selector(
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("parameter-selector-multi-param"),
         "BPR_138_PERSISTENCE",
-        timeout=4,
     )
 
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("parameter-selector-multi-param"),
         "OP1_DIVERGENCE_SCALE",
-        timeout=4,
     )
 
     paremeter_deactivator = dash_duo.find_element(
@@ -39,19 +37,18 @@ def test_parameter_selector(
     parameter_selector_input.send_keys("OP1")
 
     dash_duo.wait_for_text_to_equal(
-        "#" + plugin.uuid("parameter-selector-filter-param"), "OP1", timeout=4
+        "#" + plugin.uuid("parameter-selector-filter-param"), "OP1"
     )
     dash_duo.wait_for_text_to_equal(
         "#" + plugin.uuid("parameter-selector-multi-param"),
         "OP1_DIVERGENCE_SCALE",
-        timeout=4,
     )
 
     parameter_selector_container = dash_duo.find_element(
         "#" + plugin.uuid("container-parameter-selector-multi-param")
     )
 
-    assert parameter_selector_container.is_displayed() is True
+    assert parameter_selector_container.is_displayed()
     button_hide = dash_duo.find_element("#" + plugin.uuid("parameter-selector-button"))
     button_hide.click()
     parameter_selector_container = dash_duo.wait_for_element_by_css_selector(
@@ -74,12 +71,10 @@ def test_search_input_return_functionality(
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("parameter-selector-multi-param"),
         "BPR_138_PERSISTENCE",
-        timeout=4,
     )
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("parameter-selector-multi-param"),
         "OP1_DIVERGENCE_SCALE",
-        timeout=4,
     )
     first_elem, _ = parameter_selector_container.text.split("\n")
 
@@ -93,13 +88,12 @@ def test_search_input_return_functionality(
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("parameter-deactivator-param"),
         "×BPR_138_PERSISTENCE",
-        timeout=4,
     )
     parameter_deactivator.click()
     dash_duo.clear_input(parameter_deactivator)
 
     dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("parameter-deactivator-param"), "", timeout=4
+        "#" + plugin.uuid("parameter-deactivator-param"), ""
     )
 
     parameter_selector_input = dash_duo.find_element(
@@ -107,30 +101,28 @@ def test_search_input_return_functionality(
     )
     parameter_selector_input.send_keys(Keys.ENTER)
     dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("parameter-deactivator-param"), "", timeout=4
+        "#" + plugin.uuid("parameter-deactivator-param"), ""
     )
 
     parameter_selector_input.send_keys("OP1")
 
     dash_duo.wait_for_text_to_equal(
-        "#" + plugin.uuid("parameter-selector-filter-param"), "OP1", timeout=4
+        "#" + plugin.uuid("parameter-selector-filter-param"), "OP1"
     )
     dash_duo.wait_for_text_to_equal(
         "#" + plugin.uuid("parameter-selector-multi-param"),
         "OP1_DIVERGENCE_SCALE",
-        timeout=4,
     )
     parameter_selector_input.send_keys(Keys.ENTER)
 
     dash_duo.wait_for_contains_text(
-        "#" + plugin.uuid("parameter-deactivator-param"), "", timeout=4
+        "#" + plugin.uuid("parameter-deactivator-param"), ""
     )
 
     select_by_name(dash_duo, f"#{param_selector_id}", "OP1_DIVERGENCE_SCALE")
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("parameter-deactivator-param"),
         "×OP1_DIVERGENCE_SCALE",
-        timeout=4,
     )
 
     # assert dash_duo.get_logs() == []
@@ -145,20 +137,17 @@ def test_parameter_selector_sorting(
     wanted_ensemble_name = "nr_42"
     select_ensemble(dash_duo, plugin, wanted_ensemble_name)
 
-    parameter_selector_container = dash_duo.find_element(
-        "#" + plugin.uuid("container-parameter-selector-multi-param")
+    expected_parameters = [
+        "test_parameter_1",
+        "test_parameter_11",
+        "test_parameter_2::a",
+        "test_parameter_2::b",
+        "test_parameter_77",
+    ]
+
+    parameter_selector_container_id = "#" + plugin.uuid(
+        "container-parameter-selector-multi-param"
     )
-    parameter_list = parameter_selector_container.text.split("\n")
-
-    assert parameter_list[0] == "test_parameter_1"
-    assert parameter_list[1] == "test_parameter_11"
-    assert parameter_list[2] == "test_parameter_2::a"
-    assert parameter_list[3] == "test_parameter_2::b"
-    assert parameter_list[4] == "test_parameter_77"
-
-
-@pytest.mark.parametrize("input", [True, False])
-def test_displaying_beta_warning(input: bool, dash_duo):
-    plugin = setup_plugin(dash_duo, __name__, ParameterComparison, beta=input)
-    beta_warning_element = dash_duo.find_element("#" + plugin.uuid("beta-warning"))
-    assert beta_warning_element.is_displayed() == input
+    dash_duo.wait_for_text_to_equal(
+        parameter_selector_container_id, "\n".join(expected_parameters)
+    )
