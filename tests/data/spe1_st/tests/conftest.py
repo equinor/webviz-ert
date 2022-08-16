@@ -4,7 +4,7 @@ import pytest
 
 @pytest.fixture(scope="session")
 def get_info():
-    from ert_shared.services import Storage
+    from ert.shared.services import Storage
 
     with Storage.start_server() as service:
         yield service.fetch_url(), service.fetch_auth()[1]
