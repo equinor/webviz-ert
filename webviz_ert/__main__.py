@@ -15,7 +15,9 @@ from webviz_ert.assets import WEBVIZ_CONFIG
 logger = logging.getLogger()
 
 
-def run_webviz_ert(experimental_mode: bool = False, verbose: bool = False) -> None:
+def run_webviz_ert(
+    title: str, experimental_mode: bool = False, verbose: bool = False
+) -> None:
     signal.signal(signal.SIGINT, handle_exit)
     # The entry point of webviz is to call it from command line, and so do we.
 
@@ -27,7 +29,7 @@ def run_webviz_ert(experimental_mode: bool = False, verbose: bool = False) -> No
             if project_identifier is None:
                 logger.error("Unable to find ERT project!")
             create_config(
-                project_identifier, WEBVIZ_CONFIG, temp_config, experimental_mode
+                title, project_identifier, WEBVIZ_CONFIG, temp_config, experimental_mode
             )
             os.execl(
                 webviz,
@@ -70,6 +72,7 @@ def handle_exit(
 
 
 def create_config(
+    title: str,
     project_identifier: Optional[str],
     config_file: pathlib.Path,
     temp_config: Any,
@@ -101,6 +104,8 @@ def create_config(
         if filter_experimental_pages(page, experimental_mode)
     ]
 
+    new_config_dict["title"] = f"{title} - {project_identifier}"
+
     output_str = yaml.dump(new_config_dict)
     temp_config.write(str.encode(output_str))
     temp_config.seek(0)
@@ -112,6 +117,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--verbose", action="store_true", help="Show verbose output.", default=False
     )
+    parser.add_argument(
+        "--title", help="Set title of html document", default="ERT - Visualization tool"
+    )
     args = parser.parse_args()
 
-    run_webviz_ert(args.experimental_mode, args.verbose)
+    run_webviz_ert(args.title, args.experimental_mode, args.verbose)
