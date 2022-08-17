@@ -383,6 +383,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                 "clickData",
             ),
             Input(parent.uuid("parameter-selection-store-resp"), "data"),
+            Input(parent.uuid("ensemble-refresh-button"), "n_clicks"),
         ],
         [
             State(parent.uuid("correlation-store-xindex"), "data"),
@@ -393,6 +394,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
     def update_corr_index(
         click_data: Dict,
         responses: List[str],
+        _: int,
         corr_xindex: Dict,
         active_resp_param: Dict,
         ensemble_selection_store: Dict[str, List],
@@ -425,6 +427,10 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         response do not change between ensembles. Yet we need one ensemble to
         determine the default values.
         """
+        ctx = dash.callback_context
+        triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+        if triggered_id == parent.uuid("ensemble-refresh-button"):
+            return {}
         if ensemble_selection_store:
             ensembles = [
                 selected_ensemble["value"]
@@ -436,9 +442,6 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             raise PreventUpdate
         ensemble_id = ensembles[0]
         loaded_ensemble = load_ensemble(parent, ensemble_id)
-
-        ctx = dash.callback_context
-        triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
         first_invocation = triggered_id == "" and not click_data
 
