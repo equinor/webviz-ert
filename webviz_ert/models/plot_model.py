@@ -205,6 +205,7 @@ class PlotModel:
         self._marker = kwargs["marker"]
         self._error_y = kwargs.get("error_y")
         self._hoverlabel = kwargs.get("hoverlabel")
+        self._meta = kwargs["meta"] if "meta" in kwargs else None
         self.selected = True
 
     @property
@@ -218,6 +219,7 @@ class PlotModel:
             error_y=self._error_y,
             connectgaps=True,
             hoverlabel=self._hoverlabel,
+            meta=self._meta,
         )
         if self._line:
             repr_dict["line"] = self._line

@@ -34,7 +34,7 @@ class Response:
         return self._ensemble_id
 
     @property
-    def axis(self) -> Optional[List[Union[int, str, datetime.datetime]]]:
+    def axis(self) -> pd.Index:
         return self.data.index
 
     @property
