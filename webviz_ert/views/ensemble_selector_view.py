@@ -20,7 +20,7 @@ def ensemble_selector_list(parent: WebvizErtPluginABC) -> List[Component]:
                     ),
                     dbc.Col(
                         html.Button(
-                            id=parent.uuid(f"ensemble-refresh-button"),
+                            id=parent.uuid("ensemble-refresh-button"),
                             children="Refresh",
                             n_clicks=0,
                         ),
@@ -28,7 +28,7 @@ def ensemble_selector_list(parent: WebvizErtPluginABC) -> List[Component]:
                     ),
                     dbc.Col(
                         html.Button(
-                            id=parent.uuid(f"parameter-selector-button"),
+                            id=parent.uuid("parameter-selector-button"),
                             children=("Hide Selectors"),
                         ),
                         align="right",
