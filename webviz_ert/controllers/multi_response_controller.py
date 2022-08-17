@@ -79,7 +79,9 @@ def _get_realizations_statistics_plots(
     return [mean_data, lower_std_data, upper_std_data]
 
 
-def _get_observation_plots(observation_df: pd.DataFrame) -> PlotModel:
+def _get_observation_plots(
+    observation_df: pd.DataFrame, metadata: List[str] = None
+) -> PlotModel:
     data = observation_df["values"]
     stds = observation_df["std"]
     x_axis = observation_df["x_axis"]
@@ -100,6 +102,7 @@ def _get_observation_plots(observation_df: pd.DataFrame) -> PlotModel:
             array=stds.values,
             visible=True,
         ),
+        meta=metadata,
         **style,
     )
     return observation_data

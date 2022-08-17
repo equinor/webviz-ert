@@ -17,6 +17,7 @@ from webviz_ert.plugins import WebvizErtPluginABC
 from webviz_ert.models import (
     load_ensemble,
     BarChartPlotModel,
+    EnsembleModel,
     PlotModel,
     Response,
 )
@@ -236,7 +237,11 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
 
             if response.observations:
                 for obs in response.observations:
-                    obs_plots.append(_get_observation_plots(obs.data_df()))
+                    observation_dataframe = obs.data_df()
+                    metadata = len(observation_dataframe) * ["observation"]
+                    obs_plots.append(
+                        _get_observation_plots(observation_dataframe, metadata)
+                    )
 
         fig = go.Figure()
         for plot in response_plots:
@@ -481,7 +486,12 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                 )
         elif click_data:
             active_response = active_resp_param["response"]
-            corr_xindex[active_response] = click_data["points"][0]["pointIndex"]
+            x_index = _get_index_after_click_on_response_plot(
+                click_data["points"][0], active_response, loaded_ensemble
+            )
+            if x_index is None:
+                corr_xindex[active_response] = DEFAULT_X_INDEX
+            corr_xindex[active_response] = x_index
         return corr_xindex
 
     def _get_default_x_index(response: Response) -> int:
@@ -741,3 +751,45 @@ def _generate_active_info_piece(title: str, value: str) -> Component:
             ),
         ]
     )
+
+
+def _get_index_after_click_on_response_plot(
+    clicked_point: Dict, response: str, loaded_ensemble: EnsembleModel
+) -> Optional[int]:
+    """checks whether a click in the response overview plot was right on an
+    observation, and tries to handle that case, grabbing the wanted x index, or
+    handles the simple case of not clicking on an observation."""
+
+    loaded_response = loaded_ensemble.responses[response]
+
+    # we check the metadata to identify an observation point
+    if (
+        loaded_response.observations
+        and "meta" in clicked_point
+        and clicked_point["meta"] == "observation"
+    ):
+        # case of clicking on observation point - we cannot use the points
+        # index, as it refers to the axis of observations, which has
+        # potentially fewer points than the response axis, and have to reverse
+        # lookup the clicked value in the response axis instead
+        clicked_x_value = clicked_point["x"]
+        response_x_axis = loaded_response.axis
+        # need to be defensive, for typing reasons
+        if response_x_axis is None:
+            return None
+        if isinstance(clicked_x_value, str):
+            # if the clicked value is a string representing a datetime, we only
+            # get a date, as we only display a date in the plot. As the value
+            # in the axis is a datetime with timestamp, we need to use a hack
+            # (prefix-match) - we hope that this filter returns a unique
+            # element
+            return [
+                index
+                for index, x_value in enumerate(response_x_axis)
+                if x_value.startswith(clicked_x_value)
+            ][0]
+        # clicked x value is numerical, we can do a simple reverse lookup to
+        # find the index
+        return response_x_axis.get_loc(clicked_x_value)
+    # simple case of not an observation point, index refers to right axis
+    return clicked_point["pointIndex"]
