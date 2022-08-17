@@ -69,6 +69,20 @@ class ResponseCorrelation(WebvizErtPluginABC):
                     "Which metric to use, all views are automatically updated. "
                 ),
             },
+            {
+                "id": self.uuid("sort-parameters"),
+                "content": (
+                    "Option for toggling sorting of parameters from sorting "
+                    "by correlation to alphabetical; affects heatmap and "
+                    "tornado plots."
+                ),
+            },
+            {
+                "id": self.uuid("hide-hover"),
+                "content": (
+                    "Option for toggling visibility of hover info text in " "heatmap."
+                ),
+            },
         ]
 
         return steps
