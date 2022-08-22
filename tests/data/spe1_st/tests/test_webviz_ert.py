@@ -10,6 +10,7 @@ from tests.conftest import select_first, setup_plugin, verify_key_in_dropdown
 
 parameter_keys = ["FIELD_PROPERTIES:POROSITY", "FIELD_PROPERTIES:X_MID_PERMEABILITY"]
 response_keys = ["WGPT:PROD", "WWPT:PROD", "WOPT:PROD", "WWIT:INJ"]
+response_keys_with_observations = ["WOPT:PROD"]
 
 
 def _verify_keys_in_menu(dash_duo_handle, plugin, keys, selector):
@@ -55,7 +56,10 @@ def test_webviz_response_correlation(dash_duo):
     )
 
     _verify_keys_in_menu(
-        dash_duo, plugin, response_keys, "parameter-selector-multi-resp"
+        dash_duo,
+        plugin,
+        response_keys_with_observations,
+        "parameter-selector-multi-resp",
     )
     response_name = select_first(
         dash_duo, "#" + plugin.uuid("parameter-selector-multi-resp")
@@ -63,12 +67,13 @@ def test_webviz_response_correlation(dash_duo):
     param_name = select_first(
         dash_duo, "#" + plugin.uuid("parameter-selector-multi-param")
     )
+
     dash_duo.wait_for_text_to_equal(
         "#" + plugin.uuid("info-text"),
         "".join(
             [
                 f"RESPONSE: {response_name}",
-                f"INDEX: 2015-02-01",
+                f"INDEX: 2016-01-01",
                 f"PARAMETER: {param_name}",
             ]
         ),

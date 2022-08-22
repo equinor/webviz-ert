@@ -137,7 +137,10 @@ ensembles_response = {
             "has_observations": True,
         },
     },
-    "http://127.0.0.1:5000/ensembles/3/parameters": [],
+    "http://127.0.0.1:5000/ensembles/3/parameters": [
+        {"name": "BPR_138_PERSISTENCE", "labels": []},
+        {"name": "OP1_DIVERGENCE_SCALE", "labels": []},
+    ],
     "http://127.0.0.1:5000/ensembles/4": {
         "experiment_id": 1,
         "child_ensemble_ids": [],
@@ -170,7 +173,14 @@ ensembles_response = {
     .to_csv()
     .encode(),
     "http://127.0.0.1:5000/ensembles/3/records/SNAKE_OIL_GPR_DIFF/observations?realization_index=0": [],
-    "http://127.0.0.1:5000/ensembles/3/records/FOPR/observations?realization_index=0": [],
+    "http://127.0.0.1:5000/ensembles/3/records/FOPR/observations?realization_index=0": [
+        {
+            "x_axis": ["2010-01-10 00:00:00", "2010-04-10 00:00:00"],
+            "errors": [4, 2],
+            "values": [0.42, 0.24],
+            "name": "FOPR",
+        }
+    ],
     "http://127.0.0.1:5000/ensembles/3/records/FOPR": to_parquet_helper(
         pd.DataFrame(
             [0.24, 0.13, 0.22, 0.36, 0.21, 0.54, 0.12, 0.16, 0.23, 0.18],
@@ -207,9 +217,9 @@ ensembles_response = {
     .encode(),
     "http://127.0.0.1:5000/ensembles/3/records/WOPR:OP1/observations?realization_index=0": [
         {
-            "x_axis": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
-            "errors": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
-            "values": {"data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+            "x_axis": [1, 4],
+            "errors": [1, 1],
+            "values": [1, 5],
             "name": "WOPR:OP1",
         }
     ],

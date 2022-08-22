@@ -1,4 +1,3 @@
-import pytest
 from webviz_ert.plugins._response_correlation import ResponseCorrelation
 from tests.conftest import (
     setup_plugin,
@@ -6,40 +5,7 @@ from tests.conftest import (
     select_ensemble,
     select_response,
     select_parameter,
-    wait_a_bit,
 )
-
-
-def test_response_correlation_view_shows_plots(
-    mock_data,
-    dash_duo,
-):
-    plugin = setup_plugin(dash_duo, __name__, ResponseCorrelation)
-
-    select_ensemble(dash_duo, plugin)
-    select_response(dash_duo, plugin, wait_for_plot=False)
-    select_parameter(dash_duo, plugin, wait_for_plot=False)
-
-    response_views = dash_duo.find_elements(".ert-view-cell")
-    assert len(response_views) == 4
-
-    # assert dash_duo.get_logs() == [], "browser console should contain no error"
-
-
-def test_response_selector_sorting(mock_data, dash_duo):
-    plugin = setup_plugin(dash_duo, __name__, ResponseCorrelation)
-    wanted_ensemble_name = "nr_42"
-    select_ensemble(dash_duo, plugin, wanted_ensemble_name)
-
-    response_selector_container = dash_duo.find_element(
-        "#" + plugin.uuid("container-parameter-selector-multi-resp")
-    )
-    response_list = response_selector_container.text.split("\n")
-
-    assert response_list[0] == "test_response"
-    assert response_list[1] == "test_response_4"
-    assert response_list[2] == "test_response_44"
-    assert response_list[3] == "test_response_99"
 
 
 def test_axes_labels(mock_data, dash_duo):
@@ -54,7 +20,7 @@ def test_axes_labels(mock_data, dash_duo):
     wanted_ensemble_name = "default3"
     select_ensemble(dash_duo, plugin, wanted_ensemble_name)
 
-    wanted_responses = ["FGPT", "FOPR"]
+    wanted_responses = ["WOPR:OP1", "FOPR"]
 
     # we only see one response at a time, so we choose and check one after the
     # other
@@ -93,19 +59,9 @@ def test_show_respo_with_obs(mock_data, dash_duo):
 
     select_ensemble(dash_duo, plugin, "default3")
 
-    expected_default_responses = ["FGPT", "FOPR", "SNAKE_OIL_GPR_DIFF", "WOPR:OP1"]
     expected_responses_with_observations = ["FOPR", "WOPR:OP1"]
 
     response_selector_id = "#" + plugin.uuid("parameter-selector-multi-resp")
-
-    dash_duo.wait_for_text_to_equal(
-        response_selector_id, "\n".join(expected_default_responses)
-    )
-
-    obs_radio_btn = dash_duo.find_element(
-        "#" + plugin.uuid("response-observations-check")
-    )
-    obs_radio_btn.click()
 
     dash_duo.wait_for_text_to_equal(
         response_selector_id, "\n".join(expected_responses_with_observations)
@@ -116,11 +72,12 @@ def test_info_text_appears_as_expected(
     mock_data,
     dash_duo,
 ):
-    response = "SNAKE_OIL_GPR_DIFF"
+    ensemble = "default3"
+    response = "FOPR"
     parameter = "BPR_138_PERSISTENCE"
-    index = "0"
+    index = "2010-01-10"
     plugin = setup_plugin(dash_duo, __name__, ResponseCorrelation)
-    select_ensemble(dash_duo, plugin)
+    select_ensemble(dash_duo, plugin, ensemble)
     select_response(dash_duo, plugin, response, wait_for_plot=False)
     select_parameter(dash_duo, plugin, parameter, wait_for_plot=False)
     info_text_selector = f"#{plugin.uuid('info-text')}"

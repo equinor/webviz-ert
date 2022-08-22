@@ -1,12 +1,14 @@
-from typing import List, Any, Dict, Mapping, Optional, TYPE_CHECKING
+from typing import List, Any, Dict, Mapping, Optional, TYPE_CHECKING, Union
 import numpy as np
 import math
 import pandas as pd
 import logging
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
+from dateutil.parser import isoparse
 from scipy.stats import norm, lognorm, truncnorm, uniform, loguniform, triang
 import webviz_ert.assets as assets
+from webviz_ert.models.data_model import AxisType
 
 if TYPE_CHECKING:
     from webviz_ert.models.parameter_model import PriorModel
@@ -206,10 +208,11 @@ class PlotModel:
         self._error_y = kwargs.get("error_y")
         self._hoverlabel = kwargs.get("hoverlabel")
         self._meta = kwargs["meta"] if "meta" in kwargs else None
+        self._xaxis = kwargs.get("xaxis")
         self.selected = True
 
     @property
-    def repr(self) -> go.Scattergl:
+    def repr(self) -> Union[go.Scattergl, go.Scatter]:
         repr_dict = dict(
             x=self._x_axis,
             y=self._y_axis,
@@ -217,6 +220,7 @@ class PlotModel:
             name=self.display_name,
             mode=self._mode,
             error_y=self._error_y,
+            xaxis=self._xaxis,
             connectgaps=True,
             hoverlabel=self._hoverlabel,
             meta=self._meta,
@@ -225,10 +229,12 @@ class PlotModel:
             repr_dict["line"] = self._line
         if self._marker:
             repr_dict["marker"] = self._marker
+            repr_dict["unselected"] = {"marker": {"size": 9}}
         if self.selected:
             repr_dict["visible"] = True
         else:
             repr_dict["visible"] = "legendonly"
+
         return go.Scattergl(repr_dict)
 
     @property
@@ -241,6 +247,26 @@ class PlotModel:
             return f"Realization {self._name}"
         else:
             return self._name
+
+    @property
+    def axis_type(self) -> Any:
+        if str(self._x_axis[0]).isnumeric():
+            return AxisType.INDEX
+        return AxisType.TIMESTAMP
+
+    @property
+    def x_axis(self) -> Any:
+        return self._x_axis
+
+    def indexes_in_range(self, x_start: Any, x_end: Any) -> List:
+        if self.axis_type == AxisType.TIMESTAMP:
+            x_start = isoparse(x_start)
+            x_end = isoparse(x_end)
+        result = []
+        for val in self.x_axis:
+            if x_start <= val <= x_end:
+                result.append(val)
+        return result
 
 
 class ResponsePlotModel:
