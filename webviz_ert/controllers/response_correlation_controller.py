@@ -1,26 +1,21 @@
 import pandas as pd
+from pandas._libs.tslibs.timestamps import Timestamp
 import plotly.graph_objects as go
 import dash
-import datetime
 import numpy as np
 import dash_bootstrap_components as dbc
 
 from typing import List, Optional, Dict, Tuple, Any, Union
 from copy import deepcopy
-from dash import dcc, html
+from dash import html
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 from plotly.subplots import make_subplots
+from plotly.graph_objs.layout import XAxis
 
 from webviz_ert.plugins import WebvizErtPluginABC
-from webviz_ert.models import (
-    load_ensemble,
-    BarChartPlotModel,
-    EnsembleModel,
-    PlotModel,
-    Response,
-)
+from webviz_ert.models import load_ensemble, BarChartPlotModel, PlotModel, AxisType
 from webviz_ert.controllers.multi_response_controller import (
     _get_observation_plots,
     axis_label_for_ensemble_response,
@@ -29,8 +24,6 @@ from webviz_ert import assets
 
 
 def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:
-    DEFAULT_X_INDEX = 0
-
     @app.callback(
         [
             Output(
@@ -44,7 +37,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         ],
         [
             Input(parent.uuid("ensemble-selection-store"), "data"),
-            Input(parent.uuid("correlation-store-xindex"), "data"),
+            Input(parent.uuid("correlation-store-selected-obs"), "data"),
             Input(parent.uuid("correlation-store-active-resp-param"), "data"),
             Input(parent.uuid("correlation-metric"), "value"),
             Input(parent.uuid("sort-parameters"), "on"),
@@ -57,7 +50,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
     )
     def update_correlation_plot(
         ensemble_selection_store: Dict[str, List],
-        corr_xindex: Dict,
+        selected_obs: Dict,
         active_resp_param: Dict,
         correlation_metric: str,
         sort_parameters: bool,
@@ -68,13 +61,18 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         ensembles = _get_selected_ensembles_from_store(ensemble_selection_store)
         if not (
             ensembles
+            and selected_obs
             and parameters
             and responses
-            and active_resp_param["response"] in responses
+            and active_resp_param["response"]["name"] in responses
         ):
-            return ({}, {})
+            return {}, {}
 
         active_response = active_resp_param["response"]
+        active_response_name = active_response["name"]
+        active_index = active_response.get("index")
+        if active_index:
+            active_response_name = f"{active_response_name}::{active_index}"
         data = {}
         colors = {}
         heatmaps = []
@@ -86,20 +84,33 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             if parameter_df.empty:
                 continue
             valid_responses = []
-            for response in responses:
-                response_df = ensemble.responses[response].data_df()
-                if response_df.empty:
+            for response_name in responses:
+                response = ensemble.responses[response_name]
+                if response.empty:
                     continue
-                x_index = corr_xindex.get(response, 0)
-                parameter_df[response] = response_df.iloc[x_index]
-                valid_responses.append(response)
+                resp_indexes = []
+                valid_response_with_index = []
+                if response.observations:
+                    for obs_idx in selected_obs.get(response.name, []):
+                        if isinstance(obs_idx, str):
+                            resp_index = str(Timestamp(obs_idx))
+                        else:
+                            resp_index = obs_idx
+                        resp_indexes.append(resp_index)
+                        valid_response_with_index.append(f"{response.name}::{obs_idx}")
+                    valid_responses += valid_response_with_index
+                    new_dataframe = response.data.loc[resp_indexes].T
+                    new_dataframe.columns = valid_response_with_index
+                    parameter_df = pd.concat([parameter_df, new_dataframe], axis=1)
 
             corrdf = parameter_df.corr(method=correlation_metric)
             corrdf = corrdf.drop(valid_responses, axis=0).fillna(0)
-            if active_response not in valid_responses:
+            if active_response_name not in valid_responses:
                 continue
             if sort_parameters:
-                corrdf, df_index = _sort_dataframe(corrdf, df_index, active_response)
+                corrdf, df_index = _sort_dataframe(
+                    corrdf, df_index, active_response_name
+                )
             # create heatmap
             data_heatmap = {
                 "type": "heatmap",
@@ -116,8 +127,8 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             }
             heatmaps.append(data_heatmap)
             ens_key = repr(ensemble)
-            data[ens_key] = corrdf[active_response]
-            data[ens_key].index.name = active_response
+            data[ens_key] = corrdf[active_response_name]
+            data[ens_key].index.name = active_response_name
             colors[ens_key] = assets.get_color(index=index)
         if data and heatmaps:
             correlation_plot = BarChartPlotModel(data, colors)
@@ -130,12 +141,18 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             for idx, heatmap in enumerate(heatmaps):
                 heatmap_plot.add_trace(heatmap, 1, 1 + idx)
                 heatmap_plot.update_yaxes(showticklabels=False, row=1, col=1 + idx)
-                heatmap_plot.update_xaxes(showticklabels=False, row=1, col=1 + idx)
+                heatmap_plot.update_xaxes(
+                    showticklabels=True,
+                    tickangle=90,
+                    ticklabelposition="outside left",
+                    row=1,
+                    col=1 + idx,
+                )
                 if hide_hover:
                     heatmap_plot.update_traces(patch={"hoverinfo": "none"})
                 else:
                     heatmap_plot.update_traces(
-                        patch={"hovertemplate": "%{y}: %{z}<extra></extra>"}
+                        patch={"hovertemplate": "%{x} - %{y}: %{z}<extra></extra>"}
                     )
             _layout = assets.ERTSTYLE["figure"]["layout"].copy()
 
@@ -152,24 +169,117 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                 }
             )
             heatmap_plot.update_layout(_layout)
-
-            y_pos = len(corrdf[valid_responses].index)
-            for i, _ in enumerate(heatmaps):
-                for j, label in enumerate(corrdf[valid_responses].columns):
-                    heatmap_plot.add_annotation(
-                        x=j,
-                        y=y_pos - 0.55,
-                        text=label,
-                        textangle=90,
-                        showarrow=False,
-                        col=1 + i,
-                        row=1,
-                        yref="paper",
-                        yanchor="top",
-                    )
-
             return correlation_plot.repr, heatmap_plot
         raise PreventUpdate
+
+    @app.callback(
+        [
+            Output(parent.uuid("obs_index_selector_container"), "style"),
+            Output(parent.uuid("obs_index_selector"), "figure"),
+            Output(parent.uuid("correlation-store-selected-obs"), "data"),
+            Output(parent.uuid("correlation-store-obs-range"), "data"),
+        ],
+        [
+            Input(parent.uuid("parameter-selection-store-resp"), "data"),
+            Input(parent.uuid("ensemble-selection-store"), "data"),
+            Input(parent.uuid("obs_index_selector"), "selectedData"),
+        ],
+        [
+            State(parent.uuid("correlation-store-obs-range"), "data"),
+        ],
+    )
+    def update_observation_index_selector(
+        responses: Optional[List[str]],
+        ensemble_selection_store: Dict[str, List],
+        selected_data: Optional[Dict],
+        store_obs_range: Dict,
+    ) -> Optional[Tuple[Dict, go.Figure, Dict, Dict]]:
+        ctx = dash.callback_context
+        triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+        def disable_figure() -> Tuple[Dict, go.Figure, Dict, Dict]:
+            parent.save_state("correlation-store-obs-range", {})
+            return {"display": "none", "min-height": "50px"}, go.Figure(), {}, {}
+
+        ensembles = _get_selected_ensembles_from_store(ensemble_selection_store)
+        if not (ensembles and responses):
+            return disable_figure()
+        if triggered_id == parent.uuid("obs_index_selector") and selected_data is None:
+            store_obs_range = {}
+
+        if selected_data is None or "range" not in selected_data:
+            selected_data = {"range": store_obs_range}
+
+        # Use only one ensemble
+        ensemble = load_ensemble(parent, ensembles[0])
+        obs_plots: List[PlotModel] = []
+        index_axis = False
+        time_axis = False
+        for idx, response_name in enumerate(responses):
+            response = ensemble.responses[response_name]
+            if response.observations:
+                for obs in response.observations:
+                    if not obs.axis:
+                        continue
+                    if obs.axis_type == AxisType.INDEX and not index_axis:
+                        index_axis = True
+                    elif not time_axis:
+                        time_axis = True
+                    obs_plots.append(_observation_index_plot(obs, response_name, idx))
+
+        if not obs_plots:
+            return disable_figure()
+
+        fig = go.Figure(layout_yaxis_range=[-1, len(obs_plots)])
+        layout = assets.ERTSTYLE["figure"]["layout"].copy()
+        layout.update(
+            dict(
+                xaxis=XAxis(title="Date", showgrid=False),
+                xaxis2=XAxis(overlaying="x", title="Index", side="top", showgrid=False),
+                dragmode="select",
+                template="plotly_white",
+                height=300,
+            )
+        )
+        fig.update_layout(layout)
+
+        for plot in obs_plots:
+            fig.add_trace(plot.repr)
+
+        store_obs_range = selected_data["range"]
+        selected_indexes = _get_selected_indexes(obs_plots, store_obs_range)
+
+        # Add selection rectangle to figure
+        x_range = store_obs_range.get("x")
+        if not time_axis:
+            x_range = store_obs_range.get("x2")
+        if index_axis and "x2" not in store_obs_range:
+            x_range = None
+
+        if selected_indexes and x_range:
+            x_start, x_end = x_range
+            fig.add_shape(
+                type="rect",
+                yref="paper",
+                x0=x_start,
+                y0=0,
+                x1=x_end,
+                y1=1,
+                fillcolor="PaleTurquoise",
+                opacity=0.35,
+            )
+        else:
+            # Use first index if nothing is selected
+            for p in obs_plots:
+                selected_indexes[p.name] = [p.x_axis[0]]
+
+        parent.save_state("correlation-store-obs-range", store_obs_range)
+        return (
+            {"min-height": "300px", "padding-top": "20px"},
+            fig,
+            selected_indexes,
+            store_obs_range,
+        )
 
     @app.callback(
         Output(
@@ -177,32 +287,25 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             "figure",
         ),
         [
-            Input(parent.uuid("correlation-store-xindex"), "modified_timestamp"),
-            Input(parent.uuid("parameter-selection-store-resp"), "modified_timestamp"),
             Input(parent.uuid("ensemble-selection-store"), "modified_timestamp"),
             Input(
                 parent.uuid("correlation-store-active-resp-param"), "modified_timestamp"
             ),
         ],
         [
-            State(parent.uuid("parameter-selection-store-resp"), "data"),
             State(parent.uuid("ensemble-selection-store"), "data"),
-            State(parent.uuid("correlation-store-xindex"), "data"),
             State(parent.uuid("correlation-store-active-resp-param"), "data"),
         ],
     )
     def update_response_overview_plot(
         _: Any,
         __: Any,
-        ___: Any,
-        ____: Any,
-        responses: Optional[List[str]],
         ensemble_selection_store: Dict[str, List],
-        corr_xindex: Dict,
         active_resp_param: Dict,
     ) -> Optional[go.Figure]:
         ensembles = _get_selected_ensembles_from_store(ensemble_selection_store)
-        if not (ensembles and responses and active_resp_param["response"] in responses):
+
+        if not (ensembles and active_resp_param["response"]):
             return {}
         active_response = active_resp_param["response"]
         loaded_ensembles = [
@@ -213,8 +316,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         obs_plots: List[PlotModel] = []
 
         for index, ensemble in enumerate(loaded_ensembles):
-            response = ensemble.responses[active_response]
-
+            response = ensemble.responses[active_response["name"]]
             response_x_axis = response.axis
 
             if isinstance(response_x_axis, pd.Index) and response_x_axis.empty:
@@ -248,21 +350,16 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             fig.add_trace(plot.repr)
 
         x_axis_label = axis_label_for_ensemble_response(
-            loaded_ensembles[0], active_response
+            loaded_ensembles[0], active_response["name"]
         )
 
         fig.update_layout(_layout_figure(x_axis_label))
 
-        x_index = corr_xindex.get(active_response, DEFAULT_X_INDEX)
-        if isinstance(response_x_axis, pd.Index) and not response_x_axis.empty:
-            fig.add_shape(
-                type="line",
-                x0=response_x_axis[x_index],
-                y0=0,
-                x1=response_x_axis[x_index],
-                y1=1,
-                yref="paper",
-                line=dict(color="rgb(30, 30, 30)", dash="dash", width=3),
+        selected_obs_idx = active_response.get("index")
+        if selected_obs_idx:
+            fig.add_vline(
+                x=selected_obs_idx,
+                line=dict(color="red", dash="dash", width=4),
             )
 
         for plot in obs_plots:
@@ -276,9 +373,9 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             "figure",
         ),
         [
-            Input(parent.uuid("correlation-store-xindex"), "data"),
             Input(parent.uuid("correlation-store-active-resp-param"), "data"),
             Input(parent.uuid("ensemble-selection-store"), "data"),
+            Input(parent.uuid("correlation-store-selected-obs"), "data"),
         ],
         [
             State(parent.uuid("parameter-selection-store-param"), "data"),
@@ -286,9 +383,9 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         ],
     )
     def update_response_parameter_scatterplot(
-        corr_xindex: Dict,
         active_resp_param: Dict,
         ensemble_selection_store: Dict[str, List],
+        _: Dict,
         parameters: List[str],
         responses: List[str],
     ) -> go.Figure:
@@ -298,7 +395,8 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             and ensembles
             and responses
             and active_resp_param["parameter"] in parameters
-            and active_resp_param["response"] in responses
+            and active_resp_param["response"]
+            and active_resp_param["response"]["name"] in responses
         ):
             return {}
 
@@ -308,50 +406,56 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         _resp_plots = {}
         _param_plots = {}
         _colors = {}
-
         for index, ensemble_id in enumerate(ensembles):
             ensemble = load_ensemble(parent, ensemble_id)
-
             if ensemble.parameters and ensemble.responses:
                 y_data = ensemble.parameters[active_parameter].data_df()
-                response = ensemble.responses[active_response]
-
-                if isinstance(response.axis, pd.Index) and not response.axis.empty:
-                    x_index = corr_xindex.get(active_response, 0)
-                    x_data = response.data_df().iloc[x_index]
-                    style = deepcopy(assets.ERTSTYLE["response-plot"]["response-index"])
-                    ensemble_color = assets.get_color(index=index)
-                    style["marker"]["color"] = ensemble_color
-                    _colors[str(ensemble)] = ensemble_color
-                    _plots += [
-                        PlotModel(
-                            x_axis=x_data.values.flatten(),
-                            y_axis=y_data.values.flatten(),
-                            name=(f"{ensemble.name}"),
-                            hoverlabel={"namelength": -1},
-                            **style,
-                        )
-                    ]
-                    _resp_plots[str(ensemble)] = x_data.values.flatten()
-                    _param_plots[str(ensemble)] = y_data.values.flatten()
+                response = ensemble.responses[active_response["name"]]
+                if response.empty:
+                    continue
+                style = deepcopy(assets.ERTSTYLE["response-plot"]["response-index"])
+                ensemble_color = assets.get_color(index=index)
+                style["marker"]["color"] = ensemble_color
+                _colors[str(ensemble)] = ensemble_color
+                active_index: Optional[Any] = active_response.get("index")
+                if response.observations:
+                    for obs in response.observations:
+                        if not active_index:
+                            continue
+                        if obs.axis_type == AxisType.TIMESTAMP:
+                            resp_index = str(Timestamp(active_index))
+                        else:
+                            resp_index = active_index
+                        x_data = response.data.loc[resp_index]
+                        _plots += [
+                            PlotModel(
+                                x_axis=x_data.values.flatten(),
+                                y_axis=y_data.values.flatten(),
+                                name=f"{ensemble.name}",
+                                hoverlabel={"namelength": -1},
+                                **style,
+                            )
+                        ]
+                        _resp_plots[str(ensemble)] = x_data.values.flatten()
+                        _param_plots[str(ensemble)] = y_data.values.flatten()
 
         n_rows = 10
         histogram_row_span = 2
         spacer_row_span = 1
         row_histograms = n_rows - (histogram_row_span // 2)
 
-        specs = _create_scatterplot_specs(
-            n_rows, histogram_row_span, spacer_row_span, row_histograms
-        )
+        specs = _create_scatterplot_specs(n_rows, histogram_row_span, spacer_row_span)
         fig = make_subplots(
             rows=n_rows,
             cols=2,
             specs=specs,
         )
-
-        formatted_x_value = _format_index_value(response.axis, x_index)
+        active_index_text = "NA"
+        active_index = active_response.get("index")
+        if active_index:
+            active_index_text = _format_index_text(active_index)
         _set_scatterplot_axes_titles(
-            fig, row_histograms, active_response, active_parameter, formatted_x_value
+            fig, row_histograms, active_response, active_parameter, active_index_text
         )
 
         _style_scatterplot(fig)
@@ -370,13 +474,11 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
     @app.callback(
         Output(parent.uuid("info-text"), "children"),
         [
-            Input(parent.uuid("correlation-store-xindex"), "data"),
             Input(parent.uuid("correlation-store-active-resp-param"), "data"),
             Input(parent.uuid("ensemble-selection-store"), "data"),
         ],
     )
     def update_info_text(
-        corr_xindex: Dict,
         active_resp_param: Dict,
         ensemble_selection_store: Dict[str, List],
     ) -> List[Component]:
@@ -388,120 +490,20 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         ):
             return []
         info_text = []
-        ensemble = load_ensemble(parent, ensembles[0])
         active_response = active_resp_param["response"]
-        x_axis = ensemble.responses[active_response].axis
-        formatted_active_index = _format_index_value(
-            x_axis, corr_xindex.get(active_response, 0)
-        )
-        active_index_text = str(formatted_active_index)
-        active_response_text = f"{active_response}"
-        active_parameter_text = f"{active_resp_param['parameter']}"
+
+        active_index_text = "NA"
+        active_index = active_response.get("index")
+        if active_index:
+            active_index_text = _format_index_text(active_index)
+        active_response_text = active_response.get("name")
+        active_parameter_text = active_resp_param["parameter"]
         info_text.append(_generate_active_info_piece("RESPONSE", active_response_text))
         info_text.append(_generate_active_info_piece("INDEX", active_index_text))
         info_text.append(
             _generate_active_info_piece("PARAMETER", active_parameter_text)
         )
         return info_text
-
-    @app.callback(
-        Output(parent.uuid("correlation-store-xindex"), "data"),
-        [
-            Input(
-                parent.uuid("response-overview"),
-                "clickData",
-            ),
-            Input(parent.uuid("parameter-selection-store-resp"), "data"),
-            Input(parent.uuid("ensemble-refresh-button"), "n_clicks"),
-        ],
-        [
-            State(parent.uuid("correlation-store-xindex"), "data"),
-            State(parent.uuid("correlation-store-active-resp-param"), "data"),
-            State(parent.uuid("ensemble-selection-store"), "data"),
-        ],
-    )
-    def update_corr_index(
-        click_data: Dict,
-        responses: List[str],
-        _: int,
-        corr_xindex: Dict,
-        active_resp_param: Dict,
-        ensemble_selection_store: Dict[str, List],
-    ) -> Dict:
-        """
-        One of the data points we keep track of in the response correlation
-        plugin is the current index, representing a point on the x-axis, for
-        each selected response.
-        Some data shown is a function of the x value represented by that index,
-        for example the correlation scatterplot, as well as the heatmap and the
-        tornado plot.
-
-        This function updates a dictionary with responses as keys, and the
-        current index for each response as values.
-
-        It gets triggered when a user
-
-        - clicks on the response overview plot, effectively choosing an index
-        - changes the selection of responses - a default index is assigned
-
-        The default index for a response is
-        - zero for responses without observations, representing the smallest
-          value for comparable domains, or the first value for categorical
-          domains (the domain is represented by the x-axis)
-        - the (index of the) smallest or first observation for responses with
-          observations
-
-        This dictionary is identical for all ensembles - an assumption in the
-        data is that given a response, x-axis and observations for that
-        response do not change between ensembles. Yet we need one ensemble to
-        determine the default values.
-        """
-        ctx = dash.callback_context
-        triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
-        if triggered_id == parent.uuid("ensemble-refresh-button"):
-            return {}
-        if ensemble_selection_store:
-            ensembles = [
-                selected_ensemble["value"]
-                for selected_ensemble in ensemble_selection_store["selected"]
-            ]
-        else:
-            ensembles = None
-        if not (responses and ensembles):
-            raise PreventUpdate
-        ensemble_id = ensembles[0]
-        loaded_ensemble = load_ensemble(parent, ensemble_id)
-
-        first_invocation = triggered_id == "" and not click_data
-
-        if triggered_id == parent.uuid("parameter-selection-store-resp") or (
-            first_invocation
-        ):
-            for response_name in responses:
-                default_index = _get_default_x_index(
-                    loaded_ensemble.responses[response_name]
-                )
-                corr_xindex[response_name] = corr_xindex.get(
-                    response_name, default_index
-                )
-        elif click_data:
-            active_response = active_resp_param["response"]
-            x_index = _get_index_after_click_on_response_plot(
-                click_data["points"][0], active_response, loaded_ensemble
-            )
-            if x_index is None:
-                corr_xindex[active_response] = DEFAULT_X_INDEX
-            corr_xindex[active_response] = x_index
-        return corr_xindex
-
-    def _get_default_x_index(response: Response) -> int:
-        response_x_axis = response.axis
-        if response.observations:
-            if isinstance(response_x_axis, (pd.Index, list)):
-                return _get_first_observation_index(
-                    response_x_axis, response.observations[0].data_df()
-                )
-        return DEFAULT_X_INDEX
 
     @app.callback(
         Output(parent.uuid("correlation-store-active-resp-param"), "data"),
@@ -512,30 +514,31 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
             ),
             Input(parent.uuid("parameter-selection-store-resp"), "data"),
             Input(parent.uuid("parameter-selection-store-param"), "data"),
+            Input(parent.uuid("correlation-store-selected-obs"), "data"),
         ],
         [
             State(parent.uuid("correlation-store-active-resp-param"), "data"),
         ],
     )
-    def update_active_resp_param(
+    def update_active_resp_index_and_param(
         click_data: Dict,
         responses: List[str],
         parameters: List[str],
+        selected_obs: Dict,
         active_resp_param: Dict,
     ) -> Dict:
         """
         update_active_resp_param is a callback function responsible for handling
-        which response and parameter are active.
+        which response index and parameter are active.
 
-        The correlation plots display correlation between a given response and
-        paramater (at an index, see `corr_xindex`) for a chosen ensemble. Hence
-        the need to keep track of which of potentially many selected responses
-        and parameters, respectively, are currently active.
+        The correlation plots display correlation between a given response(at an index)
+        and parameter for a chosen ensemble.
 
         It should be triggered upon
         - modifying the selection of parameters or responses
         - clicking on the heatmap, effectively choosing a combination of active
-          response and parameter
+          response at an index and parameter
+        - selection a new range in the response observation selector
 
         To avoid saying "response or parameter", we refer to either
         collectively by "variable".
@@ -545,20 +548,34 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         Deselection of the active variable makes the first selected variable
         active, otherwise deselection does not affect the active state.
 
-        Clicking on the heatmap makes the combination of resoponse and
+        Clicking on the heatmap makes the combination of response index and
         parameter active that are represented by the area of the heatmap that
         was clicked.
         """
         ctx = dash.callback_context
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+        if not triggered_id:
+            raise PreventUpdate
         if triggered_id == parent.uuid("parameter-selection-store-resp"):
             if not responses:
                 active_resp_param["response"] = None
-            elif (
+            elif selected_obs and (
                 not active_resp_param["response"]
-                or not active_resp_param["response"] in responses
+                or not active_resp_param["response"]["name"] in responses
             ):
-                active_resp_param["response"] = responses[0]
+                response_name = next(iter(selected_obs.keys()))
+                active_resp_param["response"] = {
+                    "name": response_name,
+                    "index": selected_obs[response_name][0],
+                }
+            elif selected_obs:
+                response_name = active_resp_param["response"]["name"]
+                response_index = active_resp_param["response"]["index"]
+                if response_index not in selected_obs[response_name]:
+                    active_resp_param["response"]["index"] = selected_obs[
+                        response_name
+                    ][0]
+
         elif triggered_id == parent.uuid("parameter-selection-store-param"):
             if not parameters:
                 active_resp_param["parameter"] = None
@@ -567,21 +584,45 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                 or not active_resp_param["parameter"] in parameters
             ):
                 active_resp_param["parameter"] = parameters[0]
+        elif triggered_id == parent.uuid("correlation-store-selected-obs"):
+            if active_resp_param["response"] and selected_obs:
+                response_name = active_resp_param["response"]["name"]
+                if response_name in selected_obs:
+                    active_resp_param["response"]["index"] = selected_obs[
+                        response_name
+                    ][0]
+                else:
+                    response_name = next(iter(selected_obs.keys()))
+                    active_resp_param["response"] = {
+                        "name": response_name,
+                        "index": selected_obs[response_name][0],
+                    }
         elif click_data:
+            if "::" in click_data["points"][0]["x"]:
+                resp_name, index = click_data["points"][0]["x"].split("::", maxsplit=1)
+                index = _format_index_value(index)
+            else:
+                resp_name = click_data["points"][0]["x"]
+                index = 0
+
             active_resp_param["parameter"] = click_data["points"][0]["y"]
-            active_resp_param["response"] = click_data["points"][0]["x"]
+            active_resp_param["response"] = {"name": resp_name, "index": index}
+        elif not parameters and not responses:
+            active_resp_param["parameter"] = None
+            active_resp_param["response"] = None
 
         parent.save_state("active_correlation", active_resp_param)
         return active_resp_param
 
-    def _get_selected_ensembles_from_store(
-        ensemble_selection_store: Dict[str, List]
-    ) -> Optional[List[str]]:
-        if ensemble_selection_store:
-            return [
-                selection["value"] for selection in ensemble_selection_store["selected"]
-            ]
-        return None
+
+def _get_selected_ensembles_from_store(
+    ensemble_selection_store: Dict[str, List]
+) -> Optional[List[str]]:
+    if ensemble_selection_store:
+        return [
+            selection["value"] for selection in ensemble_selection_store["selected"]
+        ]
+    return None
 
 
 def _sort_dataframe(
@@ -607,18 +648,6 @@ def _define_style_ensemble(index: int, x_axis: pd.Index) -> Dict:
     return style
 
 
-def _get_first_observation_index(
-    response_x_axis: Union[pd.Index, list], observation_x_axis: pd.DataFrame
-) -> int:
-    x_axis_default_observation = _get_first_observation_x(observation_x_axis)
-    if isinstance(response_x_axis, pd.Index):
-        first_observation_index = response_x_axis.get_loc(x_axis_default_observation)
-    elif isinstance(response_x_axis, list):
-        first_observation_index = response_x_axis.index(x_axis_default_observation)
-
-    return first_observation_index
-
-
 def _layout_figure(x_axis_label: str) -> dict:
     layout = assets.ERTSTYLE["figure"]["layout"].copy()
     layout.update(dict(showlegend=False))
@@ -629,37 +658,28 @@ def _layout_figure(x_axis_label: str) -> dict:
     return layout
 
 
-def _get_first_observation_x(obs_data: pd.DataFrame) -> Union[int, str]:
-    """
-    :return: The first x value in the observation data, converted
-        to type suitable for lookup in the response vector.
-    """
-    first_observation = obs_data["x_axis"][0]
-    caster = {str: int, pd._libs.tslibs.timestamps.Timestamp: str}
-    if type(first_observation) not in caster.keys():
-        raise ValueError(
-            f"invalid obs_data type: should be a str or Timestamp, but it is {type(first_observation)}."
-        )
-
-    return caster.get(type(first_observation), lambda *args: False)(first_observation)
+def _format_index_value(raw_index: Union[str, int]) -> Union[str, int]:
+    try:
+        return int(raw_index)
+    except (TypeError, ValueError):
+        return raw_index
 
 
-def _format_index_value(axis: pd.Index, index: int) -> Union[np.number, datetime.date]:
-    """_format_index_value takes the value of `axis` at position `index` and
-    tries to convert it to a datetime. If this works, it returns just the date.
-    If parsing fails, it returns the value unaltered."""
-    raw_value = axis[index]
-    if isinstance(raw_value, str):
+def _format_index_text(raw_index: Union[str, int]) -> str:
+    formatted_index = _format_index_value(raw_index)
+    if isinstance(formatted_index, int):
+        return str(formatted_index)
+    else:
         try:
-            datetime_value = pd.to_datetime(raw_value)
-            return datetime_value.date()
-        except (pd.errors.ParserError, ValueError):
-            pass
-    return raw_value
+            return str(Timestamp(raw_index).date())
+        except (TypeError, ValueError):
+            return str(raw_index)
 
 
 def _create_scatterplot_specs(
-    n_rows: int, histogram_row_span: int, spacer_row_span: int, row_histograms: int
+    n_rows: int,
+    histogram_row_span: int,
+    spacer_row_span: int,
 ) -> List[List[Optional[Dict[str, int]]]]:
     specs: List[List[Optional[Dict[str, int]]]] = [
         [
@@ -684,7 +704,7 @@ def _set_scatterplot_axes_titles(
     row_histograms: int,
     active_response: str,
     active_parameter: str,
-    x_value: Union[datetime.date, np.number],
+    x_value: Union[str, np.number],
 ) -> None:
     fig.update_xaxes(title_text=f"{active_response} @ {x_value}", row=1, col=1)
     fig.update_yaxes(title_text=f"{active_parameter}", row=1, col=1)
@@ -753,43 +773,39 @@ def _generate_active_info_piece(title: str, value: str) -> Component:
     )
 
 
-def _get_index_after_click_on_response_plot(
-    clicked_point: Dict, response: str, loaded_ensemble: EnsembleModel
-) -> Optional[int]:
-    """checks whether a click in the response overview plot was right on an
-    observation, and tries to handle that case, grabbing the wanted x index, or
-    handles the simple case of not clicking on an observation."""
+def _get_selected_indexes(plots: List[PlotModel], data_range: Optional[Dict]) -> Dict:
+    selected_indexes: Dict = {}
+    if not data_range:
+        return selected_indexes
+    time_range = data_range.get("x")
+    index_range = data_range.get("x2")
+    for plot in plots:
+        if plot.axis_type == AxisType.INDEX and index_range:
+            x_start, x_end = index_range
+        elif plot.axis_type == AxisType.TIMESTAMP and time_range:
+            x_start, x_end = time_range
+        else:
+            continue
+        indexes_in_range = plot.indexes_in_range(x_start, x_end)
+        if indexes_in_range:
+            selected_indexes[plot.name] = indexes_in_range
 
-    loaded_response = loaded_ensemble.responses[response]
+    return selected_indexes
 
-    # we check the metadata to identify an observation point
-    if (
-        loaded_response.observations
-        and "meta" in clicked_point
-        and clicked_point["meta"] == "observation"
-    ):
-        # case of clicking on observation point - we cannot use the points
-        # index, as it refers to the axis of observations, which has
-        # potentially fewer points than the response axis, and have to reverse
-        # lookup the clicked value in the response axis instead
-        clicked_x_value = clicked_point["x"]
-        response_x_axis = loaded_response.axis
-        # need to be defensive, for typing reasons
-        if response_x_axis is None:
-            return None
-        if isinstance(clicked_x_value, str):
-            # if the clicked value is a string representing a datetime, we only
-            # get a date, as we only display a date in the plot. As the value
-            # in the axis is a datetime with timestamp, we need to use a hack
-            # (prefix-match) - we hope that this filter returns a unique
-            # element
-            return [
-                index
-                for index, x_value in enumerate(response_x_axis)
-                if x_value.startswith(clicked_x_value)
-            ][0]
-        # clicked x value is numerical, we can do a simple reverse lookup to
-        # find the index
-        return response_x_axis.get_loc(clicked_x_value)
-    # simple case of not an observation point, index refers to right axis
-    return clicked_point["pointIndex"]
+
+def _observation_index_plot(obs: Any, name: str, plot_idx: int) -> PlotModel:
+    style = deepcopy(assets.ERTSTYLE["observation-selection-plot"])
+    marker_color = assets.get_color(plot_idx)
+    style.update(
+        dict(
+            marker={"color": marker_color, "size": 9},
+            xaxis="x2" if obs.axis_type == AxisType.INDEX else "x",
+        )
+    )
+    return PlotModel(
+        x_axis=obs.axis,
+        y_axis=[str(plot_idx) for _ in range(len(obs.axis))],
+        text=obs.name,
+        name=name,
+        **style,
+    )

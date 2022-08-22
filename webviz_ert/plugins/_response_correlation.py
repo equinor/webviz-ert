@@ -25,6 +25,12 @@ class ResponseCorrelation(WebvizErtPluginABC):
     def tour_steps(self) -> List[Dict[str, str]]:
         steps = [
             {
+                "id": self.uuid("obs_index_selector_container"),
+                "content": (
+                    "Select preferred observation indexes by drawing a rectangle on the figure"
+                ),
+            },
+            {
                 "id": self.uuid("info-text"),
                 "content": (
                     "The currently active response, parameter, and x_index / "
@@ -33,11 +39,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
             },
             {
                 "id": self.uuid("response-overview"),
-                "content": (
-                    "Visualization of the currently active response "
-                    "where by clicking we can select a new active index / "
-                    "timestep for correlation analysis."
-                ),
+                "content": "Visualization of the currently active response",
             },
             {
                 "id": self.uuid("response-scatterplot"),
@@ -52,7 +54,7 @@ class ResponseCorrelation(WebvizErtPluginABC):
                 "content": (
                     "Heatmap based representation of correlation (-1, 1) among all selected responses "
                     "and parameters, for currently selected ensembles in column-wise fashion."
-                    "One can select a currently active response and parameter "
+                    "One can select a currently active response at an observation index and parameter "
                     "by clicking directly on a heatmap. "
                 ),
             },
@@ -108,6 +110,13 @@ class ResponseCorrelation(WebvizErtPluginABC):
                 dash.dcc.Store(
                     id=self.uuid("correlation-store-xindex"),
                     data={},
+                    storage_type="session",
+                ),
+                dash.dcc.Store(id=self.uuid("correlation-store-selected-obs"), data={}),
+                dash.dcc.Store(
+                    id=self.uuid("correlation-store-obs-range"),
+                    data=self.load_state("correlation-store-obs-range", {}),
+                    storage_type="session",
                 ),
                 dash.dcc.Store(
                     id=self.uuid("correlation-store-active-resp-param"),
@@ -139,8 +148,8 @@ class ResponseCorrelation(WebvizErtPluginABC):
                                             "value": "obs",
                                         },
                                     ],
-                                    value=[],
-                                    labelStyle={"display": "block"},
+                                    value=["obs"],
+                                    style={"display": "none"},
                                 ),
                             ],
                             width=4,
@@ -156,6 +165,21 @@ class ResponseCorrelation(WebvizErtPluginABC):
                             width=4,
                         ),
                     ],
+                ),
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            [
+                                dash.html.Span("Observation index selector"),
+                                correlation_view(
+                                    id_view=self.uuid("obs_index_selector")
+                                ),
+                            ],
+                            className="active-info",
+                            style={"min-height": "10px", "padding": "20px"},
+                            id=self.uuid("obs_index_selector_container"),
+                        )
+                    ]
                 ),
                 dbc.Row(
                     [

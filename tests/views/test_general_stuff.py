@@ -1,6 +1,7 @@
 import pytest
 import dash
-from tests.conftest import setup_plugin
+from tests.conftest import setup_plugin, select_ensemble
+
 from webviz_ert.plugins import (
     ResponseComparison,
     ObservationAnalyzer,
@@ -76,3 +77,19 @@ def test_selectors_visibility_toggle_button(plugin_class, skip, mock_data, dash_
         )
 
     # assert dash_duo.get_logs() == [], "browser console should contain no error"
+
+
+def test_response_selector_sorting(mock_data, dash_duo):
+    plugin = setup_plugin(dash_duo, __name__, ResponseComparison)
+    wanted_ensemble_name = "nr_42"
+    select_ensemble(dash_duo, plugin, wanted_ensemble_name)
+
+    response_selector_container = dash_duo.find_element(
+        "#" + plugin.uuid("container-parameter-selector-multi-resp")
+    )
+    response_list = response_selector_container.text.split("\n")
+
+    assert response_list[0] == "test_response"
+    assert response_list[1] == "test_response_4"
+    assert response_list[2] == "test_response_44"
+    assert response_list[3] == "test_response_99"

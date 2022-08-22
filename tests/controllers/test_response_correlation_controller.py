@@ -1,16 +1,28 @@
 import pandas as pd
 import pytest
+
+from pandas._libs.tslibs.timestamps import Timestamp
+
 from webviz_ert.controllers.response_correlation_controller import (
-    _get_first_observation_x,
     _define_style_ensemble,
-    _get_first_observation_index,
     _layout_figure,
     _format_index_value,
+    _format_index_text,
 )
 
 from webviz_ert.controllers.response_correlation_controller import (
     _sort_dataframe,
+    _get_selected_indexes,
 )
+from webviz_ert.models import PlotModel
+
+
+PLOT_STYLE = {
+    "mode": "markers",
+    "line": None,
+    "marker": {"color": "rgba(56,108,176,0.8)", "size": 9},
+    "text": "NA",
+}
 
 
 def test_sort_dataframe():
@@ -40,7 +52,7 @@ def test_define_style_ensemble_color(index, expected_color):
     "x_axis_list,expected_mode",
     [
         (
-            [pd._libs.tslibs.timestamps.Timestamp("01-01-2020")],
+            [Timestamp("01-01-2020")],
             "markers+lines",
         ),
         ([str(1)], "markers"),
@@ -50,33 +62,6 @@ def test_define_style_ensemble_mode(x_axis_list, expected_mode):
     x_axis = pd.Index(x_axis_list)
     style = _define_style_ensemble(0, x_axis)
     assert style["mode"] == expected_mode
-
-
-@pytest.mark.parametrize(
-    "response_x_axis,observation_x_axis_list,expected_index",
-    [
-        (
-            [
-                "2020-01-01 00:00:00",
-                "2020-01-07 00:00:00",
-                "2020-01-14 00:00:00",
-                "2020-01-21 00:00:00",
-            ],
-            [
-                pd._libs.tslibs.timestamps.Timestamp("14-01-2020"),
-                pd._libs.tslibs.timestamps.Timestamp("01-02-2020"),
-            ],
-            2,
-        ),
-        (pd.Index([0, 1]), [str(1)], 1),
-    ],
-)
-def test_get_first_observation_index(
-    response_x_axis, observation_x_axis_list, expected_index
-):
-    observation_x_axis = pd.DataFrame(observation_x_axis_list, columns=["x_axis"])
-    updated_index = _get_first_observation_index(response_x_axis, observation_x_axis)
-    assert expected_index == updated_index
 
 
 def test_layout_figure():
@@ -96,28 +81,6 @@ def test_layout_figure():
 
 
 @pytest.mark.parametrize(
-    "observation,expected",
-    [
-        ([str(1)], int(1)),
-        (
-            [pd._libs.tslibs.timestamps.Timestamp("01-01-2020")],
-            str("2020-01-01 00:00:00"),
-        ),
-    ],
-)
-def test_get_first_observation_x_valid(observation, expected):
-    df_observation = pd.DataFrame(observation, columns=["x_axis"])
-    result = _get_first_observation_x(df_observation)
-    assert result == expected
-
-
-def test_get_first_observation_x_invalid():
-    df_observation = pd.DataFrame([int(1)], columns=["x_axis"])
-    with pytest.raises(ValueError, match="invalid obs_data type"):
-        _get_first_observation_x(df_observation)
-
-
-@pytest.mark.parametrize(
     "raw_value,expected_formatted_value",
     [
         ("2022-08-05 14:25:00", "2022-08-05"),
@@ -128,6 +91,80 @@ def test_get_first_observation_x_invalid():
     ],
     ids=["date1", "date2", "numeric", "numeric-as-string", "silly-string"],
 )
+def test_format_index_text(raw_value: str, expected_formatted_value: str):
+    assert _format_index_text(raw_value) == expected_formatted_value
+
+
+@pytest.mark.parametrize(
+    "raw_value,expected_formatted_value",
+    [
+        ("2022-08-05 14:25:00", "2022-08-05 14:25:00"),
+        ("2022-09-21 14:25:00", "2022-09-21 14:25:00"),
+        (14, 14),
+        ("213", 213),
+        ("SPAM", "SPAM"),
+    ],
+    ids=["date1", "date2", "numeric", "numeric-as-string", "silly-string"],
+)
 def test_format_index_value(raw_value: str, expected_formatted_value: str):
-    axis = pd.Index(data=[raw_value])
-    assert _format_index_value(axis, 0).__str__() == expected_formatted_value
+    assert _format_index_value(raw_value) == expected_formatted_value
+
+
+@pytest.mark.parametrize(
+    "plots, date_ranges, expected",
+    [
+        ([], None, {}),
+        ([], {}, {}),
+        ([], {}, {}),
+        (
+            [
+                PlotModel(
+                    x_axis=[0, 5, 10], y_axis=[1, 1, 1], name="plot1", **PLOT_STYLE
+                )
+            ],
+            {"x": ["2020-01-01", "2020-01-03"]},
+            {},
+        ),
+        (
+            [
+                PlotModel(
+                    x_axis=[0, 5, 10], y_axis=[1, 1, 1], name="plot1", **PLOT_STYLE
+                )
+            ],
+            {"x2": [1, 3]},
+            {},
+        ),
+        (
+            [
+                PlotModel(
+                    x_axis=[0, 5, 10], y_axis=[1, 1, 1], name="plot1", **PLOT_STYLE
+                ),
+                PlotModel(
+                    x_axis=[Timestamp("2020-01-02")],
+                    y_axis=[1, 1, 1],
+                    name="plot2",
+                    **PLOT_STYLE
+                ),
+            ],
+            {"x": ["2020-01-01", "2020-01-03"]},
+            {"plot2": [Timestamp("2020-01-02")]},
+        ),
+        (
+            [
+                PlotModel(
+                    x_axis=[0, 5, 10], y_axis=[1, 1, 1], name="plot1", **PLOT_STYLE
+                ),
+                PlotModel(
+                    x_axis=[Timestamp("2020-01-02")],
+                    y_axis=[1, 1, 1],
+                    name="plot2",
+                    **PLOT_STYLE
+                ),
+            ],
+            {"x": ["2020-01-01", "2020-01-03"], "x2": [4, 6]},
+            {"plot1": [5], "plot2": [Timestamp("2020-01-02")]},
+        ),
+    ],
+)
+def test_get_selected_indexes(plots, date_ranges, expected):
+    assert _get_selected_indexes(plots, date_ranges) == expected
