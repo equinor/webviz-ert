@@ -2,6 +2,9 @@
     "dbc-column": {
         "min-height": "500px"
     },
+    "dbc-column-extra-high": {
+        "min-height": "534px"
+    },
     "ensemble-selector": {
         "stylesheet": [
             {

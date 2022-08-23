@@ -15,7 +15,7 @@ def parallel_coordinates_view(parent: WebvizPluginABC) -> Component:
                     "id": parent.uuid("parallel-coor"),
                     "type": parent.uuid("graph"),
                 },
-                className="ert-view-cell",
+                className="ert-view-cell allow-overflow",
                 config={"responsive": True},
             )
         ],

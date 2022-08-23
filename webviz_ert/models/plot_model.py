@@ -435,7 +435,7 @@ class ParallelCoordinatesPlotModel:
                 ),
                 dimensions=dimensions,
                 labelangle=45,
-                labelside="top",
+                labelside="bottom",
             )
         )
         fig.update_layout(clickmode="event+select")
