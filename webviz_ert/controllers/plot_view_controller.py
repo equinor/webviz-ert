@@ -24,7 +24,7 @@ def _new_child(parent: WebvizErtPluginABC, plot: str, data_type: DataType) -> Co
         html.Div(id=parent.uuid(plot), children=p),
         xl=12,
         lg=6,
-        style=assets.ERTSTYLE["dbc-column"],
+        style=assets.ERTSTYLE["dbc-column-extra-high"],
         key=plot,
     )
 
