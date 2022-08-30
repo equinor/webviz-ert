@@ -46,7 +46,7 @@ ert vis
 ert vis poly.ert
 ```
 
-### Webviz-ert example
+## Example
 
 #### Start up 
 
@@ -64,3 +64,6 @@ ert vis poly.ert
 
 ![parameter_comparison](https://user-images.githubusercontent.com/4508053/186851000-e5b750e1-d7ae-4da4-a612-b6c3740f5698.gif)
 
+#### Response correlation 
+
+![response_correlation](https://user-images.githubusercontent.com/4508053/186851026-df2085fd-5c35-42a6-a87e-c1890a963254.gif)
