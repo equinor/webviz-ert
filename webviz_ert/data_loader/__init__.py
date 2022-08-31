@@ -1,7 +1,5 @@
-import json
 from typing import Any, Mapping, Optional, List, MutableMapping, Tuple, Dict
 from collections import defaultdict
-from pprint import pformat
 import requests
 import logging
 import pandas as pd
@@ -200,7 +198,10 @@ class DataLoader:
         try:
             df.index = df.index.astype(int)
         except TypeError:
-            pass
+            try:
+                df.index = df.index.map(pd.Timestamp)
+            except ValueError:
+                pass
         df = df.sort_index()
         return df
 

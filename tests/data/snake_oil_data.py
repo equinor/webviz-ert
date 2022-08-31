@@ -207,14 +207,13 @@ ensembles_response = {
             index=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
         ).transpose()
     ),
-    "http://127.0.0.1:5000/ensembles/3/records/WOPR:OP1?realization_index=0": pd.DataFrame(
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        columns=[0],
-        index=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-    )
-    .transpose()
-    .to_csv()
-    .encode(),
+    "http://127.0.0.1:5000/ensembles/3/records/WOPR:OP1": to_parquet_helper(
+        pd.DataFrame(
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            columns=[0],
+            index=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+        ).transpose()
+    ),
     "http://127.0.0.1:5000/ensembles/3/records/WOPR:OP1/observations?realization_index=0": [
         {
             "x_axis": [1, 4],

@@ -258,11 +258,12 @@ class PlotModel:
     def x_axis(self) -> Any:
         return self._x_axis
 
-    def indexes_in_range(self, x_start: Any, x_end: Any) -> List:
-        if self.axis_type == AxisType.TIMESTAMP:
-            x_start = isoparse(x_start)
-            x_end = isoparse(x_end)
+    def indexes_in_range(self, x_range: List) -> List:
         result = []
+        if self.axis_type == AxisType.TIMESTAMP:
+            x_range = [pd.Timestamp(x) for x in x_range]
+        x_start = min(x_range)
+        x_end = max(x_range)
         for val in self.x_axis:
             if x_start <= val <= x_end:
                 result.append(val)
