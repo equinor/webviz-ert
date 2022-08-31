@@ -1,9 +1,8 @@
-from typing import List, Mapping, Optional, Any, Union, Dict
-import datetime
+from typing import List, Mapping, Optional, Any
 import pandas as pd
 from webviz_ert.data_loader import get_data_loader, DataLoader
 
-from webviz_ert.models import Realization, Observation, indexes_to_axis
+from webviz_ert.models import Observation, AxisType
 
 
 class Response:
@@ -36,6 +35,14 @@ class Response:
     @property
     def axis(self) -> pd.Index:
         return self.data.index
+
+    @property
+    def axis_type(self) -> Optional[AxisType]:
+        if self.axis is None or self.axis.empty:
+            return None
+        if str(self.axis[0]).isnumeric():
+            return AxisType.INDEX
+        return AxisType.TIMESTAMP
 
     @property
     def data(self) -> pd.DataFrame:

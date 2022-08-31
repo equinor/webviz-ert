@@ -1,5 +1,4 @@
 import pandas as pd
-from pandas._libs.tslibs.timestamps import Timestamp
 import plotly.graph_objects as go
 import dash
 import numpy as np
@@ -71,7 +70,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         active_response = active_resp_param["response"]
         active_response_name = active_response["name"]
         active_index = active_response.get("index")
-        if active_index:
+        if active_index is not None:
             active_response_name = f"{active_response_name}::{active_index}"
         data = {}
         colors = {}
@@ -91,13 +90,14 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                 resp_indexes = []
                 valid_response_with_index = []
                 if response.observations:
+                    response_axis = response.axis
                     for obs_idx in selected_obs.get(response.name, []):
-                        if isinstance(obs_idx, str):
-                            resp_index = str(Timestamp(obs_idx))
-                        else:
-                            resp_index = obs_idx
-                        resp_indexes.append(resp_index)
-                        valid_response_with_index.append(f"{response.name}::{obs_idx}")
+                        if obs_idx in response_axis:
+                            resp_indexes.append(obs_idx)
+                            valid_response_with_index.append(
+                                f"{response.name}::{obs_idx}"
+                            )
+
                     valid_responses += valid_response_with_index
                     new_dataframe = response.data.loc[resp_indexes].T
                     new_dataframe.columns = valid_response_with_index
@@ -221,9 +221,9 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                 for obs in response.observations:
                     if not obs.axis:
                         continue
-                    if obs.axis_type == AxisType.INDEX and not index_axis:
+                    if not index_axis and obs.axis_type == AxisType.INDEX:
                         index_axis = True
-                    elif not time_axis:
+                    elif not time_axis and obs.axis_type == AxisType.TIMESTAMP:
                         time_axis = True
                     obs_plots.append(_observation_index_plot(obs, response_name, idx))
 
@@ -356,7 +356,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         fig.update_layout(_layout_figure(x_axis_label))
 
         selected_obs_idx = active_response.get("index")
-        if selected_obs_idx:
+        if selected_obs_idx is not None:
             fig.add_vline(
                 x=selected_obs_idx,
                 line=dict(color="red", dash="dash", width=4),
@@ -419,14 +419,9 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
                 _colors[str(ensemble)] = ensemble_color
                 active_index: Optional[Any] = active_response.get("index")
                 if response.observations:
-                    for obs in response.observations:
-                        if not active_index:
-                            continue
-                        if obs.axis_type == AxisType.TIMESTAMP:
-                            resp_index = str(Timestamp(active_index))
-                        else:
-                            resp_index = active_index
-                        x_data = response.data.loc[resp_index]
+                    response_axis = response.axis
+                    if active_index is not None and active_index in response_axis:
+                        x_data = response.data.loc[active_index]
                         _plots += [
                             PlotModel(
                                 x_axis=x_data.values.flatten(),
@@ -452,7 +447,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         )
         active_index_text = "NA"
         active_index = active_response.get("index")
-        if active_index:
+        if active_index is not None:
             active_index_text = _format_index_text(active_index)
         _set_scatterplot_axes_titles(
             fig, row_histograms, active_response, active_parameter, active_index_text
@@ -494,7 +489,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
 
         active_index_text = "NA"
         active_index = active_response.get("index")
-        if active_index:
+        if active_index is not None:
             active_index_text = _format_index_text(active_index)
         active_response_text = active_response.get("name")
         active_parameter_text = active_resp_param["parameter"]
@@ -671,7 +666,7 @@ def _format_index_text(raw_index: Union[str, int]) -> str:
         return str(formatted_index)
     else:
         try:
-            return str(Timestamp(raw_index).date())
+            return str(pd.Timestamp(raw_index).date())
         except (TypeError, ValueError):
             return str(raw_index)
 
@@ -781,12 +776,11 @@ def _get_selected_indexes(plots: List[PlotModel], data_range: Optional[Dict]) ->
     index_range = data_range.get("x2")
     for plot in plots:
         if plot.axis_type == AxisType.INDEX and index_range:
-            x_start, x_end = index_range
+            indexes_in_range = plot.indexes_in_range(index_range)
         elif plot.axis_type == AxisType.TIMESTAMP and time_range:
-            x_start, x_end = time_range
+            indexes_in_range = plot.indexes_in_range(time_range)
         else:
             continue
-        indexes_in_range = plot.indexes_in_range(x_start, x_end)
         if indexes_in_range:
             selected_indexes[plot.name] = indexes_in_range
 

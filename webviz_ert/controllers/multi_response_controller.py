@@ -15,6 +15,7 @@ from webviz_ert.models import (
     Response,
     PlotModel,
     load_ensemble,
+    AxisType,
 )
 
 if TYPE_CHECKING:
@@ -213,29 +214,7 @@ def multi_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> Non
 def axis_label_for_ensemble_response(
     ensemble: "EnsembleModel", response_name: str
 ) -> str:
-    response = ensemble.responses[response_name]
-    response_data = response.data
-    index = response_data.index
-    index_type = type(index)
-    data_sample = index[0] if len(index) > 0 else None
-    if index_type == pd.core.indexes.base.Index and data_sample is not None:
-        try:
-            pd.to_datetime(data_sample)
-        except (pd.errors.ParserError, ValueError) as error:
-            logger.warning(
-                f"got following error trying to parse {data_sample}\n"
-                f"as date for ensemble {ensemble.name}, response {response_name}:\n"
-                f"{error}"
-            )
-            pass
-        else:
-            return "Date"
-    if index_type == pd.core.indexes.numeric.Int64Index:
-        return "Index"
-
-    logger.warning(
-        f"got index type `{index_type}` and data sample `{data_sample}` for\n"
-        f"ensemble {ensemble.name}, response {response_name}\n"
-        "- not sure how to convert to axis label string"
-    )
+    response: Response = ensemble.responses[response_name]
+    if response.axis_type == AxisType.TIMESTAMP:
+        return "Date"
     return "Index"

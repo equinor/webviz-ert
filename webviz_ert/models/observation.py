@@ -8,11 +8,11 @@ from webviz_ert.models import indexes_to_axis, AxisType
 class Observation:
     def __init__(self, observation_schema: Dict):
         self.name = str(observation_schema["name"])
-        self._x_axis = observation_schema["x_axis"]
+        self._x_axis = indexes_to_axis(observation_schema["x_axis"])
         self._std = observation_schema["errors"]
         self._values = observation_schema["values"]
         self._attributes = ""
-        self._active = [True for _ in self._x_axis]
+        self._active = [True for _ in self._x_axis] if self._x_axis else []
 
         if "attributes" in observation_schema:
             for k, v in observation_schema["attributes"].items():
@@ -31,7 +31,7 @@ class Observation:
 
     @property
     def axis(self) -> Optional[List[Union[int, str, datetime.datetime]]]:
-        return indexes_to_axis(self._x_axis)
+        return self._x_axis
 
     @property
     def axis_type(self) -> Optional[AxisType]:

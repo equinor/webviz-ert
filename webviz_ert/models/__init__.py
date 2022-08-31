@@ -1,6 +1,6 @@
 from typing import List, Union, Optional, TYPE_CHECKING
 import datetime
-import dateutil.parser
+import pandas as pd
 
 
 def indexes_to_axis(
@@ -8,7 +8,7 @@ def indexes_to_axis(
 ) -> Optional[List[Union[int, str, datetime.datetime]]]:
     try:
         if indexes and type(indexes[0]) is str and not str(indexes[0]).isnumeric():
-            return list(map(lambda dt: dateutil.parser.isoparse(str(dt)), indexes))
+            return list(map(lambda dt: pd.Timestamp(dt), indexes))
         if indexes and type(indexes[0]) is str and str(indexes[0]).isnumeric():
             return list(map(lambda idx: int(str(idx)), indexes))
         return indexes

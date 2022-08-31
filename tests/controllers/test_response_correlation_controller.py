@@ -1,8 +1,6 @@
 import pandas as pd
 import pytest
 
-from pandas._libs.tslibs.timestamps import Timestamp
-
 from webviz_ert.controllers.response_correlation_controller import (
     _define_style_ensemble,
     _layout_figure,
@@ -52,7 +50,7 @@ def test_define_style_ensemble_color(index, expected_color):
     "x_axis_list,expected_mode",
     [
         (
-            [Timestamp("01-01-2020")],
+            [pd.Timestamp("01-01-2020")],
             "markers+lines",
         ),
         ([str(1)], "markers"),
@@ -140,14 +138,14 @@ def test_format_index_value(raw_value: str, expected_formatted_value: str):
                     x_axis=[0, 5, 10], y_axis=[1, 1, 1], name="plot1", **PLOT_STYLE
                 ),
                 PlotModel(
-                    x_axis=[Timestamp("2020-01-02")],
+                    x_axis=[pd.Timestamp("2020-01-02")],
                     y_axis=[1, 1, 1],
                     name="plot2",
                     **PLOT_STYLE
                 ),
             ],
             {"x": ["2020-01-01", "2020-01-03"]},
-            {"plot2": [Timestamp("2020-01-02")]},
+            {"plot2": [pd.Timestamp("2020-01-02")]},
         ),
         (
             [
@@ -155,14 +153,14 @@ def test_format_index_value(raw_value: str, expected_formatted_value: str):
                     x_axis=[0, 5, 10], y_axis=[1, 1, 1], name="plot1", **PLOT_STYLE
                 ),
                 PlotModel(
-                    x_axis=[Timestamp("2020-01-02")],
+                    x_axis=[pd.Timestamp("2020-01-02")],
                     y_axis=[1, 1, 1],
                     name="plot2",
                     **PLOT_STYLE
                 ),
             ],
             {"x": ["2020-01-01", "2020-01-03"], "x2": [4, 6]},
-            {"plot1": [5], "plot2": [Timestamp("2020-01-02")]},
+            {"plot1": [5], "plot2": [pd.Timestamp("2020-01-02")]},
         ),
     ],
 )
