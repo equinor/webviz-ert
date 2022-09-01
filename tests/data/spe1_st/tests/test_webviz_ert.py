@@ -77,6 +77,7 @@ def test_webviz_response_correlation(dash_duo):
                 f"PARAMETER: {param_name}",
             ]
         ),
+        30,
     )
 
 
