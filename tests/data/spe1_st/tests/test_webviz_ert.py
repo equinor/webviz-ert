@@ -6,7 +6,14 @@ from webviz_ert.plugins import (
     ResponseCorrelation,
     ObservationAnalyzer,
 )
-from tests.conftest import select_first, setup_plugin, verify_key_in_dropdown
+from tests.conftest import (
+    select_first,
+    select_ensemble,
+    select_parameter,
+    select_response,
+    setup_plugin,
+    verify_key_in_dropdown,
+)
 
 parameter_keys = ["FIELD_PROPERTIES:POROSITY", "FIELD_PROPERTIES:X_MID_PERMEABILITY"]
 response_keys = ["WGPT:PROD", "WWPT:PROD", "WOPT:PROD", "WWIT:INJ"]
@@ -44,41 +51,49 @@ def test_webviz_parameter_comparison(get_ensemble_id, dash_duo):
 def test_webviz_response_correlation(dash_duo):
     plugin = setup_plugin(dash_duo, __name__, ResponseCorrelation)
 
+    ensemble = "default"
+    response = "WOPT:PROD"
+    parameter = "FIELD_PROPERTIES:POROSITY::0"
+    index = "2016-01-01"
+
     # Wait for the ensemble selector to be initialized
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("ensemble-multi-selector"),
-        "default",
+        ensemble,
     )
+    select_ensemble(dash_duo, plugin, ensemble)
 
-    ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
     _verify_keys_in_menu(
         dash_duo, plugin, parameter_keys, "parameter-selector-multi-param"
     )
-
     _verify_keys_in_menu(
         dash_duo,
         plugin,
         response_keys_with_observations,
         "parameter-selector-multi-resp",
     )
-    response_name = select_first(
-        dash_duo, "#" + plugin.uuid("parameter-selector-multi-resp")
-    )
-    param_name = select_first(
-        dash_duo, "#" + plugin.uuid("parameter-selector-multi-param")
+
+    select_response(dash_duo, plugin, response, wait_for_plot=False)
+    dash_duo.wait_for_contains_text(
+        "#" + plugin.uuid("parameter-deactivator-resp"),
+        f"×{response}",
     )
 
-    dash_duo.wait_for_text_to_equal(
-        "#" + plugin.uuid("info-text"),
-        "".join(
-            [
-                f"RESPONSE: {response_name}",
-                f"INDEX: 2016-01-01",
-                f"PARAMETER: {param_name}",
-            ]
-        ),
-        30,
+    select_parameter(dash_duo, plugin, parameter, wait_for_plot=False)
+    dash_duo.wait_for_contains_text(
+        "#" + plugin.uuid("parameter-deactivator-param"),
+        f"×{parameter}",
     )
+    expected_text = "".join(
+        [
+            f"RESPONSE: {response}",
+            f"INDEX: {index}",
+            f"PARAMETER: {parameter}",
+        ]
+    )
+
+    selector_id = "#" + plugin.uuid("info-text")
+    dash_duo.wait_for_text_to_equal(selector_id, expected_text)
 
 
 @pytest.mark.spe1
