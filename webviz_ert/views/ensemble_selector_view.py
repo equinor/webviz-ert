@@ -47,6 +47,7 @@ def ensemble_selector_list(parent: WebvizErtPluginABC) -> List[Component]:
                 persistence_type="session",
                 options=[],
                 value=[],
+                className="ert-select-variable",
             ),
             id=parent.uuid("container-ensemble-selector-multi"),
             className="ert-ensemble-selector-container-show",

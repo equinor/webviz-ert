@@ -52,6 +52,7 @@ def parameter_selector_view(
                     multi=True,
                     size=10,
                     persistence="session",
+                    className="ert-select-variable",
                 ),
                 id=parent.uuid(f"container-parameter-selector-multi-{data_type}"),
                 className="ert-parameter-selector-container-show",
