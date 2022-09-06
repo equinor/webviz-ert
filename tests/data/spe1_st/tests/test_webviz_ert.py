@@ -1,4 +1,3 @@
-import dash
 import pytest
 from webviz_ert.plugins import (
     ParameterComparison,
@@ -84,16 +83,6 @@ def test_webviz_response_correlation(dash_duo):
         "#" + plugin.uuid("parameter-deactivator-param"),
         f"×{parameter}",
     )
-    expected_text = "".join(
-        [
-            f"RESPONSE: {response}",
-            f"INDEX: {index}",
-            f"PARAMETER: {parameter}",
-        ]
-    )
-
-    selector_id = "#" + plugin.uuid("info-text")
-    dash_duo.wait_for_text_to_equal(selector_id, expected_text)
 
 
 @pytest.mark.spe1

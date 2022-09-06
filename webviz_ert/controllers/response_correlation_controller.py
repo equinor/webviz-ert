@@ -470,19 +470,12 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         Output(parent.uuid("info-text"), "children"),
         [
             Input(parent.uuid("correlation-store-active-resp-param"), "data"),
-            Input(parent.uuid("ensemble-selection-store"), "data"),
         ],
     )
     def update_info_text(
         active_resp_param: Dict,
-        ensemble_selection_store: Dict[str, List],
     ) -> List[Component]:
-        ensembles = _get_selected_ensembles_from_store(ensemble_selection_store)
-        if not (
-            ensembles
-            and active_resp_param["response"]
-            and active_resp_param["parameter"]
-        ):
+        if not (active_resp_param["response"] and active_resp_param["parameter"]):
             return []
         info_text = []
         active_response = active_resp_param["response"]
