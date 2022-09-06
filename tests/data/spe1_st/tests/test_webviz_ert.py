@@ -95,6 +95,8 @@ def test_webviz_response_correlation(dash_duo):
     selector_id = "#" + plugin.uuid("info-text")
     dash_duo.wait_for_text_to_equal(selector_id, expected_text)
 
+    print("done!")
+
 
 @pytest.mark.spe1
 def test_webviz_response_comparison(dash_duo):
