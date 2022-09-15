@@ -16,7 +16,10 @@ logger = logging.getLogger()
 
 
 def run_webviz_ert(
-    title: str, experimental_mode: bool = False, verbose: bool = False
+    title: str,
+    experimental_mode: bool = False,
+    verbose: bool = False,
+    project_identifier: Optional[str] = None,
 ) -> None:
     signal.signal(signal.SIGINT, handle_exit)
     # The entry point of webviz is to call it from command line, and so do we.
@@ -25,9 +28,8 @@ def run_webviz_ert(
     if webviz:
         send_ready()
         with tempfile.NamedTemporaryFile() as temp_config:
-            project_identifier = os.getenv("ERT_PROJECT_IDENTIFIER", os.getcwd())
             if project_identifier is None:
-                logger.error("Unable to find ERT project!")
+                project_identifier = os.getcwd()
             create_config(
                 title, project_identifier, WEBVIZ_CONFIG, temp_config, experimental_mode
             )
@@ -120,6 +122,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "--title", help="Set title of html document", default="ERT - Visualization tool"
     )
+    parser.add_argument(
+        "--project_identifier", help="Set title of html document", default=os.getcwd()
+    )
+
     args = parser.parse_args()
 
-    run_webviz_ert(args.title, args.experimental_mode, args.verbose)
+    run_webviz_ert(
+        args.title, args.experimental_mode, args.verbose, args.project_identifier
+    )
