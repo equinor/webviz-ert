@@ -10,7 +10,7 @@ import tempfile
 class WebvizErtPluginABC(WebvizPluginABC):
     _ensembles: MutableMapping[str, "EnsembleModel"] = {}
     _state: MutableMapping[str, Any] = {}
-    _state_file_name: str = "last_known_state.json"
+    _state_file_name: str = "webviz_ert_state.json"
     _state_path: Optional[pathlib.Path] = None
 
     def __init__(self, app: dash.Dash, project_identifier: str):
@@ -29,7 +29,7 @@ class WebvizErtPluginABC(WebvizPluginABC):
         if not WebvizErtPluginABC._state:
             if WebvizErtPluginABC._state_path is None:
                 WebvizErtPluginABC._state_path = (
-                    project_root / f".webviz/{WebvizErtPluginABC._state_file_name}"
+                    project_root / f"{WebvizErtPluginABC._state_file_name}"
                 )
             if not WebvizErtPluginABC._state_path.exists():
                 WebvizErtPluginABC._state_path.parent.mkdir(parents=True, exist_ok=True)
