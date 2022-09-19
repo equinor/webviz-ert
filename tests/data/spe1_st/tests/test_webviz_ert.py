@@ -29,9 +29,7 @@ def _verify_keys_in_menu(dash_duo_handle, plugin, keys, selector):
 
 
 @pytest.mark.spe1
-def test_webviz_parameter_comparison(get_ensemble_id, dash_duo):
-    # here we need the poke storage first - to get this test running
-    _ = get_ensemble_id
+def test_webviz_parameter_comparison(dash_duo):
     plugin = setup_plugin(dash_duo, __name__, ParameterComparison)
 
     # Wait for the ensemble selector to be initialized
