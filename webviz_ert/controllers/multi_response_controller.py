@@ -81,7 +81,7 @@ def _get_realizations_statistics_plots(
 
 
 def _get_observation_plots(
-    observation_df: pd.DataFrame, metadata: List[str] = None
+    observation_df: pd.DataFrame, metadata: Optional[List[str]] = None
 ) -> PlotModel:
     data = observation_df["values"]
     stds = observation_df["std"]

@@ -10,7 +10,7 @@ logger = logging.getLogger()
 connection_info_map: dict = {}
 
 
-def get_connection_info(project_id: str = None) -> Mapping[str, str]:
+def get_connection_info(project_id: Optional[str] = None) -> Mapping[str, str]:
     from ert.shared.storage.connection import get_info
 
     if project_id not in connection_info_map:
@@ -57,7 +57,7 @@ class DataLoader:
         return loader
 
     def _get(
-        self, url: str, headers: dict = None, params: dict = None
+        self, url: str, headers: Optional[dict] = None, params: Optional[dict] = None
     ) -> requests.Response:
         if headers is None:
             headers = {}
@@ -77,7 +77,7 @@ class DataLoader:
         return resp
 
     def _post(
-        self, url: str, headers: dict = None, params: dict = None
+        self, url: str, headers: Optional[dict] = None, params: Optional[dict] = None
     ) -> requests.Response:
         if headers is None:
             headers = {}
