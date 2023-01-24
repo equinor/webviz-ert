@@ -20,7 +20,7 @@ start_tests () {
 start_integration_test () {
 
     echo "Downloading chromedriver ..."
-    wget -O chromedriver.zip https://chromedriver.storage.googleapis.com/103.0.5060.134/chromedriver_linux64.zip
+    wget -O chromedriver.zip https://chromedriver.storage.googleapis.com/108.0.5359.71/chromedriver_linux64.zip
     unzip chromedriver.zip chromedriver -d ../test-kenv/root/bin
 
     pip install pytest selenium dash[testing]
