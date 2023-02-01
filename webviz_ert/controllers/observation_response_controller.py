@@ -42,7 +42,6 @@ def _get_univariate_misfits_boxplots(
 def _create_misfits_plot(
     response: Response, selected_realizations: List[int], color: str, ensemble_name: str
 ) -> ResponsePlotModel:
-
     realizations = _get_univariate_misfits_boxplots(
         response.univariate_misfits_df(selected_realizations),
         ensemble_name=ensemble_name,
