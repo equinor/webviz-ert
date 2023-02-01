@@ -117,7 +117,6 @@ def _create_response_plot(
     style: Optional[Dict] = None,
     ensemble_name: str = "",
 ) -> ResponsePlotModel:
-
     x_axis = response.axis
     if plot_type == "Statistics":
         realizations = _get_realizations_statistics_plots(

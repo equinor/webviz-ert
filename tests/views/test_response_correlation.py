@@ -25,7 +25,6 @@ def test_axes_labels(mock_data, dash_duo):
     # we only see one response at a time, so we choose and check one after the
     # other
     for wanted_response in wanted_responses:
-
         response_selector_id = plugin.uuid("parameter-selector-multi-resp")
         select_by_name(dash_duo, f"#{response_selector_id}", wanted_response)
 
