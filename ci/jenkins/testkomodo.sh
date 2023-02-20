@@ -14,7 +14,7 @@ start_tests () {
     then
         exit $test_result
     fi
-    pytest -vs -k "not spe1"
+    pytest -vs -m "not spe1"
 }
 
 start_integration_test () {
@@ -31,9 +31,9 @@ start_integration_test () {
 
     ert ensemble_experiment --enable-new-storage spe1.ert
 
-    echo "Ert ensemble_esmeble experiment run finished"
+    echo "Ert ensemble_experiment run finished"
 
     echo "Test for webviz-ert plugins ..."
-    pytest ../../../ -vs -k spe1
+    pytest ../../../ -vs -m spe1
     popd
 }
