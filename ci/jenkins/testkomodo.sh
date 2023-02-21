@@ -30,12 +30,15 @@ start_integration_test () {
     pushd tests/data/spe1_st
 
     echo "Initiating Ert run for Spe1 with new storage enabled..."
-
     ert ensemble_experiment --enable-new-storage spe1.ert
-
     echo "Ert ensemble_experiment run finished"
 
-    echo "Test for webviz-ert plugins ..."
+    # $HOST is set to machine name for f_komodo user's bash shells.
+    # Must unset for Dash to use localhost as server name, as Selenium expects.
+    unset HOST
+
+    echo "Test for webviz-ert plugins..."
     pytest ../../../ -vs -m spe1
+
     popd
 }
