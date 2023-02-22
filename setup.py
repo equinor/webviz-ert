@@ -48,7 +48,10 @@ setup(
         "Environment :: Web Environment",
         "Framework :: Dash",
         "Framework :: Flask",
+        "Topic :: Scientific/Engineering",
+        "Intended Audience :: Science/Research",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
     ],
 )
