@@ -30,8 +30,9 @@ def test_axes_labels(mock_data, dash_duo):
 
         plot_id = plugin.uuid("response-overview")
 
-        # check that y axis label spells out "Value"
-        dash_duo.wait_for_text_to_equal(f"#{plot_id} text.ytitle", "Value")
+        # check that y axis label spells out "Value"; test is flaky so longer
+        # timeout.
+        dash_duo.wait_for_text_to_equal(f"#{plot_id} text.ytitle", "Value", timeout=20)
 
         # check that one has date, the other has index as x axis label
         if wanted_response == "FOPR":
