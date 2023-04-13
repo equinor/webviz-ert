@@ -54,7 +54,6 @@ def test_parameter_selector(
     parameter_selector_container = dash_duo.wait_for_element_by_css_selector(
         ".ert-parameter-selector-container-hide"
     )
-    # assert dash_duo.get_logs() == []
 
 
 def test_search_input_return_functionality(
@@ -124,8 +123,6 @@ def test_search_input_return_functionality(
         "#" + plugin.uuid("parameter-deactivator-param"),
         "×OP1_DIVERGENCE_SCALE",
     )
-
-    # assert dash_duo.get_logs() == []
 
 
 def test_parameter_selector_sorting(

@@ -76,8 +76,6 @@ def test_selectors_visibility_toggle_button(plugin_class, skip, mock_data, dash_
             f"{variable_container_class_prefix}-hide",
         )
 
-    # assert dash_duo.get_logs() == [], "browser console should contain no error"
-
 
 def test_response_selector_sorting(mock_data, dash_duo):
     plugin = setup_plugin(dash_duo, __name__, ResponseComparison)

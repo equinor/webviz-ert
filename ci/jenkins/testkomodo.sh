@@ -10,15 +10,22 @@ install_package () {
 start_tests () {
     start_integration_test
     test_result=$?
-    if [ "$test_result" -gt 0 ];
+    if [ "$test_result" -gt 0 ]
     then
         exit $test_result
     fi
-    pytest -vs -m "not spe1"
+    if [ $CI_RUNNER_LABEL == "azure" ]
+    then
+        # Double the timeouts on Azure.
+        pytest -vs -m "not spe1" --implicit-timeout=4 --explicit-timeout=20
+    else
+        pytest -vs -m "not spe1"
+    fi
 }
 
 start_integration_test () {
 
+    # Dynamically set up the chromedriver according to the installed version.
     chromium_version=$(chromium-browser --version | grep -zoP '\d+\.\d+\.\d+')
     chromedriver_version=$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$chromium_version)
     echo "Downloading chromedriver v$chromedriver_version for chromium-browser v$chromium_version"
@@ -38,7 +45,14 @@ start_integration_test () {
     unset HOST
 
     echo "Test for webviz-ert plugins..."
-    pytest ../../../ -vs -m spe1
+    
+    if [ $CI_RUNNER_LABEL == "azure" ]
+    then
+        # Double the timeouts on Azure.
+        pytest ../../../ -vs -m spe1 --implicit-timeout=4 --explicit-timeout=20
+    else
+        pytest ../../../ -vs -m spe1
+    fi
 
     popd
 }

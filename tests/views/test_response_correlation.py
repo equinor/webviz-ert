@@ -30,9 +30,8 @@ def test_axes_labels(mock_data, dash_duo):
 
         plot_id = plugin.uuid("response-overview")
 
-        # check that y axis label spells out "Value"; test is flaky so longer
-        # timeout.
-        dash_duo.wait_for_text_to_equal(f"#{plot_id} text.ytitle", "Value", timeout=20)
+        # check that y axis label spells out "Value".
+        dash_duo.wait_for_text_to_equal(f"#{plot_id} text.ytitle", "Value")
 
         # check that one has date, the other has index as x axis label
         if wanted_response == "FOPR":
@@ -50,8 +49,6 @@ def test_axes_labels(mock_data, dash_duo):
         # wait for deselected option to reappear among available options
         dash_duo.wait_for_contains_text(f"#{response_selector_id}", wanted_response)
 
-    # assert dash_duo.get_logs() == [], "browser console should contain no error"
-
 
 def test_show_respo_with_obs(mock_data, dash_duo):
     """Test response observation filter works as expected"""
@@ -66,7 +63,6 @@ def test_show_respo_with_obs(mock_data, dash_duo):
     dash_duo.wait_for_text_to_equal(
         response_selector_id,
         "\n".join(expected_responses_with_observations),
-        timeout=20,
     )
 
 
@@ -86,6 +82,4 @@ def test_info_text_appears_as_expected(
     expected_text = "".join(
         [f"RESPONSE: {response}", f"INDEX: {index}", f"PARAMETER: {parameter}"]
     )
-    dash_duo.wait_for_text_to_equal(info_text_selector, expected_text, timeout=20)
-
-    # assert dash_duo.get_logs() == [], "browser console should contain no error"
+    dash_duo.wait_for_text_to_equal(info_text_selector, expected_text)

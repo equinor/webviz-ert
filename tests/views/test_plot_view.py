@@ -4,7 +4,6 @@ from tests.conftest import (
     select_ensemble,
     select_parameter,
     select_response,
-    wait_a_bit,
 )
 
 
@@ -22,8 +21,6 @@ def test_plot_view(
     select_response(dash_duo, plugin, "SNAKE_OIL_GPR_DIFF")
 
     select_parameter(dash_duo, plugin, "BPR_138_PERSISTENCE")
-
-    # assert dash_duo.get_logs() == [], "browser console should contain no error"
 
 
 def test_clearing_parameters_view(
@@ -57,8 +54,6 @@ def test_clearing_parameters_view(
     # verify only expected response plot is left in place
     dash_duo.find_element(f".dash-graph[id*={response_name}]")
 
-    # assert dash_duo.get_logs() == [], "browser console should contain no error"
-
 
 def test_clearing_ensembles_view(
     mock_data,
@@ -86,12 +81,9 @@ def test_clearing_ensembles_view(
     )
     clear_all.click()
 
-    # wait a bit for the page to update
-    wait_a_bit(dash_duo)
-
-    # verify all plots are gone
-    plots = dash_duo.find_elements(".dash-graph")
-    assert len(plots) == 0
+    # Verify that the elements have been removed, using
+    # undocumented dash.testing feature (returns None).
+    _ = dash_duo.wait_for_no_elements(".dash-graph")
 
     # verify no responses are selected
     chosen_responses = dash_duo.find_elements(
@@ -104,8 +96,6 @@ def test_clearing_ensembles_view(
         "#" + plugin.uuid("parameter-deactivator-param") + " .Select-value"
     )
     assert len(chosen_parameters) == 0
-
-    # assert dash_duo.get_logs() == [], "browser console should contain no error"
 
 
 def test_axis_labels(mock_data, dash_duo):
@@ -137,5 +127,3 @@ def test_axis_labels(mock_data, dash_duo):
 
     index_plot_id = plugin.uuid("FGPT")
     dash_duo.wait_for_text_to_equal(f"#{index_plot_id} text.xtitle", "Index")
-
-    # assert dash_duo.get_logs() == [], "browser console should contain no error"

@@ -26,8 +26,6 @@ def test_observation_analyzer_view_ensemble_no_observations(
     response_options_selector = f"#{plugin.uuid('response-selector')}"
     dash_duo.wait_for_text_to_equal(response_options_selector, "Select...")
 
-    # assert dash_duo.get_logs() == [], "browser console should contain no error"
-
 
 def test_observation_analyzer_view_ensemble_with_observations(
     mock_data,
@@ -46,5 +44,3 @@ def test_observation_analyzer_view_ensemble_with_observations(
     )
 
     verify_key_in_dropdown(dash_duo, plugin.uuid("response-selector"), "FOPR")
-
-    # assert dash_duo.get_logs() == [], "browser console should contain no error"

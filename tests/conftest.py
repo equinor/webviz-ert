@@ -2,10 +2,44 @@ import pytest
 from requests import HTTPError
 import dash
 from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import TimeoutException
 
 
 from tests.data.snake_oil_data import ensembles_response
+
+
+def pytest_addoption(parser):
+    """
+    Add some command-line options to pytest, so we can set timeout limits,
+    e.g. according to which platform we are running the tests on, Azure or
+    on-prem.
+
+    These are used by setup_plugin().
+    """
+    parser.addoption(
+        "--implicit-timeout",
+        action="store",
+        type=int,
+        default=2,
+        help="implicit timeout in seconds; default 2 s",
+    )
+    parser.addoption(
+        "--explicit-timeout",
+        action="store",
+        type=int,
+        default=10,
+        help="explicit timeout in seconds; default 10 s",
+    )
+
+
+# We want to access the options in conftest.py, not in tests;
+# this is one way to make the options available as variables.
+IMPLICIT_TIMEOUT, EXPLICIT_TIMEOUT = None, None
+
+
+def pytest_configure(config):
+    global IMPLICIT_TIMEOUT, EXPLICIT_TIMEOUT
+    IMPLICIT_TIMEOUT = config.getoption("--implicit-timeout")
+    EXPLICIT_TIMEOUT = config.getoption("--explicit-timeout")
 
 
 def pytest_setup_options():
@@ -80,8 +114,6 @@ def select_first(dash_duo, selector):
         raise AssertionError(f"No selection option for selector {selector}")
     text = options[0].text
     options[0].click()
-    # TODO remove wait?
-    wait_a_bit(dash_duo, time_seconds=0.5)
     return text
 
 
@@ -93,8 +125,6 @@ def select_by_name(dash_duo, selector, name):
     for option in options:
         if option.text == name:
             option.click()
-            # TODO remove wait?
-            wait_a_bit(dash_duo, time_seconds=0.5)
             return name
     raise AssertionError(f"Option {name} not available in {selector}")
 
@@ -116,8 +146,22 @@ def setup_plugin(
     plugin = plugin_class(app, project_identifier=project_identifier, beta=beta)
     app.layout = plugin.layout
     dash_duo.start_server(app)
-    windowsize = window_size
-    dash_duo.driver.set_window_size(*windowsize)
+    dash_duo.driver.set_window_size(*window_size)
+
+    # Change timeout periods to help fix flaky tests.
+    # These are changed with the command-line options,
+    # --implicit-timeout and --implicit-timeout. For example,
+    #     pytest --explicit-timeout=20
+    # to double the explicit timeout on the wait_for_* calls.
+    # Read more about waits in Selenium:
+    # https://selenium-python.readthedocs.io/waits.html
+    #
+    # Implicit waits:
+    dash_duo.driver.implicitly_wait(IMPLICIT_TIMEOUT)
+
+    # Explicit waits:
+    dash_duo.wait_timeout = EXPLICIT_TIMEOUT  # Requires dash>=2.9.0
+
     return plugin
 
 
@@ -131,7 +175,6 @@ def select_ensemble(dash_duo, plugin, wanted_ensemble_name=None):
         dash_duo.wait_for_contains_text(
             "#" + plugin.uuid("selected-ensemble-dropdown"),
             first_ensemble_name,
-            timeout=4,
         )
         return first_ensemble_name
 
@@ -140,7 +183,6 @@ def select_ensemble(dash_duo, plugin, wanted_ensemble_name=None):
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("selected-ensemble-dropdown"),
         wanted_ensemble_name,
-        timeout=4,
     )
     return wanted_ensemble_name
 
@@ -173,13 +215,6 @@ def select_parameter(dash_duo, plugin, parameter_name=None, wait_for_plot=True) 
     if wait_for_plot:
         dash_duo.wait_for_element(f"#{plugin.uuid(parameter_name)}")
     return parameter_name
-
-
-def wait_a_bit(dash_duo, time_seconds=0.1):
-    try:
-        dash_duo.wait_for_element(".foo-elderberries-baarrrrr", timeout=time_seconds)
-    except TimeoutException:
-        pass
 
 
 def verify_key_in_dropdown(dash_duo, selector, key):
