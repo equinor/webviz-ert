@@ -33,6 +33,7 @@ setup(
     install_requires=[
         "dash-bootstrap-components",
         "dash-daq",
+        "pandas<2",
         "requests",
         "webviz-config>=0.0.40",
         "webviz-config-equinor",

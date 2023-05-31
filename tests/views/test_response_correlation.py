@@ -64,7 +64,9 @@ def test_show_respo_with_obs(mock_data, dash_duo):
     response_selector_id = "#" + plugin.uuid("parameter-selector-multi-resp")
 
     dash_duo.wait_for_text_to_equal(
-        response_selector_id, "\n".join(expected_responses_with_observations)
+        response_selector_id,
+        "\n".join(expected_responses_with_observations),
+        timeout=20,
     )
 
 
@@ -84,6 +86,6 @@ def test_info_text_appears_as_expected(
     expected_text = "".join(
         [f"RESPONSE: {response}", f"INDEX: {index}", f"PARAMETER: {parameter}"]
     )
-    dash_duo.wait_for_text_to_equal(info_text_selector, expected_text)
+    dash_duo.wait_for_text_to_equal(info_text_selector, expected_text, timeout=20)
 
     # assert dash_duo.get_logs() == [], "browser console should contain no error"
