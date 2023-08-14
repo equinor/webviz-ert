@@ -19,10 +19,20 @@ start_tests () {
 
 start_integration_test () {
 
-    chromium_version=$(chromium-browser --version | grep -zoP '\d+\.\d+\.\d+')
-    chromedriver_version=$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$chromium_version)
-    echo "Downloading chromedriver v$chromedriver_version for chromium-browser v$chromium_version"
-    wget -O chromedriver.zip https://chromedriver.storage.googleapis.com/$chromedriver_version/chromedriver_linux64.zip
+    chromium_version=$(chromium-browser --version | grep -zoP '\d+\.\d+\.\d+\.\d+')
+    chromium_major_version=$(echo $chromium_version | grep -zoP '^\d+')
+    chromium_minor_version=$(echo $chromium_version | grep -zoP '^\d+\.\d+\.\d+')
+
+    # Until Chromium is upgrade to v115+ on onprem RGS nodes, we need two different download methods.
+    if [ "$chromium_major_version" -ge 115 ];
+    then
+        echo "Downloading chromedriver v$chromium_version for chromium-browser v$chromium_version"
+        wget -O chromedriver.zip https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$chromium_version/linux64/chromedriver-linux64.zip
+    else
+        chromedriver_version=$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$chromium_minor_version)
+        echo "Downloading chromedriver v$chromedriver_version for chromium-browser v$chromium_version"
+        wget -O chromedriver.zip https://chromedriver.storage.googleapis.com/$chromedriver_version/chromedriver_linux64.zip
+    fi
     unzip chromedriver.zip chromedriver -d ../test-kenv/root/bin
 
     pip install pytest selenium dash[testing]
