@@ -28,12 +28,13 @@ start_integration_test () {
     then
         echo "Downloading chromedriver v$chromium_version for chromium-browser v$chromium_version"
         wget -O chromedriver.zip https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$chromium_version/linux64/chromedriver-linux64.zip
+        unzip -j chromedriver.zip chromedriver-linux64/chromedriver -d ../test-kenv/root/bin
     else
         chromedriver_version=$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$chromium_minor_version)
         echo "Downloading chromedriver v$chromedriver_version for chromium-browser v$chromium_version"
         wget -O chromedriver.zip https://chromedriver.storage.googleapis.com/$chromedriver_version/chromedriver_linux64.zip
+        unzip chromedriver.zip chromedriver -d ../test-kenv/root/bin
     fi
-    unzip chromedriver.zip chromedriver -d ../test-kenv/root/bin
 
     pip install pytest selenium dash[testing]
 
