@@ -3,16 +3,6 @@ from setuptools import setup, find_packages
 with open("README.md", "r") as fh:
     LONG_DESCRIPTION = fh.read()
 
-TESTS_REQUIRE = [
-    "mypy",
-    "bandit",
-    "black",
-    "dash[testing]",
-    "pylint",
-    "pytest-mock",
-    "selenium~=3.141",
-]
-
 setup(
     name="webviz-ert",
     description="Webviz plugins for ERT",
@@ -39,8 +29,6 @@ setup(
         "webviz-config-equinor",
         "webviz-subsurface-components",
     ],
-    tests_require=TESTS_REQUIRE,
-    extras_require={"tests": TESTS_REQUIRE},
     setup_requires=["setuptools_scm"],
     use_scm_version=True,
     zip_safe=False,

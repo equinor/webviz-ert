@@ -6,6 +6,7 @@ black
 scipy
 dash[testing]>=2.5.1
 selenium
+urllib3<2 # RHEL7 does not support urllib >= 2.0
 types-requests
 types-pkg_resources
 types-PyYAML
