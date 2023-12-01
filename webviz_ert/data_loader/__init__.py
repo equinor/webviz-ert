@@ -1,9 +1,10 @@
-from typing import Any, Mapping, Optional, List, MutableMapping, Tuple, Dict
-from collections import defaultdict
-import requests
-import logging
-import pandas as pd
 import io
+import logging
+from collections import defaultdict
+from typing import Any, Dict, List, Mapping, MutableMapping, Optional, Tuple
+
+import pandas as pd
+import requests
 
 logger = logging.getLogger()
 
@@ -194,10 +195,9 @@ class DataLoader:
         except DataLoaderException as e:
             logger.error(e)
             return pd.DataFrame()
-
         try:
             df.index = df.index.astype(int)
-        except TypeError:
+        except (TypeError, ValueError):
             try:
                 df.index = df.index.map(pd.Timestamp)
             except ValueError:
