@@ -20,11 +20,23 @@ start_tests () {
 start_integration_test () {
 
     chromium_version=$(chromium-browser --version | grep -zoP '\d+\.\d+\.\d+\.\d+')
-    chromium_major_version=$(echo $chromium_version | grep -zoP '^\d+')
     chromium_minor_version=$(echo $chromium_version | grep -zoP '^\d+\.\d+\.\d+')
 
-    echo "Downloading chromedriver v$chromium_version for chromium-browser v$chromium_version"
-    wget -O chromedriver.zip https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$chromium_version/linux64/chromedriver-linux64.zip
+    # Sometimes the chromium-browser has no matching chromedriver.
+    # Check for HTTP 404 error
+    download_url="https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$chromium_version/linux64/chromedriver-linux64.zip"
+    download_status=$(curl --head "$download_url" | grep 'HTTP/2 200')
+
+    driver_version=$chromium_version
+    if [[ -z "$download_status" ]]; then
+        # If 404 error, get last good driver version instead.
+        googlechromelabs_url='https://googlechromelabs.github.io/chrome-for-testing/latest-patch-versions-per-build.json'
+        driver_version=$(curl -s "$googlechromelabs_url" | jq -r .builds.\"$chromium_minor_version\".version)
+        download_url="https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$driver_version/linux64/chromedriver-linux64.zip"
+    fi
+
+    echo "Downloading chromedriver v$driver_version for chromium-browser v$chromium_version"
+    wget -O chromedriver.zip "$download_url"
     unzip -j chromedriver.zip chromedriver-linux64/chromedriver -d ../test-kenv/root/bin
 
     pip install pytest selenium dash[testing]
