@@ -19,13 +19,13 @@ start_tests () {
 
 start_integration_test () {
 
-    chromium_version=$(chromium-browser --version | grep -zoP '\d+\.\d+\.\d+\.\d+')
-    chromium_minor_version=$(echo $chromium_version | grep -zoP '^\d+\.\d+\.\d+')
+    chromium_version=$(chromium-browser --version | grep -oP '\d+\.\d+\.\d+\.\d+')
+    chromium_minor_version=$(echo $chromium_version | grep -oP '^\d+\.\d+\.\d+')
 
     # Sometimes the chromium-browser has no matching chromedriver.
     # Check for HTTP 404 error
     download_url="https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$chromium_version/linux64/chromedriver-linux64.zip"
-    download_status=$(curl --head "$download_url" | grep 'HTTP/2 200')
+    download_status=$((curl --head "$download_url" || true) | grep -oP 'HTTP/.+? 200 OK')
 
     driver_version=$chromium_version
     if [[ -z "$download_status" ]]; then
