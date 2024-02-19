@@ -260,35 +260,35 @@ ensembles_response[
     ).transpose()
 )
 
-ensembles_response[
-    "http://127.0.0.1:5000/ensembles/1/records/SNAKE_OIL_GPR_DIFF"
-] = to_parquet_helper(
-    pd.DataFrame(
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        columns=["0"],
-        index=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
-    ).transpose()
+ensembles_response["http://127.0.0.1:5000/ensembles/1/records/SNAKE_OIL_GPR_DIFF"] = (
+    to_parquet_helper(
+        pd.DataFrame(
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            columns=["0"],
+            index=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+        ).transpose()
+    )
 )
 
-ensembles_response[
-    "http://127.0.0.1:5000/ensembles/1/records/OP1_DIVERGENCE_SCALE"
-] = to_parquet_helper(
-    pd.DataFrame(
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        columns=["0"],
-        index=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
-    ).transpose()
+ensembles_response["http://127.0.0.1:5000/ensembles/1/records/OP1_DIVERGENCE_SCALE"] = (
+    to_parquet_helper(
+        pd.DataFrame(
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            columns=["0"],
+            index=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+        ).transpose()
+    )
 )
 
 
-ensembles_response[
-    "http://127.0.0.1:5000/ensembles/1/records/BPR_138_PERSISTENCE"
-] = to_parquet_helper(
-    pd.DataFrame(
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        columns=["0"],
-        index=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
-    ).transpose()
+ensembles_response["http://127.0.0.1:5000/ensembles/1/records/BPR_138_PERSISTENCE"] = (
+    to_parquet_helper(
+        pd.DataFrame(
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            columns=["0"],
+            index=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+        ).transpose()
+    )
 )
 
 ensembles_response.update(

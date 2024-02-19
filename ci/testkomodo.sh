@@ -19,16 +19,14 @@ start_integration_test () {
     chromium_minor_version=$(echo $chromium_version | grep -oP '^\d+\.\d+\.\d+')
 
     # Sometimes the chromium-browser has no matching chromedriver.
-    # Check for HTTP 404 error
-    download_url="https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$chromium_version/linux64/chromedriver-linux64.zip"
-    download_status=$(curl --head "$download_url" | grep -oP 'HTTP/.+? 200 OK' || true)
+    download_url="https://storage.googleapis.com/chrome-for-testing-public/$chromium_version/linux64/chromedriver-linux64.zip"
 
     driver_version=$chromium_version
-    if [[ -z "$download_status" ]]; then
-        # If 404 error, get last good driver version instead.
+    if ! wget --spider "$download_url" 2>/dev/null; then
+        # If file not exists fall back to last good version
         googlechromelabs_url='https://googlechromelabs.github.io/chrome-for-testing/latest-patch-versions-per-build.json'
         driver_version=$(curl -s "$googlechromelabs_url" | jq -r .builds.\"$chromium_minor_version\".version)
-        download_url="https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$driver_version/linux64/chromedriver-linux64.zip"
+        download_url="https://storage.googleapis.com/chrome-for-testing-public/$driver_version/linux64/chromedriver-linux64.zip"
     fi
 
     echo "Downloading chromedriver v$driver_version for chromium-browser v$chromium_version"
