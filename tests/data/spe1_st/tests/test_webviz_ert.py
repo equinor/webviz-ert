@@ -29,7 +29,7 @@ def _verify_keys_in_menu(dash_duo_handle, plugin, keys, selector):
 
 
 @pytest.mark.spe1
-@pytest.mark.xfail(reason="Fails because ert>5 no longer supports ert-storage")
+#@pytest.mark.xfail(reason="Fails because ert>5 no longer supports ert-storage")
 def test_webviz_parameter_comparison(dash_duo):
     plugin = setup_plugin(dash_duo, __name__, ParameterComparison)
 
@@ -46,7 +46,7 @@ def test_webviz_parameter_comparison(dash_duo):
 
 
 @pytest.mark.spe1
-@pytest.mark.xfail(reason="Fails because ert>5 no longer supports ert-storage")
+#@pytest.mark.xfail(reason="Fails because ert>5 no longer supports ert-storage")
 def test_webviz_response_correlation(dash_duo):
     plugin = setup_plugin(dash_duo, __name__, ResponseCorrelation)
 
@@ -86,7 +86,7 @@ def test_webviz_response_correlation(dash_duo):
 
 
 @pytest.mark.spe1
-@pytest.mark.xfail(reason="Fails because ert>5 no longer supports ert-storage")
+#@pytest.mark.xfail(reason="Fails because ert>5 no longer supports ert-storage")
 def test_webviz_response_comparison(dash_duo):
     plugin = setup_plugin(dash_duo, __name__, ResponseComparison)
 
@@ -122,7 +122,7 @@ def test_webviz_response_comparison(dash_duo):
 
 
 @pytest.mark.spe1
-@pytest.mark.xfail(reason="Fails because ert>5 no longer supports ert-storage")
+#@pytest.mark.xfail(reason="Fails because ert>5 no longer supports ert-storage")
 def test_webviz_observation_analyzer(dash_duo):
     plugin = setup_plugin(dash_duo, __name__, ObservationAnalyzer)
 
