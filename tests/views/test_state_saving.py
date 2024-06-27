@@ -1,3 +1,4 @@
+import pytest
 from webviz_ert.plugins import (
     ResponseComparison,
     WebvizErtPluginABC,
@@ -12,6 +13,7 @@ from tests.conftest import (
 )
 
 
+@pytest.mark.browser_test
 def test_state_saved(mock_data, dash_duo, tmpdir):
     root_path = tmpdir.strpath
     plugin = setup_plugin(

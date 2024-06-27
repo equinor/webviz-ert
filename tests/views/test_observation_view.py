@@ -8,6 +8,7 @@ from tests.conftest import (
 )
 
 
+@pytest.mark.browser_test
 def test_observation_analyzer_view_ensemble_no_observations(
     mock_data,
     dash_duo,
@@ -29,6 +30,7 @@ def test_observation_analyzer_view_ensemble_no_observations(
     # assert dash_duo.get_logs() == [], "browser console should contain no error"
 
 
+@pytest.mark.browser_test
 def test_observation_analyzer_view_ensemble_with_observations(
     mock_data,
     dash_duo,

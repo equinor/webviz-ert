@@ -23,6 +23,7 @@ from webviz_ert.plugins import (
         pytest.param(ResponseCorrelation, False),
     ],
 )
+@pytest.mark.browser_test
 def test_displaying_beta_warning(plugin_class, input: bool, dash_duo):
     plugin = setup_plugin(dash_duo, __name__, plugin_class, beta=input)
     beta_warning_element = dash_duo.find_element("#" + plugin.uuid("beta-warning"))
@@ -46,6 +47,7 @@ skip_parameters = "param"
         pytest.param(ResponseCorrelation, [], id="ResponseCorrelation"),
     ],
 )
+@pytest.mark.browser_test
 def test_selectors_visibility_toggle_button(plugin_class, skip, mock_data, dash_duo):
     # we test whether the selector visibility toggle button changes class on
     # all selectors, as expected
@@ -79,6 +81,7 @@ def test_selectors_visibility_toggle_button(plugin_class, skip, mock_data, dash_
     # assert dash_duo.get_logs() == [], "browser console should contain no error"
 
 
+@pytest.mark.browser_test
 def test_response_selector_sorting(mock_data, dash_duo):
     plugin = setup_plugin(dash_duo, __name__, ResponseComparison)
     wanted_ensemble_name = "nr_42"

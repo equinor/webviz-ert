@@ -1,3 +1,4 @@
+import pytest
 from webviz_ert.plugins._response_correlation import ResponseCorrelation
 from tests.conftest import (
     setup_plugin,
@@ -8,6 +9,7 @@ from tests.conftest import (
 )
 
 
+@pytest.mark.browser_test
 def test_axes_labels(mock_data, dash_duo):
     """test_axis_labels loads two different plots and checks that axes are
     labelled correctly"""
@@ -53,6 +55,7 @@ def test_axes_labels(mock_data, dash_duo):
     # assert dash_duo.get_logs() == [], "browser console should contain no error"
 
 
+@pytest.mark.browser_test
 def test_show_respo_with_obs(mock_data, dash_duo):
     """Test response observation filter works as expected"""
     plugin = setup_plugin(dash_duo, __name__, ResponseCorrelation)
@@ -70,6 +73,7 @@ def test_show_respo_with_obs(mock_data, dash_duo):
     )
 
 
+@pytest.mark.browser_test
 def test_info_text_appears_as_expected(
     mock_data,
     dash_duo,

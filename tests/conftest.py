@@ -2,10 +2,49 @@ import pytest
 from requests import HTTPError
 import dash
 from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import TimeoutException
-
+from selenium.common.exceptions import TimeoutException, WebDriverException
+from selenium import webdriver
 
 from tests.data.snake_oil_data import ensembles_response
+
+
+def validate_chromedriver():
+    try:
+        driver = webdriver.Chrome()
+        browser_version = driver.capabilities["browserVersion"]
+        chromedriver_version = driver.capabilities["chrome"][
+            "chromedriverVersion"
+        ].split(" ")[0]
+        return browser_version[0:3] == chromedriver_version[0:3]
+    except (WebDriverException, TypeError):
+        return False
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--skip-browser-tests",
+        action="store_true",
+        default=False,
+        help="Allow forcing tests requiring chromedriver even it's missing in PATH",
+    )
+
+
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers", "browser_test: mark test as chromedriver dependent"
+    )
+
+
+def pytest_collection_modifyitems(config, items):
+    skip_browser_tests = pytest.mark.skip(
+        reason="chromedriver missing in PATH or intentionally skipped"
+    )
+    valid_chromedriver = validate_chromedriver()
+    browser_tests = [item for item in items if "browser_test" in item.keywords]
+    if valid_chromedriver and not config.getoption("--skip-browser-tests"):
+        return
+    for item in browser_tests:
+        item.add_marker(skip_browser_tests)
 
 
 def pytest_setup_options():

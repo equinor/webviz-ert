@@ -1,4 +1,5 @@
 import dash
+import pytest
 from webviz_ert.assets import get_color
 from webviz_ert.plugins import ParameterComparison
 from tests.conftest import select_first, get_options
@@ -6,6 +7,7 @@ from tests.data.snake_oil_data import all_ensemble_names
 from tests.conftest import setup_plugin, select_ensemble
 
 
+@pytest.mark.browser_test
 def test_ensemble_refresh(
     mock_data,
     dash_duo,
@@ -84,6 +86,7 @@ def test_ensemble_refresh(
     )
 
 
+@pytest.mark.browser_test
 def test_ensemble_color(mock_data, dash_duo):
     plugin = setup_plugin(dash_duo, __name__, ParameterComparison, (630, 1200))
 

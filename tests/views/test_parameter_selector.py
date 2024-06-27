@@ -5,6 +5,7 @@ from webviz_ert.plugins import ParameterComparison
 from tests.conftest import setup_plugin, select_ensemble, select_by_name
 
 
+@pytest.mark.browser_test
 def test_parameter_selector(
     mock_data,
     dash_duo,
@@ -57,6 +58,7 @@ def test_parameter_selector(
     # assert dash_duo.get_logs() == []
 
 
+@pytest.mark.browser_test
 def test_search_input_return_functionality(
     mock_data,
     dash_duo,
@@ -128,6 +130,7 @@ def test_search_input_return_functionality(
     # assert dash_duo.get_logs() == []
 
 
+@pytest.mark.browser_test
 def test_parameter_selector_sorting(
     mock_data,
     dash_duo,
