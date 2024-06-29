@@ -25,7 +25,7 @@ def pytest_addoption(parser):
         "--skip-browser-tests",
         action="store_true",
         default=False,
-        help="Allow forcing tests requiring chromedriver even it's missing in PATH",
+        help="This option allows skipping tests that depend on chromedriver",
     )
 
 
