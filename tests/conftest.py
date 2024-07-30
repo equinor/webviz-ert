@@ -2,8 +2,7 @@ import pytest
 from requests import HTTPError
 import dash
 from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import TimeoutException, WebDriverException
-from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
 
 from tests.data.snake_oil_data import ensembles_response
 
