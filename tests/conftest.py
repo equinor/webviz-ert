@@ -8,18 +8,6 @@ from selenium import webdriver
 from tests.data.snake_oil_data import ensembles_response
 
 
-def validate_chromedriver():
-    try:
-        driver = webdriver.Chrome()
-        browser_version = driver.capabilities["browserVersion"]
-        chromedriver_version = driver.capabilities["chrome"][
-            "chromedriverVersion"
-        ].split(" ")[0]
-        return browser_version[0:3] == chromedriver_version[0:3]
-    except (WebDriverException, TypeError):
-        return False
-
-
 def pytest_addoption(parser):
     parser.addoption(
         "--skip-browser-tests",
@@ -39,12 +27,10 @@ def pytest_collection_modifyitems(config, items):
     skip_browser_tests = pytest.mark.skip(
         reason="chromedriver missing in PATH or intentionally skipped"
     )
-    valid_chromedriver = validate_chromedriver()
     browser_tests = [item for item in items if "browser_test" in item.keywords]
-    if valid_chromedriver and not config.getoption("--skip-browser-tests"):
-        return
-    for item in browser_tests:
-        item.add_marker(skip_browser_tests)
+    if config.getoption("--skip-browser-tests"):
+        for item in browser_tests:
+            item.add_marker(skip_browser_tests)
 
 
 def pytest_setup_options():
