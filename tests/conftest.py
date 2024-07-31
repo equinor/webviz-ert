@@ -4,8 +4,32 @@ import dash
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException
 
-
 from tests.data.snake_oil_data import ensembles_response
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--skip-browser-tests",
+        action="store_true",
+        default=False,
+        help="This option allows skipping tests that depend on chromedriver",
+    )
+
+
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers", "browser_test: mark test as chromedriver dependent"
+    )
+
+
+def pytest_collection_modifyitems(config, items):
+    skip_browser_tests = pytest.mark.skip(
+        reason="chromedriver missing in PATH or intentionally skipped"
+    )
+    browser_tests = [item for item in items if "browser_test" in item.keywords]
+    if config.getoption("--skip-browser-tests"):
+        for item in browser_tests:
+            item.add_marker(skip_browser_tests)
 
 
 def pytest_setup_options():

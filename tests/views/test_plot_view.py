@@ -1,3 +1,4 @@
+import pytest
 from webviz_ert.plugins._response_comparison import ResponseComparison
 from tests.conftest import (
     setup_plugin,
@@ -8,6 +9,7 @@ from tests.conftest import (
 )
 
 
+@pytest.mark.browser_test
 def test_plot_view(
     mock_data,
     dash_duo,
@@ -26,6 +28,7 @@ def test_plot_view(
     # assert dash_duo.get_logs() == [], "browser console should contain no error"
 
 
+@pytest.mark.browser_test
 def test_clearing_parameters_view(
     mock_data,
     dash_duo,
@@ -60,6 +63,7 @@ def test_clearing_parameters_view(
     # assert dash_duo.get_logs() == [], "browser console should contain no error"
 
 
+@pytest.mark.browser_test
 def test_clearing_ensembles_view(
     mock_data,
     dash_duo,
@@ -108,6 +112,7 @@ def test_clearing_ensembles_view(
     # assert dash_duo.get_logs() == [], "browser console should contain no error"
 
 
+@pytest.mark.browser_test
 def test_axis_labels(mock_data, dash_duo):
     """test_axis_labels loads two different plots in the plot view and checks
     that axes are labelled correctly"""
