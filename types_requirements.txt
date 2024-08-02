@@ -1,0 +1,6 @@
+mypy
+types-requests
+types-pkg_resources
+types-PyYAML
+types-python-dateutil
+flask>=2.2.5 # not directly required, pinned by Snyk to avoid a vulnerability
