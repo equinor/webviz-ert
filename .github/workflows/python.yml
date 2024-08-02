@@ -25,12 +25,13 @@ jobs:
     - name: Install
       run: |
         pip install .
-        pip install -r test_requirements.txt
     - name: Test with mypy typing
       run: |
+        pip install -r types_requirements.txt
         mypy --config-file mypy.ini --package webviz_ert
     - name: Test with pytest
       run: |
+        pip install -r test_requirements.txt
         pytest
 
     - name: Run black
