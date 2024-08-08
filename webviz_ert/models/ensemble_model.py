@@ -43,8 +43,8 @@ class EnsembleModel:
         self._metadata = self._schema["userdata"]
         self._name = self._metadata["name"]
         self._id = ensemble_id
-        self._children = self._schema["child_ensemble_ids"]
-        self._parent = self._schema["parent_ensemble_id"]
+        self._children = self._schema.get("child_ensemble_ids", [])
+        self._parent = self._schema.get("parent_ensemble_id", [])
         self._size = self._schema["size"]
         self._active_realizations = self._schema["active_realizations"]
         self._responses: Dict[str, Response] = {}
