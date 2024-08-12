@@ -11,7 +11,7 @@ from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 from plotly.subplots import make_subplots
-from plotly.graph_objs.layout import XAxis
+from plotly.graph_objs.layout import XAxis, YAxis
 
 from webviz_ert.plugins import WebvizErtPluginABC
 from webviz_ert.models import load_ensemble, BarChartPlotModel, PlotModel, AxisType
@@ -234,8 +234,15 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         layout = assets.ERTSTYLE["figure"]["layout"].copy()
         layout.update(
             dict(
-                xaxis=XAxis(title="Date", showgrid=False),
-                xaxis2=XAxis(overlaying="x", title="Index", side="top", showgrid=False),
+                xaxis=XAxis(title="Date", showgrid=False, fixedrange=True),
+                xaxis2=XAxis(
+                    overlaying="x",
+                    title="Index",
+                    side="top",
+                    showgrid=False,
+                    fixedrange=True,
+                ),
+                yaxis=YAxis(fixedrange=True),
                 dragmode="select",
                 template="plotly_white",
                 height=300,
