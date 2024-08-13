@@ -200,16 +200,18 @@ class PlotModel:
     def __init__(self, **kwargs: Any):
         self._x_axis = kwargs["x_axis"]
         self._y_axis = kwargs["y_axis"]
-        self._text = kwargs["text"] if "text" in kwargs else None
+        self._text = kwargs.get("text")
         self._name = kwargs["name"]
         self._mode = kwargs["mode"]
         self._line = kwargs["line"]
         self._marker = kwargs["marker"]
         self._error_y = kwargs.get("error_y")
         self._hoverlabel = kwargs.get("hoverlabel")
-        self._meta = kwargs["meta"] if "meta" in kwargs else None
+        self._meta = kwargs.get("meta")
         self._xaxis = kwargs.get("xaxis")
         self.selected = True
+        self.legendgroup = kwargs.get("legendgroup")
+        self.showlegend = kwargs.get("showlegend", True)
 
     @property
     def repr(self) -> Union[go.Scattergl, go.Scatter]:
@@ -224,7 +226,10 @@ class PlotModel:
             connectgaps=True,
             hoverlabel=self._hoverlabel,
             meta=self._meta,
+            showlegend=self.showlegend,
         )
+        if self.legendgroup:
+            repr_dict["legendgroup"] = self.legendgroup
         if self._line:
             repr_dict["line"] = self._line
         if self._marker:
