@@ -43,7 +43,9 @@ def _get_realizations_plots(
             x_axis=x_axis,
             y_axis=realizations_df[realization].values,
             text=f"Realization: {realization} Ensemble: {ensemble_name}",
-            name=realization,
+            name=ensemble_name,
+            legendgroup=ensemble_name,
+            showlegend=False if idx > 0 else True,
             **_style,
         )
         realizations_data.append(plot)
@@ -81,7 +83,9 @@ def _get_realizations_statistics_plots(
 
 
 def _get_observation_plots(
-    observation_df: pd.DataFrame, metadata: Optional[List[str]] = None
+    observation_df: pd.DataFrame,
+    metadata: Optional[List[str]] = None,
+    ensemble: str = "",
 ) -> PlotModel:
     data = observation_df["values"]
     stds = observation_df["std"]
@@ -97,7 +101,7 @@ def _get_observation_plots(
         x_axis=x_axis,
         y_axis=data,
         text=attributes,
-        name="Observation",
+        name=f"Observation_{ensemble}",
         error_y=dict(
             type="data",  # value of error bar given in data coordinates
             array=stds.values,
@@ -135,7 +139,8 @@ def _create_response_plot(
         )
     if response.observations:
         observations = [
-            _get_observation_plots(obs.data_df()) for obs in response.observations
+            _get_observation_plots(obs.data_df(), ensemble=ensemble_name)
+            for obs in response.observations
         ]
     else:
         observations = []

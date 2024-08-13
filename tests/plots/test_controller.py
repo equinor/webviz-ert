@@ -62,9 +62,9 @@ def test_realizations_plot_representation():
         realization_df, x_axis, assets.ERTSTYLE["ensemble-selector"]["color_wheel"][0]
     )
     assert len(plots) == 20
-    for plot in plots:
+    for idx, plot in enumerate(plots):
         np.testing.assert_equal(x_axis, plot.repr.x)
-        np.testing.assert_equal(plot.repr.y, realization_df[plot.name].values)
+        np.testing.assert_equal(plot.repr.y, realization_df[idx].values)
 
 
 def test_realizations_statistics_plot_representation():
