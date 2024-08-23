@@ -1,10 +1,12 @@
-from typing import MutableMapping, Optional, Dict, Any
+import json
+import pathlib
+import tempfile
+from typing import Any, MutableMapping, Optional
+
 import dash
 from webviz_config import WebvizPluginABC
+
 from webviz_ert.models import EnsembleModel
-import pathlib
-import json
-import tempfile
 
 
 class WebvizErtPluginABC(WebvizPluginABC):
@@ -16,7 +18,7 @@ class WebvizErtPluginABC(WebvizPluginABC):
     def __init__(self, app: dash.Dash, project_identifier: str):
         super().__init__()
         if not project_identifier:
-            project_identifier = tempfile.NamedTemporaryFile().name
+            project_identifier = tempfile.NamedTemporaryFile().name  # noqa: SIM115
             WebvizErtPluginABC._state = {}
             WebvizErtPluginABC._state_path = None
 
@@ -33,7 +35,7 @@ class WebvizErtPluginABC(WebvizPluginABC):
                 )
             if not WebvizErtPluginABC._state_path.exists():
                 WebvizErtPluginABC._state_path.parent.mkdir(parents=True, exist_ok=True)
-                return dict()
+                return {}
             with open(WebvizErtPluginABC._state_path, "r", encoding="utf-8") as f:
                 return json.load(f)
         return WebvizErtPluginABC._state

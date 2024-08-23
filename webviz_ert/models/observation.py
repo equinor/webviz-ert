@@ -1,8 +1,9 @@
-from typing import Dict, Optional, List, Union
-import pandas as pd
 import datetime
+from typing import Dict, List, Optional, Union
 
-from webviz_ert.models import indexes_to_axis, AxisType
+import pandas as pd
+
+from webviz_ert.models import AxisType, indexes_to_axis
 
 
 class Observation:

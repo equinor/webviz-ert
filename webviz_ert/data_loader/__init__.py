@@ -1,7 +1,8 @@
+import contextlib
 import io
 import logging
 from collections import defaultdict
-from typing import Any, Dict, List, Mapping, MutableMapping, Optional, Tuple
+from typing import Any, List, Mapping, MutableMapping, Optional, Tuple
 
 import pandas as pd
 import requests
@@ -12,7 +13,7 @@ connection_info_map: dict = {}
 
 
 def get_connection_info(project_id: Optional[str] = None) -> Mapping[str, str]:
-    from ert.shared.storage.connection import get_info
+    from ert.shared.storage.connection import get_info  # noqa: PLC0415
 
     if project_id not in connection_info_map:
         info = get_info(project_id)
@@ -99,7 +100,7 @@ class DataLoader:
 
     def get_all_ensembles(self) -> list:
         try:
-            experiments = self._get(url=f"experiments").json()
+            experiments = self._get(url="experiments").json()
             return [
                 self.get_ensemble(ensemble_id)
                 for experiment in experiments
@@ -107,35 +108,35 @@ class DataLoader:
             ]
         except DataLoaderException as e:
             logger.error(e)
-            return list()
+            return []
 
     def get_ensemble(self, ensemble_id: str) -> dict:
         try:
             return self._get(url=f"ensembles/{ensemble_id}").json()
         except DataLoaderException as e:
             logger.error(e)
-            return dict()
+            return {}
 
     def get_ensemble_responses(self, ensemble_id: str) -> dict:
         try:
             return self._get(url=f"ensembles/{ensemble_id}/responses").json()
         except DataLoaderException as e:
             logger.error(e)
-            return dict()
+            return {}
 
     def get_ensemble_userdata(self, ensemble_id: str) -> dict:
         try:
             return self._get(url=f"ensembles/{ensemble_id}/userdata").json()
         except DataLoaderException as e:
             logger.error(e)
-            return dict()
+            return {}
 
     def get_ensemble_parameters(self, ensemble_id: str) -> list:
         try:
             return self._get(url=f"ensembles/{ensemble_id}/parameters").json()
         except DataLoaderException as e:
             logger.error(e)
-            return list()
+            return []
 
     def get_record_labels(self, ensemble_id: str, name: str) -> list:
         try:
@@ -144,7 +145,7 @@ class DataLoader:
             ).json()
         except DataLoaderException as e:
             logger.error(e)
-            return list()
+            return []
 
     def get_experiment_priors(self, experiment_id: str) -> dict:
         try:
@@ -152,7 +153,7 @@ class DataLoader:
             return experiment["priors"]
         except RuntimeError as e:
             logger.error(e)
-            return dict()
+            return {}
 
     def get_ensemble_parameter_data(
         self,
@@ -198,10 +199,8 @@ class DataLoader:
         try:
             df.index = df.index.astype(int)
         except (TypeError, ValueError):
-            try:
+            with contextlib.suppress((TypeError, ValueError)):
                 df.index = df.index.map(pd.Timestamp)
-            except ValueError:
-                pass
         df = df.sort_index()
         return df
 
@@ -216,7 +215,7 @@ class DataLoader:
             ).json()
         except DataLoaderException as e:
             logger.error(e)
-            return list()
+            return []
 
     def compute_misfit(
         self, ensemble_id: str, response_name: str, summary: bool

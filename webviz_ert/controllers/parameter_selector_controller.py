@@ -1,15 +1,15 @@
+from typing import Any, Dict, List, Optional, Tuple
+
 import dash
-
-from typing import List, Any, Tuple, Dict, Optional
-from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
 
-from webviz_ert.plugins import WebvizErtPluginABC
+from webviz_ert.controllers import parameter_options, response_options
 from webviz_ert.models import (
     load_ensemble,
 )
-from webviz_ert.controllers import parameter_options, response_options
 from webviz_ert.models.data_model import DataType
+from webviz_ert.plugins import WebvizErtPluginABC
 
 
 def _filter_match(_filter: str, key: str) -> bool:
@@ -101,7 +101,7 @@ def parameter_selector_controller(
             else:
                 raise PreventUpdate
         elif triggered_id == parameter_selector_multi_id:
-            selected_params = [] if not selected_params else selected_params
+            selected_params = selected_params if selected_params else []
             parameters = (
                 []
                 if not parameters
@@ -132,14 +132,14 @@ def parameter_selector_controller(
     def update_parameter_options(
         _: Any, shown_parameters: Optional[List[str]]
     ) -> Tuple[List[Dict], List[str]]:
-        shown_parameters = [] if not shown_parameters else shown_parameters
+        shown_parameters = shown_parameters if shown_parameters else []
         selected_opts = [{"label": param, "value": param} for param in shown_parameters]
         return selected_opts, shown_parameters
 
     container_parameter_selector_multi_id = parent.uuid(
         f"container-parameter-selector-multi-{data_type}"
     )
-    parameter_selector_button_id = parent.uuid(f"parameter-selector-button")
+    parameter_selector_button_id = parent.uuid("parameter-selector-button")
 
     @app.callback(
         Output(container_parameter_selector_multi_id, "className"),

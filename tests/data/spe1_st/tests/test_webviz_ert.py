@@ -1,17 +1,17 @@
 import pytest
-from webviz_ert.plugins import (
-    ParameterComparison,
-    ResponseComparison,
-    ResponseCorrelation,
-    ObservationAnalyzer,
-)
 from tests.conftest import (
-    select_first,
     select_ensemble,
+    select_first,
     select_parameter,
     select_response,
     setup_plugin,
     verify_key_in_dropdown,
+)
+from webviz_ert.plugins import (
+    ObservationAnalyzer,
+    ParameterComparison,
+    ResponseComparison,
+    ResponseCorrelation,
 )
 
 parameter_keys = ["FIELD_PROPERTIES:POROSITY", "FIELD_PROPERTIES:X_MID_PERMEABILITY"]
@@ -39,7 +39,7 @@ def test_webviz_parameter_comparison(dash_duo):
         "default",
     )
 
-    ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
+    _ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
     _verify_keys_in_menu(
         dash_duo, plugin, parameter_keys, "parameter-selector-multi-param"
     )
@@ -53,7 +53,6 @@ def test_webviz_response_correlation(dash_duo):
     ensemble = "default"
     response = "WOPT:PROD"
     parameter = "FIELD_PROPERTIES:POROSITY::0"
-    index = "2016-01-01"
 
     # Wait for the ensemble selector to be initialized
     dash_duo.wait_for_contains_text(
@@ -96,7 +95,7 @@ def test_webviz_response_comparison(dash_duo):
         "default",
     )
 
-    ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
+    _ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
     _verify_keys_in_menu(
         dash_duo, plugin, parameter_keys, "parameter-selector-multi-param"
     )

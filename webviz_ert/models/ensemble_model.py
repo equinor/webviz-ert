@@ -1,8 +1,9 @@
-import json
+from typing import Dict, List, Mapping, Optional
+
 import pandas as pd
-from typing import Mapping, List, Dict, Union, Any, Optional
-from webviz_ert.data_loader import get_data_loader, DataLoaderException
-from webviz_ert.models import Response, PriorModel, ParametersModel
+
+from webviz_ert.data_loader import get_data_loader
+from webviz_ert.models import ParametersModel, PriorModel, Response
 
 
 def _create_parameter_models(
@@ -14,7 +15,7 @@ def _create_parameter_models(
     parameters = {}
     for param in parameters_names:
         key = param
-        prior_schema = priors.get(key, None)
+        prior_schema = priors.get(key)
         prior = None
         if prior_schema:
             prior = PriorModel(

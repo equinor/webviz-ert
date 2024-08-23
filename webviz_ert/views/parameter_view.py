@@ -1,12 +1,9 @@
 from typing import List
-from typing import List
+
+import dash_bootstrap_components as dbc
+from dash import dcc, html
 from dash.development.base_component import Component
 from webviz_config import WebvizPluginABC
-
-from dash import html
-from dash import dcc
-import dash_bootstrap_components as dbc
-import webviz_ert.assets as assets
 
 
 def parameter_view(parent: WebvizPluginABC, index: str = "") -> List[Component]:

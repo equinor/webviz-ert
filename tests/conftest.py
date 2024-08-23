@@ -1,8 +1,10 @@
+import contextlib
+
+import dash
 import pytest
 from requests import HTTPError
-import dash
-from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.chrome.options import Options
 
 from tests.data.snake_oil_data import ensembles_response
 
@@ -200,10 +202,8 @@ def select_parameter(dash_duo, plugin, parameter_name=None, wait_for_plot=True) 
 
 
 def wait_a_bit(dash_duo, time_seconds=0.1):
-    try:
+    with contextlib.suppress(TimeoutException):
         dash_duo.wait_for_element(".foo-elderberries-baarrrrr", timeout=time_seconds)
-    except TimeoutException:
-        pass
 
 
 def verify_key_in_dropdown(dash_duo, selector, key):

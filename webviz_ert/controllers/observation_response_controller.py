@@ -1,21 +1,21 @@
+from typing import Any, List, Optional
+
 import dash
 import pandas as pd
 import plotly.graph_objects as go
-
-from copy import deepcopy
-from typing import List, Dict, Union, Optional, Mapping, Any
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
+
+from webviz_ert import assets
 from webviz_ert.controllers.controller_functions import response_options
-from webviz_ert.plugins import WebvizErtPluginABC
 from webviz_ert.models import (
-    ResponsePlotModel,
     BoxPlotModel,
-    Response,
     MultiHistogramPlotModel,
+    Response,
+    ResponsePlotModel,
     load_ensemble,
 )
-from webviz_ert import assets
+from webviz_ert.plugins import WebvizErtPluginABC
 
 
 def _get_univariate_misfits_boxplots(
@@ -23,9 +23,8 @@ def _get_univariate_misfits_boxplots(
 ) -> List[BoxPlotModel]:
     if misfits_df is None:
         return []
-    x_axis = misfits_df.columns
     realization_names = [f"Realization {name}" for name in misfits_df.index.values]
-    misfit_plots = list()
+    misfit_plots = []
     for misfits in misfits_df:
         plot = BoxPlotModel(
             y_axis=misfits_df[misfits].abs().values,
@@ -50,10 +49,10 @@ def _create_misfits_plot(
     ensemble_plot = ResponsePlotModel(
         realizations,
         [],
-        dict(
-            hovermode="closest",
-            uirevision=True,
-        ),
+        {
+            "hovermode":"closest",
+            "uirevision":True,
+        },
     )
     return ensemble_plot
 
@@ -120,7 +119,7 @@ def observation_response_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         misfits_type: str,
         selected_ensembles: List[str],
     ) -> go.Figure:
-        if not response or response == "" or not selected_ensembles:
+        if not response or not selected_ensembles:
             return go.Figure()
 
         if misfits_type == "Summary":

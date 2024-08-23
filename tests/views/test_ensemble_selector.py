@@ -1,10 +1,8 @@
-import dash
 import pytest
+from tests.conftest import get_options, select_ensemble, select_first, setup_plugin
+from tests.data.snake_oil_data import all_ensemble_names
 from webviz_ert.assets import get_color
 from webviz_ert.plugins import ParameterComparison
-from tests.conftest import select_first, get_options
-from tests.data.snake_oil_data import all_ensemble_names
-from tests.conftest import setup_plugin, select_ensemble
 
 
 @pytest.mark.browser_test

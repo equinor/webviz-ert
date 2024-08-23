@@ -1,8 +1,7 @@
+from dash import dcc, html
 from dash.development.base_component import Component
 from webviz_config import WebvizPluginABC
 
-from dash import html
-from dash import dcc
 from webviz_ert.models.data_model import DataType
 
 

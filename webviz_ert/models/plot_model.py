@@ -1,13 +1,14 @@
-from typing import List, Any, Dict, Mapping, Optional, TYPE_CHECKING, Union
-import numpy as np
-import math
-import pandas as pd
 import logging
-import plotly.graph_objects as go
+import math
+from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Union
+
+import numpy as np
+import pandas as pd
 import plotly.figure_factory as ff
-from dateutil.parser import isoparse
-from scipy.stats import norm, lognorm, truncnorm, uniform, loguniform, triang
-import webviz_ert.assets as assets
+import plotly.graph_objects as go
+from scipy.stats import lognorm, loguniform, norm, triang, truncnorm, uniform
+
+from webviz_ert import assets
 from webviz_ert.models.data_model import AxisType
 
 if TYPE_CHECKING:
@@ -110,28 +111,24 @@ class BoxPlotModel:
         self._y_axis = kwargs["y_axis"]
         self._name = kwargs["name"]
         self._color = kwargs["color"]
-        self._customdata = kwargs["customdata"] if "customdata" in kwargs else None
-        self._hovertemplate = (
-            kwargs["hovertemplate"] if "hovertemplate" in kwargs else None
-        )
-        self._ensemble_name = (
-            kwargs["ensemble_name"] if "ensemble_name" in kwargs else None
-        )
+        self._customdata = kwargs.get("customdata", None)
+        self._hovertemplate = kwargs.get("hovertemplate", None)
+        self._ensemble_name = kwargs.get("ensemble_name", None)
 
     @property
     def repr(self) -> go.Box:
-        repr_dict = dict(
-            y=self._y_axis,
-            x0=f"{self._name}",
-            legendgroup=self.name,
-            name=self.display_name,
-            boxpoints="all",
-            jitter=0.3,
-            pointpos=-1.8,
-            marker_color=self._color,
-            customdata=self._customdata,
-            hovertemplate=self._hovertemplate,
-        )
+        repr_dict = {
+            "y": self._y_axis,
+            "x0": f"{self._name}",
+            "legendgroup": self.name,
+            "name": self.display_name,
+            "boxpoints": "all",
+            "jitter": 0.3,
+            "pointpos": -1.8,
+            "marker_color": self._color,
+            "customdata": self._customdata,
+            "hovertemplate": self._hovertemplate,
+        }
 
         return go.Box(repr_dict)
 
@@ -161,7 +158,7 @@ class BarChartPlotModel:
 
     @property
     def plot_ids(self) -> Mapping[int, str]:
-        return {plot_idx: ens_name for plot_idx, ens_name in enumerate(self.data)}
+        return dict(enumerate(self.data))
 
     @property
     def data(self) -> Mapping[str, pd.DataFrame]:
@@ -177,9 +174,9 @@ class BarChartPlotModel:
                     y=self.data[ens_name].index,
                     orientation="h",
                     name=ens_name,
-                    marker=dict(
-                        color=self._colors[ens_name],
-                    ),
+                    marker={
+                        "color": self._colors[ens_name],
+                    },
                 ),
             )
         _layout = assets.ERTSTYLE["figure"]["layout"].copy()
@@ -215,19 +212,19 @@ class PlotModel:
 
     @property
     def repr(self) -> Union[go.Scattergl, go.Scatter]:
-        repr_dict = dict(
-            x=self._x_axis,
-            y=self._y_axis,
-            text=self._text,
-            name=self.display_name,
-            mode=self._mode,
-            error_y=self._error_y,
-            xaxis=self._xaxis,
-            connectgaps=True,
-            hoverlabel=self._hoverlabel,
-            meta=self._meta,
-            showlegend=self.showlegend,
-        )
+        repr_dict = {
+            "x": self._x_axis,
+            "y": self._y_axis,
+            "text": self._text,
+            "name": self.display_name,
+            "mode": self._mode,
+            "error_y": self._error_y,
+            "xaxis": self._xaxis,
+            "connectgaps": True,
+            "hoverlabel": self._hoverlabel,
+            "meta": self._meta,
+            "showlegend": self.showlegend,
+        }
         if self.legendgroup:
             repr_dict["legendgroup"] = self.legendgroup
         if self._line:
@@ -316,7 +313,7 @@ class MultiHistogramPlotModel:
         colors: Mapping[str, str],
         hist: bool = True,
         kde: bool = True,
-        priors: Dict = {},
+        priors: Dict = {},  # noqa: B006
         bin_count: Optional[int] = None,
     ):
         self._hist_enabled = hist
@@ -403,7 +400,7 @@ class ParallelCoordinatesPlotModel:
 
     @property
     def plot_ids(self) -> Mapping[int, str]:
-        return {plot_idx: parameter for plot_idx, parameter in enumerate(self.data)}
+        return dict(enumerate(self.data))
 
     @property
     def data(self) -> Mapping[str, pd.DataFrame]:
@@ -425,20 +422,20 @@ class ParallelCoordinatesPlotModel:
         # create parallel coordinates dimension list
         dimensions = []
         for parameter in data_df:
-            dimensions.append(dict(label=parameter, values=data_df[parameter]))
+            dimensions.append({"label": parameter, "values": data_df[parameter]})
         fig.add_trace(
             go.Parcoords(
-                line=dict(
-                    color=ensemble_ids,
-                    colorscale=colors,
-                    showscale=True,
-                    colorbar=dict(
-                        tickvals=list(range(0, len(self.data))),
-                        ticktext=list(self.data.keys()),
-                        len=0.2 * len(self.data),
-                        title="Ensemble",
-                    ),
-                ),
+                line={
+                    "color": ensemble_ids,
+                    "colorscale": colors,
+                    "showscale": True,
+                    "colorbar": {
+                        "tickvals": list(range(0, len(self.data))),
+                        "ticktext": list(self.data.keys()),
+                        "len": 0.2 * len(self.data),
+                        "title": "Ensemble",
+                    },
+                },
                 dimensions=dimensions,
                 labelangle=45,
                 labelside="bottom",

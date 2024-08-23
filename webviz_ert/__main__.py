@@ -69,7 +69,7 @@ def handle_exit(
     logger.info("Session terminated by the user.\nThank you for using webviz-ert!")
     logger.info("=" * 32)
     sys.tracebacklimit = 0
-    sys.stdout = open(os.devnull, "w")
+    sys.stdout = open(os.devnull, "w", encoding="utf-8")  # noqa: SIM115
     sys.exit()
 
 
@@ -80,7 +80,7 @@ def create_config(
     temp_config: Any,
     experimental_mode: bool,
 ) -> None:
-    with open(config_file, "r") as f:
+    with open(config_file, "r", encoding="utf-8") as f:
         config_dict = yaml.safe_load(f)
         for page in config_dict["pages"]:
             for element in page["content"]:
@@ -95,8 +95,7 @@ def create_config(
     def filter_experimental_pages(
         page: Dict[str, Any], experimental_mode: bool
     ) -> bool:
-        if "experimental" in page:
-            if page["experimental"]:
+        if "experimental" in page and page["experimental"]:
                 return experimental_mode
         return True
 

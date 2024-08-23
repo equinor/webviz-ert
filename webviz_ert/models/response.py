@@ -1,8 +1,9 @@
-from typing import List, Mapping, Optional, Any
-import pandas as pd
-from webviz_ert.data_loader import get_data_loader, DataLoader
+from typing import Any, List, Mapping, Optional
 
-from webviz_ert.models import Observation, AxisType
+import pandas as pd
+
+from webviz_ert.data_loader import DataLoader, get_data_loader
+from webviz_ert.models import AxisType, Observation
 
 
 class Response:

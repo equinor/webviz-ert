@@ -1,4 +1,4 @@
-from webviz_ert.data_loader import get_ensembles, refresh_data, DataLoader
+from webviz_ert.data_loader import get_ensembles, refresh_data
 
 
 def test_get_ensembles(mock_data):

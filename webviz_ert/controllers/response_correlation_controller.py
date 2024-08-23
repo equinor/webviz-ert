@@ -1,25 +1,25 @@
+from copy import deepcopy
+from typing import Any, Dict, List, Optional, Tuple, Union
+
+import dash
+import dash_bootstrap_components as dbc
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
-import dash
-import numpy as np
-import dash_bootstrap_components as dbc
-
-from typing import List, Optional, Dict, Tuple, Any, Union
-from copy import deepcopy
 from dash import html
+from dash.dependencies import Input, Output, State
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
-from dash.dependencies import Input, Output, State
-from plotly.subplots import make_subplots
 from plotly.graph_objs.layout import XAxis, YAxis
+from plotly.subplots import make_subplots
 
-from webviz_ert.plugins import WebvizErtPluginABC
-from webviz_ert.models import load_ensemble, BarChartPlotModel, PlotModel, AxisType
+from webviz_ert import assets
 from webviz_ert.controllers.multi_response_controller import (
     _get_observation_plots,
     axis_label_for_ensemble_response,
 )
-from webviz_ert import assets
+from webviz_ert.models import AxisType, BarChartPlotModel, PlotModel, load_ensemble
+from webviz_ert.plugins import WebvizErtPluginABC
 
 
 def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:
@@ -233,20 +233,20 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         fig = go.Figure(layout_yaxis_range=[-1, len(obs_plots)])
         layout = assets.ERTSTYLE["figure"]["layout"].copy()
         layout.update(
-            dict(
-                xaxis=XAxis(title="Date", showgrid=False, fixedrange=True),
-                xaxis2=XAxis(
+            {
+                "xaxis": XAxis(title="Date", showgrid=False, fixedrange=True),
+                "xaxis2": XAxis(
                     overlaying="x",
                     title="Index",
                     side="top",
                     showgrid=False,
                     fixedrange=True,
                 ),
-                yaxis=YAxis(fixedrange=True),
-                dragmode="select",
-                template="plotly_white",
-                height=300,
-            )
+                "yaxis": YAxis(fixedrange=True),
+                "dragmode": "select",
+                "template": "plotly_white",
+                "height": 300,
+            }
         )
         fig.update_layout(layout)
 
@@ -366,7 +366,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
         if selected_obs_idx is not None:
             fig.add_vline(
                 x=selected_obs_idx,
-                line=dict(color="red", dash="dash", width=4),
+                line={"color": "red", "dash": "dash", "width": 4},
             )
 
         for plot in obs_plots:
@@ -611,7 +611,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
 
 
 def _get_selected_ensembles_from_store(
-    ensemble_selection_store: Dict[str, List]
+    ensemble_selection_store: Dict[str, List],
 ) -> Optional[List[str]]:
     if ensemble_selection_store:
         return [
@@ -645,7 +645,7 @@ def _define_style_ensemble(index: int, x_axis: pd.Index) -> Dict:
 
 def _layout_figure(x_axis_label: str) -> dict:
     layout = assets.ERTSTYLE["figure"]["layout"].copy()
-    layout.update(dict(showlegend=False))
+    layout.update({"showlegend": False})
     layout.update(clickmode="event+select")
     layout.update({"xaxis": {"title": {"text": x_axis_label}}})
     layout.update(assets.ERTSTYLE["figure"]["layout-value-y-axis-label"])
@@ -725,7 +725,7 @@ def _add_plots_to_multiplot(
     for plot in _plots:
         fig.add_trace(plot.repr, 1, 1)
 
-    for ensemble_name in _param_plots:
+    for ensemble_name, val in _param_plots.items():
         fig.add_trace(
             {
                 "type": "histogram",
@@ -733,14 +733,14 @@ def _add_plots_to_multiplot(
                 "hoverlabel": {
                     "namelength": -1,
                 },
-                "x": _param_plots[ensemble_name],
+                "x": val,
                 "showlegend": False,
                 "marker_color": _colors[ensemble_name],
             },
             row_histograms,
             1,
         )
-    for ensemble_name in _resp_plots:
+    for ensemble_name, val in _resp_plots.items():
         fig.add_trace(
             {
                 "type": "histogram",
@@ -748,7 +748,7 @@ def _add_plots_to_multiplot(
                 "hoverlabel": {
                     "namelength": -1,
                 },
-                "x": _resp_plots[ensemble_name],
+                "x": val,
                 "showlegend": False,
                 "marker_color": _colors[ensemble_name],
             },
@@ -791,10 +791,10 @@ def _observation_index_plot(obs: Any, name: str, plot_idx: int) -> PlotModel:
     style = deepcopy(assets.ERTSTYLE["observation-selection-plot"])
     marker_color = assets.get_color(plot_idx)
     style.update(
-        dict(
-            marker={"color": marker_color, "size": 9},
-            xaxis="x2" if obs.axis_type == AxisType.INDEX else "x",
-        )
+        {
+            "marker": {"color": marker_color, "size": 9},
+            "xaxis": "x2" if obs.axis_type == AxisType.INDEX else "x",
+        }
     )
     return PlotModel(
         x_axis=obs.axis,

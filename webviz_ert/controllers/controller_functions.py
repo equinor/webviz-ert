@@ -1,10 +1,10 @@
 from typing import List, Set
-from webviz_ert.models import Response, EnsembleModel
+
+from webviz_ert.models import EnsembleModel, Response
 
 
 def _valid_response_option(response_filters: List[str], response: Response) -> bool:
-    if "historical" in response_filters:
-        if response.name.split(":")[0][-1] == "H":
+    if "historical" in response_filters and response.name.split(":")[0][-1] == "H":
             return False
 
     if "obs" in response_filters:
@@ -32,7 +32,7 @@ def parameter_options(ensembles: List[EnsembleModel], union_keys: bool = True) -
     params_included: Set[str] = set()
     for ensemble in ensembles:
         if ensemble.parameters:
-            parameters = set([parameter for parameter in ensemble.parameters])
+            parameters = set(ensemble.parameters)
             if not params_included:
                 params_included = parameters
             elif union_keys:

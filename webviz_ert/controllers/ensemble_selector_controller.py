@@ -1,9 +1,11 @@
-from typing import List, Dict, Any
-from webviz_ert.plugins import WebvizErtPluginABC
+from typing import Any, Dict, List
+
 import dash
 from dash.dependencies import Input, Output, State
+
 from webviz_ert.data_loader import get_ensembles, refresh_data
 from webviz_ert.models import load_ensemble
+from webviz_ert.plugins import WebvizErtPluginABC
 
 
 def _get_non_selected_options(store: Dict[str, List]) -> List[Dict[str, str]]:
@@ -24,7 +26,7 @@ def _setup_ensemble_selection_store(parent: WebvizErtPluginABC) -> Dict[str, Lis
             ensemble_id = ensemble_schema["id"]
             load_ensemble(parent, ensemble_id)
 
-    for ens_id, ensemble in parent.get_ensembles().items():
+    for _ens_id, ensemble in parent.get_ensembles().items():
         element = {"label": ensemble.name, "value": ensemble.id}
         ensemble_selection_store["options"].append(element)
         if ensemble.name in stored_selection:
@@ -47,7 +49,7 @@ def ensemble_list_selector_controller(
         [
             Input(parent.uuid("ensemble-multi-selector"), "value"),
             Input(parent.uuid("selected-ensemble-dropdown"), "value"),
-            Input(parent.uuid(f"ensemble-refresh-button"), "n_clicks"),
+            Input(parent.uuid("ensemble-refresh-button"), "n_clicks"),
         ],
         [
             State(parent.uuid("selected-ensemble-dropdown"), "options"),
@@ -93,7 +95,7 @@ def ensemble_list_selector_controller(
                 [el["label"] for el in ensemble_selection_store["selected"]],
             )
 
-        if triggered_id == parent.uuid(f"ensemble-refresh-button"):
+        if triggered_id == parent.uuid("ensemble-refresh-button"):
             parent.clear_ensembles()
             refresh_data(project_id=parent.project_identifier)
             parent.save_state("ensembles", [])
@@ -114,7 +116,7 @@ def ensemble_list_selector_controller(
     container_ensemble_selector_multi_id = parent.uuid(
         "container-ensemble-selector-multi"
     )
-    parameter_selector_button_id = parent.uuid(f"parameter-selector-button")
+    parameter_selector_button_id = parent.uuid("parameter-selector-button")
 
     @app.callback(
         [

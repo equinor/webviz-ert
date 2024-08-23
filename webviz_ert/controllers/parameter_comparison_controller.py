@@ -1,14 +1,15 @@
+from typing import Any, Dict, List, Optional, Tuple
+
 import dash
 import plotly.graph_objects as go
-from typing import Any, List, Optional, Dict, Tuple
-
 from dash.dependencies import Input, Output, State
+
+from webviz_ert import assets
 from webviz_ert.models import (
-    load_ensemble,
     ParallelCoordinatesPlotModel,
+    load_ensemble,
 )
 from webviz_ert.plugins import WebvizErtPluginABC
-from webviz_ert import assets
 
 
 def parameter_comparison_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:

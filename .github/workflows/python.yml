@@ -34,5 +34,7 @@ jobs:
         pip install -r test_requirements.txt
         pytest
 
-    - name: Run black
-      uses: psf/black@stable
+    - name: Run ruff
+      run: |
+        ruff check
+        ruff format --check

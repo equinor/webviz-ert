@@ -1,11 +1,10 @@
 import pytest
-from webviz_ert.plugins import ObservationAnalyzer
 from tests.conftest import (
-    get_options,
     select_ensemble,
-    verify_key_in_dropdown,
     setup_plugin,
+    verify_key_in_dropdown,
 )
+from webviz_ert.plugins import ObservationAnalyzer
 
 
 @pytest.mark.browser_test

@@ -1,12 +1,13 @@
+from typing import Any, List, Mapping, Tuple
+
 import dash
 import plotly.graph_objects as go
-
-from typing import List, Tuple, Any, Optional, Mapping, Dict
+from dash.dependencies import MATCH, Input, Output, State
 from dash.exceptions import PreventUpdate
-from dash.dependencies import Input, Output, State, MATCH
+
+from webviz_ert import assets
 from webviz_ert.models import MultiHistogramPlotModel, load_ensemble
 from webviz_ert.plugins import WebvizErtPluginABC
-from webviz_ert import assets
 
 
 def multi_parameter_controller(parent: WebvizErtPluginABC, app: dash.Dash) -> None:
