@@ -199,7 +199,7 @@ class DataLoader:
         try:
             df.index = df.index.astype(int)
         except (TypeError, ValueError):
-            with contextlib.suppress((TypeError, ValueError)):
+            with contextlib.suppress(ValueError):
                 df.index = df.index.map(pd.Timestamp)
         df = df.sort_index()
         return df

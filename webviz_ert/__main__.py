@@ -6,7 +6,8 @@ import shutil
 import signal
 import sys
 import tempfile
-from typing import Any, Dict, Optional
+from importlib.resources.abc import Traversable
+from typing import Any, Dict, Optional, Union
 
 import yaml
 
@@ -76,7 +77,7 @@ def handle_exit(
 def create_config(
     title: str,
     project_identifier: Optional[str],
-    config_file: pathlib.Path,
+    config_file: Union[pathlib.Path, Traversable],
     temp_config: Any,
     experimental_mode: bool,
 ) -> None:
@@ -96,7 +97,7 @@ def create_config(
         page: Dict[str, Any], experimental_mode: bool
     ) -> bool:
         if "experimental" in page and page["experimental"]:
-                return experimental_mode
+            return experimental_mode
         return True
 
     new_config_dict["pages"] = [

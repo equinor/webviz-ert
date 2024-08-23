@@ -39,7 +39,9 @@ def test_webviz_parameter_comparison(dash_duo):
         "default",
     )
 
-    _ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
+    _ensemble_name = select_first(
+        dash_duo, "#" + plugin.uuid("ensemble-multi-selector")
+    )
     _verify_keys_in_menu(
         dash_duo, plugin, parameter_keys, "parameter-selector-multi-param"
     )
@@ -95,7 +97,9 @@ def test_webviz_response_comparison(dash_duo):
         "default",
     )
 
-    _ensemble_name = select_first(dash_duo, "#" + plugin.uuid("ensemble-multi-selector"))
+    _ensemble_name = select_first(
+        dash_duo, "#" + plugin.uuid("ensemble-multi-selector")
+    )
     _verify_keys_in_menu(
         dash_duo, plugin, parameter_keys, "parameter-selector-multi-param"
     )

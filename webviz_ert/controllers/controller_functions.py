@@ -5,7 +5,7 @@ from webviz_ert.models import EnsembleModel, Response
 
 def _valid_response_option(response_filters: List[str], response: Response) -> bool:
     if "historical" in response_filters and response.name.split(":")[0][-1] == "H":
-            return False
+        return False
 
     if "obs" in response_filters:
         return response.has_observations

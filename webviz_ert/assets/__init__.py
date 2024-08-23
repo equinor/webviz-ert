@@ -1,10 +1,13 @@
 import json
-from pathlib import Path
+import sys
 
-import pkg_resources
+if sys.version_info >= (3, 9):
+    from importlib.resources import files
+else:
+    from importlib_resources import files
 from webviz_config.webviz_assets import WEBVIZ_ASSETS
 
-ASSETS_DIR = Path(pkg_resources.resource_filename("webviz_ert", "assets"))
+ASSETS_DIR = files("webviz_ert") / "assets"
 WEBVIZ_ASSETS.add(ASSETS_DIR / "bootstrap-grid.css")
 WEBVIZ_ASSETS.add(ASSETS_DIR / "bootstrap.min.css")
 WEBVIZ_ASSETS.add(ASSETS_DIR / "ert-style.css")
@@ -13,9 +16,7 @@ with open(ASSETS_DIR / "ert-style.json", encoding="utf-8") as f:
 
 COLOR_WHEEL = ERTSTYLE["ensemble-selector"]["color_wheel"]
 
-WEBVIZ_CONFIG = (
-    Path(pkg_resources.resource_filename("webviz_ert", "assets")) / "webviz-config.yml"
-)
+WEBVIZ_CONFIG = files("webviz_ert") / "assets" / "webviz-config.yml"
 
 
 def get_color(index: int) -> str:

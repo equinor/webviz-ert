@@ -50,8 +50,8 @@ def _create_misfits_plot(
         realizations,
         [],
         {
-            "hovermode":"closest",
-            "uirevision":True,
+            "hovermode": "closest",
+            "uirevision": True,
         },
     )
     return ensemble_plot
