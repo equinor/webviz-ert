@@ -1,10 +1,12 @@
+from typing import Dict, List
+
 import dash
-import webviz_ert.models
-import webviz_ert.controllers
 from dash.development.base_component import Component
-from typing import List, Dict
-from webviz_ert.views import ensemble_selector_list, response_obs_view
+
+import webviz_ert.controllers
+import webviz_ert.models
 from webviz_ert.plugins import WebvizErtPluginABC
+from webviz_ert.views import ensemble_selector_list, response_obs_view
 
 
 class ObservationAnalyzer(WebvizErtPluginABC):
@@ -54,7 +56,7 @@ class ObservationAnalyzer(WebvizErtPluginABC):
                 "content": "List of currently selected ensembles.",
             },
             {
-                "id": self.uuid(f"ensemble-refresh-button"),
+                "id": self.uuid("ensemble-refresh-button"),
                 "content": (
                     "Forces a refresh of all ensemble data including parameter and response data."
                 ),

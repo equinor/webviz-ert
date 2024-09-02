@@ -1,6 +1,6 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding="utf-8") as fh:
     LONG_DESCRIPTION = fh.read()
 
 setup(
@@ -28,6 +28,7 @@ setup(
         "webviz-config>=0.0.40",
         "webviz-config-equinor",
         "webviz-subsurface-components",
+        "importlib_resources; python_version<'3.9'",
     ],
     setup_requires=["setuptools_scm"],
     use_scm_version=True,

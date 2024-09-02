@@ -1,19 +1,14 @@
 import pandas as pd
 import pytest
-
 from webviz_ert.controllers.response_correlation_controller import (
     _define_style_ensemble,
-    _layout_figure,
-    _format_index_value,
     _format_index_text,
-)
-
-from webviz_ert.controllers.response_correlation_controller import (
-    _sort_dataframe,
+    _format_index_value,
     _get_selected_indexes,
+    _layout_figure,
+    _sort_dataframe,
 )
 from webviz_ert.models import PlotModel
-
 
 PLOT_STYLE = {
     "mode": "markers",
@@ -141,7 +136,7 @@ def test_format_index_value(raw_value: str, expected_formatted_value: str):
                     x_axis=[pd.Timestamp("2020-01-02")],
                     y_axis=[1, 1, 1],
                     name="plot2",
-                    **PLOT_STYLE
+                    **PLOT_STYLE,
                 ),
             ],
             {"x": ["2020-01-01", "2020-01-03"]},
@@ -156,7 +151,7 @@ def test_format_index_value(raw_value: str, expected_formatted_value: str):
                     x_axis=[pd.Timestamp("2020-01-02")],
                     y_axis=[1, 1, 1],
                     name="plot2",
-                    **PLOT_STYLE
+                    **PLOT_STYLE,
                 ),
             ],
             {"x": ["2020-01-01", "2020-01-03"], "x2": [4, 6]},

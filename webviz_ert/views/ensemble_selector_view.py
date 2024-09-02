@@ -1,11 +1,11 @@
 from typing import List
-from dash.development.base_component import Component
-from webviz_ert.plugins import WebvizErtPluginABC
 
-from dash import html
-from dash import dcc
-import webviz_core_components as wcc
 import dash_bootstrap_components as dbc
+import webviz_core_components as wcc
+from dash import dcc, html
+from dash.development.base_component import Component
+
+from webviz_ert.plugins import WebvizErtPluginABC
 
 
 def ensemble_selector_list(parent: WebvizErtPluginABC) -> List[Component]:

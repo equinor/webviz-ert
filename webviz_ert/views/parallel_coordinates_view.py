@@ -1,9 +1,6 @@
-from webviz_config import WebvizPluginABC
+from dash import dcc, html
 from dash.development.base_component import Component
-
-from dash import html
-from dash import dcc
-import webviz_ert.assets as assets
+from webviz_config import WebvizPluginABC
 
 
 def parallel_coordinates_view(parent: WebvizPluginABC) -> Component:

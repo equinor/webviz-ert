@@ -1,16 +1,17 @@
+from typing import Dict, List
+
 import dash
+from dash.development.base_component import Component
+
 import webviz_ert.controllers
 import webviz_ert.models
-from dash.development.base_component import Component
-from typing import List, Dict
+from webviz_ert.models.data_model import DataType
+from webviz_ert.plugins import WebvizErtPluginABC
 from webviz_ert.views import (
-    ensemble_selector_list,
     plot_view_body,
     plot_view_header,
     plot_view_menu,
 )
-from webviz_ert.models.data_model import DataType
-from webviz_ert.plugins import WebvizErtPluginABC
 
 
 class ResponseComparison(WebvizErtPluginABC):
@@ -61,7 +62,7 @@ class ResponseComparison(WebvizErtPluginABC):
                 "content": "List of currently selected ensembles.",
             },
             {
-                "id": self.uuid(f"ensemble-refresh-button"),
+                "id": self.uuid("ensemble-refresh-button"),
                 "content": (
                     "Forces a refresh of all ensemble data including parameter and response data."
                 ),
@@ -71,7 +72,7 @@ class ResponseComparison(WebvizErtPluginABC):
                 "content": "Response section.",
             },
             {
-                "id": self.uuid(f"parameter-selector-multi-resp"),
+                "id": self.uuid("parameter-selector-multi-resp"),
                 "content": (
                     "List of responses. This list is populated only"
                     " if at least one ensemble is selected."
@@ -80,11 +81,11 @@ class ResponseComparison(WebvizErtPluginABC):
                 ),
             },
             {
-                "id": self.uuid(f"parameter-deactivator-resp"),
+                "id": self.uuid("parameter-deactivator-resp"),
                 "content": "List of currently selected responses.",
             },
             {
-                "id": self.uuid(f"parameter-selector-filter-resp"),
+                "id": self.uuid("parameter-selector-filter-resp"),
                 "content": (
                     "Response search field. The response list will show only"
                     " elements that contain the search characters"
@@ -95,7 +96,7 @@ class ResponseComparison(WebvizErtPluginABC):
                 "content": "Parameter section",
             },
             {
-                "id": self.uuid(f"parameter-selector-multi-param"),
+                "id": self.uuid("parameter-selector-multi-param"),
                 "content": (
                     "List of parameters. This list is populated only"
                     " if at least one ensemble is selected."
@@ -104,11 +105,11 @@ class ResponseComparison(WebvizErtPluginABC):
                 ),
             },
             {
-                "id": self.uuid(f"parameter-deactivator-param"),
+                "id": self.uuid("parameter-deactivator-param"),
                 "content": "List of currently selected parameters.",
             },
             {
-                "id": self.uuid(f"parameter-selector-filter-param"),
+                "id": self.uuid("parameter-selector-filter-param"),
                 "content": (
                     "Search field. The parameter list will show only"
                     " elements that contain the search characters"

@@ -1,12 +1,12 @@
 import pytest
-from webviz_ert.plugins._response_comparison import ResponseComparison
 from tests.conftest import (
-    setup_plugin,
     select_ensemble,
     select_parameter,
     select_response,
+    setup_plugin,
     wait_a_bit,
 )
+from webviz_ert.plugins._response_comparison import ResponseComparison
 
 
 @pytest.mark.browser_test

@@ -1,18 +1,20 @@
+from typing import Dict, List
+
 import dash
-import dash_daq
-import webviz_ert.assets as assets
-import webviz_ert.models
-import webviz_ert.controllers
 import dash_bootstrap_components as dbc
+import dash_daq
 from dash.development.base_component import Component
-from typing import List, Dict
-from webviz_ert.views import (
-    ensemble_selector_list,
-    correlation_view,
-    parameter_selector_view,
-)
+
+import webviz_ert.controllers
+import webviz_ert.models
+from webviz_ert import assets
 from webviz_ert.models.data_model import DataType
 from webviz_ert.plugins import WebvizErtPluginABC
+from webviz_ert.views import (
+    correlation_view,
+    ensemble_selector_list,
+    parameter_selector_view,
+)
 
 
 class ResponseCorrelation(WebvizErtPluginABC):

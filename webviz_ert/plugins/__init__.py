@@ -1,5 +1,5 @@
-from ._webviz_ert import WebvizErtPluginABC
-from ._response_comparison import ResponseComparison
-from ._observation_analyzer import ObservationAnalyzer
-from ._parameter_comparison import ParameterComparison
-from ._response_correlation import ResponseCorrelation
+from ._webviz_ert import WebvizErtPluginABC as WebvizErtPluginABC
+from ._response_comparison import ResponseComparison as ResponseComparison
+from ._observation_analyzer import ObservationAnalyzer as ObservationAnalyzer
+from ._parameter_comparison import ParameterComparison as ParameterComparison
+from ._response_correlation import ResponseCorrelation as ResponseCorrelation

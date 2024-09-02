@@ -1,5 +1,7 @@
+from typing import Any, List, Union
+
 import pandas as pd
-from typing import List, Any, Optional, Union
+
 from webviz_ert.data_loader import get_data_loader
 
 

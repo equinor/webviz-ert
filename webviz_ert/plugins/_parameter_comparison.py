@@ -1,17 +1,18 @@
+from typing import Dict, List
+
 import dash
 import dash_bootstrap_components as dbc
+from dash.development.base_component import Component
+
 import webviz_ert.controllers
 import webviz_ert.models
-from dash.development.base_component import Component
-from typing import List, Dict
-
+from webviz_ert.models.data_model import DataType
+from webviz_ert.plugins import WebvizErtPluginABC
 from webviz_ert.views import (
     ensemble_selector_list,
     parallel_coordinates_view,
     parameter_selector_view,
 )
-from webviz_ert.plugins import WebvizErtPluginABC
-from webviz_ert.models.data_model import DataType
 
 
 class ParameterComparison(WebvizErtPluginABC):
@@ -80,13 +81,13 @@ class ParameterComparison(WebvizErtPluginABC):
                 "content": "List of currently selected ensembles.",
             },
             {
-                "id": self.uuid(f"ensemble-refresh-button"),
+                "id": self.uuid("ensemble-refresh-button"),
                 "content": (
                     "Forces a refresh of all ensemble data including parameter and response data."
                 ),
             },
             {
-                "id": self.uuid(f"parameter-selector-multi-param"),
+                "id": self.uuid("parameter-selector-multi-param"),
                 "content": (
                     "List of parameters. This list is populated only"
                     " if at least one ensemble is selected."
@@ -95,7 +96,7 @@ class ParameterComparison(WebvizErtPluginABC):
                 ),
             },
             {
-                "id": self.uuid(f"parameter-deactivator-param"),
+                "id": self.uuid("parameter-deactivator-param"),
                 "content": (
                     "List of currently selected parameters."
                     "Every selected parameter is visualized in the parallel coordinates plot,"
@@ -104,7 +105,7 @@ class ParameterComparison(WebvizErtPluginABC):
                 ),
             },
             {
-                "id": self.uuid(f"parameter-selector-filter-param"),
+                "id": self.uuid("parameter-selector-filter-param"),
                 "content": (
                     "Search field. The parameter list will show only"
                     " elements that contain the search characters"

@@ -1,8 +1,7 @@
 import pytest
-
 from selenium.webdriver.common.keys import Keys
+from tests.conftest import select_by_name, select_ensemble, setup_plugin
 from webviz_ert.plugins import ParameterComparison
-from tests.conftest import setup_plugin, select_ensemble, select_by_name
 
 
 @pytest.mark.browser_test
@@ -78,7 +77,7 @@ def test_search_input_return_functionality(
         "#" + plugin.uuid("parameter-selector-multi-param"),
         "OP1_DIVERGENCE_SCALE",
     )
-    first_elem, _ = parameter_selector_container.text.split("\n")
+    _first_elem, _ = parameter_selector_container.text.split("\n")
 
     param_selector_id = plugin.uuid("parameter-selector-multi-param")
     select_by_name(dash_duo, f"#{param_selector_id}", "BPR_138_PERSISTENCE")

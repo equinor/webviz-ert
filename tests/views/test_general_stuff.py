@@ -1,11 +1,9 @@
 import pytest
-import dash
-from tests.conftest import setup_plugin, select_ensemble
-
+from tests.conftest import select_ensemble, setup_plugin
 from webviz_ert.plugins import (
-    ResponseComparison,
     ObservationAnalyzer,
     ParameterComparison,
+    ResponseComparison,
     ResponseCorrelation,
 )
 

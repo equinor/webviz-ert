@@ -1,5 +1,6 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
+from webviz_ert import assets
 from webviz_ert.controllers.multi_response_controller import (
     _get_observation_plots,
     _get_realizations_plots,
@@ -8,17 +9,14 @@ from webviz_ert.controllers.multi_response_controller import (
 from webviz_ert.controllers.observation_response_controller import (
     _get_univariate_misfits_boxplots,
 )
-
-from webviz_ert.data_loader import get_ensembles
-from webviz_ert.models import EnsembleModel, PriorModel
 from webviz_ert.models import (
+    BarChartPlotModel,
+    BoxPlotModel,
     HistogramPlotModel,
     MultiHistogramPlotModel,
-    BoxPlotModel,
     ParallelCoordinatesPlotModel,
-    BarChartPlotModel,
+    PriorModel,
 )
-import webviz_ert.assets as assets
 
 
 def test_observation_plot_representation():
@@ -55,7 +53,8 @@ def test_observation_plot_representation():
 
 
 def test_realizations_plot_representation():
-    data = np.random.rand(200).reshape(-1, 20)
+    rng = np.random.default_rng()
+    data = rng.random(size=200).reshape(-1, 20)
     realization_df = pd.DataFrame(data=data, index=range(10), columns=range(20))
     x_axis = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     plots = _get_realizations_plots(
@@ -68,7 +67,8 @@ def test_realizations_plot_representation():
 
 
 def test_realizations_statistics_plot_representation():
-    data = np.random.rand(200).reshape(-1, 20)
+    rng = np.random.default_rng()
+    data = rng.random(size=200).reshape(-1, 20)
     realization_df = pd.DataFrame(data=data, index=range(10), columns=range(20))
     x_axis = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     plots = _get_realizations_statistics_plots(
@@ -86,7 +86,8 @@ def test_realizations_statistics_plot_representation():
 
 
 def test_histogram_plot_representation():
-    data = np.random.rand(20).reshape(-1, 20)
+    rng = np.random.default_rng()
+    data = rng.random(size=20).reshape(-1, 20)
     data_df = pd.DataFrame(data=data, index=range(1), columns=range(20))
     data_df.index.name = "key_name"
 
@@ -109,7 +110,8 @@ def test_multi_histogram_plot_representation():
         zip(ensemble_names, colors[: len(ensemble_names)])
     ):
         key = f"{ensemble_date}, {ensemble_name}"
-        data = np.random.rand(20).reshape(-1, 20)
+        rng = np.random.default_rng()
+        data = rng.random(size=20).reshape(-1, 20)
         data_df = pd.DataFrame(data=data, index=range(1), columns=range(20))
         data_df.index.name = "KEY_NAME"
         data_dict[key] = data_df
@@ -156,7 +158,8 @@ def test_parallel_coordinates_representation():
         zip(ensemble_names, colors[: len(ensemble_names)])
     ):
         key = f"{idx}, {ensemble_name}"
-        data = np.random.rand(50).reshape(-1, 5)
+        rng = np.random.default_rng()
+        data = rng.random(size=50).reshape(-1, 5)
         data_df = pd.DataFrame(data=data, columns=[f"PARAM_{i}" for i in range(5)])
         data_df["ensemble_id"] = idx
         data_dict[key] = data_df
@@ -175,7 +178,8 @@ def test_parallel_coordinates_representation():
 
 
 def test_univariate_misfits_boxplot_representation():
-    data = np.random.rand(200).reshape(-1, 20)
+    rng = np.random.default_rng()
+    data = rng.random(size=200).reshape(-1, 20)
     missfits_df = pd.DataFrame(data=data, index=range(10), columns=range(20))
     ensemble_name = "test-ensemble"
     plots = _get_univariate_misfits_boxplots(
@@ -194,7 +198,8 @@ def test_univariate_misfits_boxplot_representation():
 
 
 def test_boxplot_representation():
-    data = np.random.rand(10)
+    rng = np.random.default_rng()
+    data = rng.random(size=10)
     data_df = pd.DataFrame(data=data, index=range(10))
 
     plot = BoxPlotModel(
@@ -219,7 +224,8 @@ def test_barchart_representation():
         zip(ensemble_names, colors[: len(ensemble_names)])
     ):
         key = f"{idx}, {ensemble_name}"
-        data = np.random.rand(param_num)
+        rng = np.random.default_rng()
+        data = rng.random(size=param_num)
         data_df = pd.DataFrame(
             data=data, index=[f"PARAM_{i}" for i in range(param_num)]
         )

@@ -1,17 +1,16 @@
+from typing import Any, List, Optional, Union
+
 import dash
 import dash_bootstrap_components as dbc
-
 from dash import html
-from typing import List, Union, Any, Dict, Tuple, Optional, Mapping
-from dash.development.base_component import Component
 from dash.dependencies import Input, Output, State
+from dash.development.base_component import Component
 
 import webviz_ert.controllers
-import webviz_ert.assets as assets
-
-from webviz_ert.views import response_view, parameter_view
-from webviz_ert.plugins import WebvizErtPluginABC
+from webviz_ert import assets
 from webviz_ert.models import DataType
+from webviz_ert.plugins import WebvizErtPluginABC
+from webviz_ert.views import parameter_view, response_view
 
 
 def _new_child(parent: WebvizErtPluginABC, plot: str, data_type: DataType) -> Component:
@@ -57,8 +56,8 @@ def plot_view_controller(
         selection: Optional[List[str]],
         current_plots: Optional[List[str]],
     ) -> List[str]:
-        selection = [] if not selection else selection
-        current_plots = [] if not current_plots else current_plots
+        selection = selection if selection else []
+        current_plots = current_plots if current_plots else []
         for plot in current_plots.copy():
             if plot not in selection:
                 current_plots.remove(plot)

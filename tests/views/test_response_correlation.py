@@ -1,12 +1,12 @@
 import pytest
-from webviz_ert.plugins._response_correlation import ResponseCorrelation
 from tests.conftest import (
-    setup_plugin,
     select_by_name,
     select_ensemble,
-    select_response,
     select_parameter,
+    select_response,
+    setup_plugin,
 )
+from webviz_ert.plugins._response_correlation import ResponseCorrelation
 
 
 @pytest.mark.browser_test

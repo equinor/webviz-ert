@@ -1,15 +1,14 @@
-import pytest
-from webviz_ert.plugins import (
-    ResponseComparison,
-    WebvizErtPluginABC,
-)
 import dash
-
+import pytest
 from tests.conftest import (
-    setup_plugin,
     select_ensemble,
     select_parameter,
     select_response,
+    setup_plugin,
+)
+from webviz_ert.plugins import (
+    ResponseComparison,
+    WebvizErtPluginABC,
 )
 
 

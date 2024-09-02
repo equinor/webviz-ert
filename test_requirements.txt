@@ -1,9 +1,9 @@
 pytest
 pytest-mock
 pylint
-black
+ruff
 scipy
 dash[testing]>=2.5.1
 selenium
-urllib3<2 # RHEL7 does not support urllib >= 2.0
+urllib3
 flask>=2.2.5 # not directly required, pinned by Snyk to avoid a vulnerability

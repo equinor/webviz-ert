@@ -1,10 +1,9 @@
 from typing import List
+
+from dash import dcc, html
 from dash.development.base_component import Component
+
 from webviz_ert.plugins import WebvizErtPluginABC
-
-
-from dash import html
-from dash import dcc
 
 
 def response_obs_view(parent: WebvizErtPluginABC) -> List[Component]:

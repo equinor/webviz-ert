@@ -1,8 +1,5 @@
+from dash import dcc, html
 from dash.development.base_component import Component
-from webviz_config import WebvizPluginABC
-
-from dash import html
-from dash import dcc
 
 
 def correlation_view(id_view: str) -> Component:

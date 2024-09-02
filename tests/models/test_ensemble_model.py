@@ -1,8 +1,6 @@
-from webviz_ert.models import EnsembleModel
 import dash
-from webviz_ert.plugins import ParameterComparison
-from webviz_ert.plugins import ObservationAnalyzer
-from webviz_ert.models import load_ensemble
+from webviz_ert.models import EnsembleModel, load_ensemble
+from webviz_ert.plugins import ObservationAnalyzer, ParameterComparison
 
 
 def test_ensemble_model(mock_data):
@@ -16,7 +14,7 @@ def test_ensemble_model_labeled_parameters(mock_data):
     ens_model = EnsembleModel(ensemble_id=ens_id, project_id=None)
     assert ens_model.name == "nr_42"
     assert len(ens_model.parameters) == 5
-    for param_name, parameter in ens_model.parameters.items():
+    for param_name, _parameter in ens_model.parameters.items():
         name, label = (
             param_name.split("::", maxsplit=1)
             if "::" in param_name

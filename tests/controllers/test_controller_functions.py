@@ -1,8 +1,8 @@
-from webviz_ert.models.ensemble_model import EnsembleModel
 from webviz_ert.controllers.controller_functions import (
-    response_options,
     _valid_response_option,
+    response_options,
 )
+from webviz_ert.models.ensemble_model import EnsembleModel
 
 
 def test_response_options(mock_data):

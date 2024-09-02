@@ -1,6 +1,7 @@
-from typing import List, Optional
-import pandas as pd
 import math
+from typing import List, Optional
+
+import pandas as pd
 
 
 class Realization:

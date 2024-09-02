@@ -1,12 +1,11 @@
-import dash
+from typing import Any, Dict, List, Optional, Tuple
 
-from typing import List, Tuple, Dict, Optional, Any
+import dash
 from dash.dependencies import Input, Output, State
 
-from webviz_ert.models import DataType
-from webviz_ert.plugins import WebvizErtPluginABC
-from webviz_ert.models import load_ensemble
 from webviz_ert.controllers import parameter_options, response_options
+from webviz_ert.models import DataType, load_ensemble
+from webviz_ert.plugins import WebvizErtPluginABC
 
 
 def element_dropdown_controller(

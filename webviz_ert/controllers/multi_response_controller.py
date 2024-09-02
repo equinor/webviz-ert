@@ -1,22 +1,23 @@
+import datetime
 import logging
+from copy import deepcopy
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+
 import dash
 import pandas as pd
-import datetime
 import plotly.graph_objects as go
-import webviz_ert.assets as assets
-
-from copy import deepcopy
-from typing import List, Dict, Union, Any, Optional, Type, Tuple, TYPE_CHECKING
-from dash.dependencies import Input, Output, State, ALL, MATCH
+from dash.dependencies import MATCH, Input, Output, State
 from dash.exceptions import PreventUpdate
-from webviz_ert.plugins import WebvizErtPluginABC
+
+from webviz_ert import assets
 from webviz_ert.models import (
-    ResponsePlotModel,
-    Response,
-    PlotModel,
-    load_ensemble,
     AxisType,
+    PlotModel,
+    Response,
+    ResponsePlotModel,
+    load_ensemble,
 )
+from webviz_ert.plugins import WebvizErtPluginABC
 
 if TYPE_CHECKING:
     from .ensemble_model import EnsembleModel
@@ -31,13 +32,10 @@ def _get_realizations_plots(
     style: Optional[Dict] = None,
     ensemble_name: str = "",
 ) -> List[PlotModel]:
-    if style:
-        _style = style
-    else:
-        _style = assets.ERTSTYLE["response-plot"]["response"].copy()
+    _style = style if style else assets.ERTSTYLE["response-plot"]["response"].copy()
     _style.update({"line": {"color": color}})
     _style.update({"marker": {"color": color}})
-    realizations_data = list()
+    realizations_data = []
     for idx, realization in enumerate(realizations_df):
         plot = PlotModel(
             x_axis=x_axis,
@@ -45,7 +43,7 @@ def _get_realizations_plots(
             text=f"Realization: {realization} Ensemble: {ensemble_name}",
             name=ensemble_name,
             legendgroup=ensemble_name,
-            showlegend=False if idx > 0 else True,
+            showlegend=not idx > 0,
             **_style,
         )
         realizations_data.append(plot)
@@ -69,7 +67,7 @@ def _get_realizations_statistics_plots(
     mean_data = PlotModel(
         x_axis=x_axis,
         y_axis=_mean,
-        text=f"Mean",
+        text="Mean",
         name=f"Mean {ensemble_name}",
         **style_mean,
     )
@@ -102,11 +100,11 @@ def _get_observation_plots(
         y_axis=data,
         text=attributes,
         name=f"Observation_{ensemble}",
-        error_y=dict(
-            type="data",  # value of error bar given in data coordinates
-            array=stds.values,
-            visible=True,
-        ),
+        error_y={
+            "type": "data",  # value of error bar given in data coordinates
+            "array": stds.values,
+            "visible": True,
+        },
         meta=metadata,
         **style,
     )
@@ -145,7 +143,7 @@ def _create_response_plot(
     else:
         observations = []
 
-    ensemble_plot = ResponsePlotModel(realizations, observations, dict())
+    ensemble_plot = ResponsePlotModel(realizations, observations, {})
     return ensemble_plot
 
 
