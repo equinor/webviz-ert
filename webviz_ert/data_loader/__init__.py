@@ -1,7 +1,8 @@
 import io
 import logging
 from collections import defaultdict
-from typing import Any, Dict, List, Mapping, MutableMapping, Optional, Tuple
+from urllib.parse import quote
+from typing import Any, List, Mapping, MutableMapping, Optional, Tuple
 
 import pandas as pd
 import requests
@@ -9,6 +10,10 @@ import requests
 logger = logging.getLogger()
 
 connection_info_map: dict = {}
+
+
+def escape(s: str) -> str:
+    return quote(quote(s, safe=""))
 
 
 def get_connection_info(project_id: Optional[str] = None) -> Mapping[str, str]:
@@ -140,7 +145,7 @@ class DataLoader:
     def get_record_labels(self, ensemble_id: str, name: str) -> list:
         try:
             return self._get(
-                url=f"ensembles/{ensemble_id}/records/{name}/labels"
+                url=f"ensembles/{ensemble_id}/records/{escape(name)}/labels"
             ).json()
         except DataLoaderException as e:
             logger.error(e)
@@ -168,7 +173,7 @@ class DataLoader:
                 params = {}
 
             resp = self._get(
-                url=f"ensembles/{ensemble_id}/records/{name}",
+                url=f"ensembles/{ensemble_id}/records/{escape(name)}",
                 headers={"accept": "application/x-parquet"},
                 params=params,
             )
@@ -186,7 +191,7 @@ class DataLoader:
     ) -> pd.DataFrame:
         try:
             resp = self._get(
-                url=f"ensembles/{ensemble_id}/records/{record_name}",
+                url=f"ensembles/{ensemble_id}/records/{escape(record_name)}",
                 headers={"accept": "application/x-parquet"},
             )
             stream = io.BytesIO(resp.content)
@@ -210,7 +215,7 @@ class DataLoader:
     ) -> List[dict]:
         try:
             return self._get(
-                url=f"ensembles/{ensemble_id}/records/{record_name}/observations",
+                url=f"ensembles/{ensemble_id}/records/{escape(record_name)}/observations",
                 # Hard coded to zero, as all realizations are connected to the same observations
                 params={"realization_index": 0},
             ).json()
