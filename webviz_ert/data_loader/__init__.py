@@ -16,7 +16,7 @@ def escape(s: str) -> str:
     return quote(quote(s, safe=""))
 
 
-def get_connection_info(project_id: Optional[str] = None) -> Mapping[str, str]:
+def get_connection_info(project_id: str) -> Mapping[str, str]:
     from ert.shared.storage.connection import get_info
 
     if project_id not in connection_info_map:
@@ -246,13 +246,13 @@ class DataLoader:
         return self._post("updates/facade")
 
 
-def get_data_loader(project_id: Optional[str] = None) -> DataLoader:
+def get_data_loader(project_id: str) -> DataLoader:
     return DataLoader(*(get_connection_info(project_id).values()))
 
 
-def get_ensembles(project_id: Optional[str] = None) -> list:
+def get_ensembles(project_id: str) -> list:
     return get_data_loader(project_id).get_all_ensembles()
 
 
-def refresh_data(project_id: Optional[str] = None) -> requests.Response:
+def refresh_data(project_id: str) -> requests.Response:
     return get_data_loader(project_id).refresh_data()
