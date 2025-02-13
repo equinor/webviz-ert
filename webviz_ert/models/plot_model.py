@@ -471,8 +471,10 @@ class HistogramPlotModel:
     def repr(self) -> go.Figure:
         bin_count = int(math.ceil(math.sqrt(len(self.data_df.values.flatten()))))
         bin_size = float(
-            (self.data_df.max(axis=1).values - self.data_df.min(axis=1).values)
-            / bin_count
+            (
+                (self.data_df.max(axis=1).values - self.data_df.min(axis=1).values)
+                / bin_count
+            )[0]
         )
         fig = ff.create_distplot(
             [list(self.data_df.values.flatten())],
