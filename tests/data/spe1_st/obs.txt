@@ -2,7 +2,7 @@ SUMMARY_OBSERVATION WOPT_2016
 {
    VALUE = 1e7;
    ERROR = 1e6;
-   DATE  = 01/01/2016;
+   DATE  = 2016-01-01;
    KEY   = WOPT:PROD;
 };
 
@@ -10,7 +10,7 @@ SUMMARY_OBSERVATION WOPT_2017
 {
    VALUE = 2e7;
    ERROR = 1e6;
-   DATE  = 31/01/2017;
+   DATE  = 2017-01-31;
    KEY   = WOPT:PROD;
 };
 
@@ -18,6 +18,6 @@ SUMMARY_OBSERVATION WOPT_2018
 {
    VALUE = 3e7;
    ERROR = 1e6;
-   DATE  = 31/01/2018;
+   DATE  = 2018-01-31;
    KEY   = WOPT:PROD;
 };
