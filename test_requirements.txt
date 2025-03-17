@@ -5,6 +5,6 @@ black
 scipy
 dash[testing]>=2.5.1
 selenium
-urllib3<2 # Pinned to make Snyk happy. Also indirectly pinned due to restrictions in other test deps.
+urllib3
 flask>=2.2.5 # not directly required, pinned by Snyk to avoid a vulnerability
 werkzeug>=3.0.6 # not directly required, pinned by Snyk to avoid a vulnerability
