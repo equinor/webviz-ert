@@ -611,7 +611,7 @@ def response_correlation_controller(parent: WebvizErtPluginABC, app: dash.Dash) 
 
 
 def _get_selected_ensembles_from_store(
-    ensemble_selection_store: Dict[str, List]
+    ensemble_selection_store: Dict[str, List],
 ) -> Optional[List[str]]:
     if ensemble_selection_store:
         return [
