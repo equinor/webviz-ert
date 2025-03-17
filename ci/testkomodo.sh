@@ -38,7 +38,7 @@ start_integration_test () {
     pushd tests/data/spe1_st
 
     echo "Initiating Ert run for Spe1 with new storage enabled..."
-    ert ensemble_experiment spe1.ert
+    ert ensemble_experiment --disable-monitor spe1.ert
     echo "Ert ensemble_experiment run finished"
 
     # $HOST is set to machine name for f_komodo user's bash shells.
