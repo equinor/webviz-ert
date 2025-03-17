@@ -4,7 +4,7 @@ import pandas as pd
 
 
 def indexes_to_axis(
-    indexes: Optional[List[Union[int, str, datetime.datetime]]]
+    indexes: Optional[List[Union[int, str, datetime.datetime]]],
 ) -> Optional[List[Union[int, str, datetime.datetime]]]:
     try:
         if indexes and type(indexes[0]) is str and not str(indexes[0]).isnumeric():
