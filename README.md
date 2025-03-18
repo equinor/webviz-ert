@@ -35,8 +35,8 @@ Webviz-ert connects automatically to a storage server running in [ERT](https://g
 Here are a few steps to get an example version of webviz-ert running.
 
 ```sh
-# Run simulations in ert - <ert-root-folder>/test-data/local/poly_example/
-ert ensemble_smoother --target-case smoother poly.ert
+# Run simulations in ert - <ert-root-folder>/test-data/ert/poly_example/
+ert ensemble_smoother --target-ensemble smoother_%d poly.ert
 
 # After simulation has finished, start webviz-ert from the same location with
 ert vis
