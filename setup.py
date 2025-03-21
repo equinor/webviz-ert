@@ -22,7 +22,7 @@ setup(
     },
     install_requires=[
         "dash-bootstrap-components",
-        "dash-daq<0.6.0",
+        "dash-daq",
         "dash<3.0.0",
         "pandas",
         "requests",
