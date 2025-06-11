@@ -180,7 +180,7 @@ def select_response(dash_duo, plugin, response_name=None, wait_for_plot=True) ->
             response_name,
         )
     if wait_for_plot:
-        dash_duo.wait_for_element(f"#{plugin.uuid(response_name)}")
+        dash_duo.wait_for_element(f'[id="{plugin.uuid(response_name)}"]')
     return response_name
 
 
@@ -195,7 +195,7 @@ def select_parameter(dash_duo, plugin, parameter_name=None, wait_for_plot=True) 
             parameter_name,
         )
     if wait_for_plot:
-        dash_duo.wait_for_element(f"#{plugin.uuid(parameter_name)}")
+        dash_duo.wait_for_element(f'[id="{plugin.uuid(parameter_name)}"]')
     return parameter_name
 
 
