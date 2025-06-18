@@ -17,12 +17,12 @@ def test_parameter_selector(
 
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("parameter-selector-multi-param"),
-        "BPR_138_PERSISTENCE",
+        "SNAKE_OIL_PARAM:BPR_138_PERSISTENCE",
     )
 
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("parameter-selector-multi-param"),
-        "OP1_DIVERGENCE_SCALE",
+        "SNAKE_OIL_PARAM:OP1_DIVERGENCE_SCALE",
     )
 
     paremeter_deactivator = dash_duo.find_element(
@@ -42,7 +42,7 @@ def test_parameter_selector(
     )
     dash_duo.wait_for_text_to_equal(
         "#" + plugin.uuid("parameter-selector-multi-param"),
-        "OP1_DIVERGENCE_SCALE",
+        "SNAKE_OIL_PARAM:OP1_DIVERGENCE_SCALE",
     )
 
     parameter_selector_container = dash_duo.find_element(
@@ -72,7 +72,7 @@ def test_search_input_return_functionality(
 
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("parameter-selector-multi-param"),
-        "BPR_138_PERSISTENCE",
+        "SNAKE_OIL_PARAM:BPR_138_PERSISTENCE",
     )
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("parameter-selector-multi-param"),
@@ -81,7 +81,9 @@ def test_search_input_return_functionality(
     first_elem, _ = parameter_selector_container.text.split("\n")
 
     param_selector_id = plugin.uuid("parameter-selector-multi-param")
-    select_by_name(dash_duo, f"#{param_selector_id}", "BPR_138_PERSISTENCE")
+    select_by_name(
+        dash_duo, f"#{param_selector_id}", "SNAKE_OIL_PARAM:BPR_138_PERSISTENCE"
+    )
 
     parameter_deactivator = dash_duo.find_element(
         "#" + plugin.uuid("parameter-deactivator-param")
@@ -89,7 +91,7 @@ def test_search_input_return_functionality(
 
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("parameter-deactivator-param"),
-        "×BPR_138_PERSISTENCE",
+        "×SNAKE_OIL_PARAM:BPR_138_PERSISTENCE",
     )
     parameter_deactivator.click()
     dash_duo.clear_input(parameter_deactivator)
@@ -106,14 +108,14 @@ def test_search_input_return_functionality(
         "#" + plugin.uuid("parameter-deactivator-param"), ""
     )
 
-    parameter_selector_input.send_keys("OP1")
+    parameter_selector_input.send_keys("SNAKE_OIL_PARAM:OP1")
 
     dash_duo.wait_for_text_to_equal(
-        "#" + plugin.uuid("parameter-selector-filter-param"), "OP1"
+        "#" + plugin.uuid("parameter-selector-filter-param"), "SNAKE_OIL_PARAM:OP1"
     )
     dash_duo.wait_for_text_to_equal(
         "#" + plugin.uuid("parameter-selector-multi-param"),
-        "OP1_DIVERGENCE_SCALE",
+        "SNAKE_OIL_PARAM:OP1_DIVERGENCE_SCALE",
     )
     parameter_selector_input.send_keys(Keys.ENTER)
 
@@ -121,10 +123,12 @@ def test_search_input_return_functionality(
         "#" + plugin.uuid("parameter-deactivator-param"), ""
     )
 
-    select_by_name(dash_duo, f"#{param_selector_id}", "OP1_DIVERGENCE_SCALE")
+    select_by_name(
+        dash_duo, f"#{param_selector_id}", "SNAKE_OIL_PARAM:OP1_DIVERGENCE_SCALE"
+    )
     dash_duo.wait_for_contains_text(
         "#" + plugin.uuid("parameter-deactivator-param"),
-        "×OP1_DIVERGENCE_SCALE",
+        "×SNAKE_OIL_PARAM:OP1_DIVERGENCE_SCALE",
     )
 
     # assert dash_duo.get_logs() == []
@@ -141,11 +145,8 @@ def test_parameter_selector_sorting(
     select_ensemble(dash_duo, plugin, wanted_ensemble_name)
 
     expected_parameters = [
-        "test_parameter_1",
-        "test_parameter_11",
-        "test_parameter_2::a",
-        "test_parameter_2::b",
-        "test_parameter_77",
+        "SNAKE_OIL_PARAM:BPR_138_PERSISTENCE",
+        "SNAKE_OIL_PARAM:OP1_DIVERGENCE_SCALE",
     ]
 
     parameter_selector_container_id = "#" + plugin.uuid(

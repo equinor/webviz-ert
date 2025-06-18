@@ -92,7 +92,4 @@ def test_response_selector_sorting(mock_data, dash_duo):
     )
     response_list = response_selector_container.text.split("\n")
 
-    assert response_list[0] == "test_response"
-    assert response_list[1] == "test_response_4"
-    assert response_list[2] == "test_response_44"
-    assert response_list[3] == "test_response_99"
+    assert response_list == ["FGPT", "FOPR", "SNAKE_OIL_GPR_DIFF@199", "WOPR:OP1"]

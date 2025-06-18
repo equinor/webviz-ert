@@ -1,8 +1,11 @@
 import io
+import json
 import logging
+import operator
 from collections import defaultdict
 from urllib.parse import quote
-from typing import Any, List, Mapping, MutableMapping, Optional, Tuple
+from typing import Any, Callable, List, Mapping, MutableMapping, Optional, Tuple
+from uuid import UUID
 
 import pandas as pd
 import requests
@@ -123,7 +126,44 @@ class DataLoader:
 
     def get_ensemble_responses(self, ensemble_id: str) -> dict:
         try:
-            return self._get(url=f"ensembles/{ensemble_id}/responses").json()
+            # Map to experiment ID
+            ensemble_info = self.get_ensemble(ensemble_id)
+            experiment_id = ensemble_info["experiment_id"]
+            experiment_info = self._get(url=f"experiments/{experiment_id}").json()
+
+            # Read response/ obs metadata
+            responses = experiment_info["responses"]
+            observations = experiment_info["observations"]
+
+            # Expand gendatas to the @ notation
+            response_map = {}
+            for gendata in responses.get("gen_data", []):
+                report_steps = gendata["filter_on"]["report_step"]
+                response_key = gendata["response_key"]
+                for report_step in report_steps:
+                    legacy_gendata_key = f"{response_key}@{report_step}"
+                    response_map[legacy_gendata_key] = {
+                        "id": f"id={UUID(int=0)}",
+                        "name": legacy_gendata_key,
+                        "has_observations": bool(
+                            observations.get("gen_data", {}).get(response_key)
+                        ),
+                        "userdata": {"data_origin": "GEN_DATA"},
+                    }
+
+            for smry in responses.get("summary", []):
+                response_key = smry["response_key"]
+                response_map[response_key] = {
+                    "id": f"id={UUID(int=0)}",
+                    "name": response_key,
+                    "has_observations": bool(
+                        observations.get("summary", {}).get(response_key)
+                    ),
+                    "userdata": {"data_origin": "Summary"},
+                }
+
+            return response_map
+
         except DataLoaderException as e:
             logger.error(e)
             return dict()
@@ -137,23 +177,40 @@ class DataLoader:
 
     def get_ensemble_parameters(self, ensemble_id: str) -> list:
         try:
-            return self._get(url=f"ensembles/{ensemble_id}/parameters").json()
-        except DataLoaderException as e:
-            logger.error(e)
-            return list()
+            ensemble_info = self.get_ensemble(ensemble_id)
+            experiment_id = ensemble_info["experiment_id"]
+            experiment_info = self._get(url=f"experiments/{experiment_id}").json()
 
-    def get_record_labels(self, ensemble_id: str, name: str) -> list:
-        try:
-            return self._get(
-                url=f"ensembles/{ensemble_id}/records/{escape(name)}/labels"
-            ).json()
+            # Read response/ obs metadata
+            parameters = experiment_info["parameters"]
+
+            param_list = []
+            for param_group, metadatas in parameters.items():
+                for metadata in metadatas:
+                    parameter_key = metadata["key"]
+                    userdata = metadata["userdata"]
+                    is_log = metadata["transformation"] in {"LOGNORMAL", "LOGUNIF"}
+                    param_list.append(
+                        {
+                            "userdata": userdata,
+                            "dimensionality": metadata["dimensionality"],
+                            "name": (
+                                f"LOG10_{parameter_key}"
+                                if is_log
+                                else f"{parameter_key}"
+                            ),
+                            "labels": [],
+                        }
+                    )
+
+            return param_list
         except DataLoaderException as e:
             logger.error(e)
             return list()
 
     def get_experiment_priors(self, experiment_id: str) -> dict:
         try:
-            experiment = self._get(f"experiments/{experiment_id}").json()
+            experiment = self._get(url=f"experiments/{experiment_id}").json()
             return experiment["priors"]
         except RuntimeError as e:
             logger.error(e)
@@ -173,7 +230,7 @@ class DataLoader:
                 params = {}
 
             resp = self._get(
-                url=f"ensembles/{ensemble_id}/records/{escape(name)}",
+                url=f"ensembles/{ensemble_id}/parameters/{escape(name)}",
                 headers={"accept": "application/x-parquet"},
                 params=params,
             )
@@ -190,10 +247,19 @@ class DataLoader:
         record_name: str,
     ) -> pd.DataFrame:
         try:
-            resp = self._get(
-                url=f"ensembles/{ensemble_id}/records/{escape(record_name)}",
-                headers={"accept": "application/x-parquet"},
-            )
+            if "@" in record_name:
+                response_key, report_step = record_name.split("@", 1)
+                resp = self._get(
+                    url=f"ensembles/{ensemble_id}/responses/{escape(response_key)}",
+                    params={"filter_on": json.dumps({"report_step": report_step})},
+                    headers={"accept": "application/x-parquet"},
+                )
+            else:
+                resp = self._get(
+                    url=f"ensembles/{ensemble_id}/responses/{escape(record_name)}",
+                    headers={"accept": "application/x-parquet"},
+                )
+
             stream = io.BytesIO(resp.content)
             df = pd.read_parquet(stream).transpose()
 
@@ -214,11 +280,19 @@ class DataLoader:
         self, ensemble_id: str, record_name: str
     ) -> List[dict]:
         try:
-            return self._get(
-                url=f"ensembles/{ensemble_id}/records/{escape(record_name)}/observations",
-                # Hard coded to zero, as all realizations are connected to the same observations
-                params={"realization_index": 0},
-            ).json()
+            if "@" in record_name:
+                response_key, _ = record_name.split("@", 1)
+                return self._get(
+                    url=f"ensembles/{ensemble_id}/responses/{escape(response_key)}/observations",
+                    # Hard coded to zero, as all realizations are connected to the same observations
+                    params={"realization_index": 0},
+                ).json()
+            else:
+                return self._get(
+                    url=f"ensembles/{ensemble_id}/responses/{escape(record_name)}/observations",
+                    # Hard coded to zero, as all realizations are connected to the same observations
+                    params={"realization_index": 0},
+                ).json()
         except DataLoaderException as e:
             logger.error(e)
             return list()
@@ -227,14 +301,28 @@ class DataLoader:
         self, ensemble_id: str, response_name: str, summary: bool
     ) -> pd.DataFrame:
         try:
-            resp = self._get(
-                "compute/misfits",
-                params={
-                    "ensemble_id": ensemble_id,
-                    "response_name": response_name,
-                    "summary_misfits": summary,
-                },
-            )
+
+            if not summary:
+                # assume gen data
+                response_key, report_step = response_name.split("@", 1)
+                resp = self._get(
+                    "compute/misfits",
+                    params={
+                        "ensemble_id": ensemble_id,
+                        "response_name": response_key,
+                        "filter_on": json.dumps({"report_step": report_step}),
+                        "summary_misfits": False,
+                    },
+                )
+            else:
+                resp = self._get(
+                    "compute/misfits",
+                    params={
+                        "ensemble_id": ensemble_id,
+                        "response_name": response_name,
+                        "summary_misfits": True,
+                    },
+                )
             stream = io.BytesIO(resp.content)
             df = pd.read_csv(stream, index_col=0, float_precision="round_trip")
             return df
