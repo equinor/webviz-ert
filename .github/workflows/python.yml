@@ -31,7 +31,7 @@ jobs:
         mypy --config-file mypy.ini --package webviz_ert
     - name: Test with pytest
       run: |
-        pip install -r test_requirements.txt
+        pip install -r test_requirements.txt --upgrade
         pytest
 
     - name: Run black
