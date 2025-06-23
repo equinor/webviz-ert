@@ -24,14 +24,18 @@ jobs:
         python-version: "${{ matrix.python-version }}"
     - name: Install
       run: |
-        pip install .
+        pip install . --upgrade
     - name: Test with mypy typing
       run: |
         pip install -r types_requirements.txt
+        pip show selenium
+        pip install -r types_requirements.txt --upgrade
+        pip show selenium
+    - name: Test with mypy typing
         mypy --config-file mypy.ini --package webviz_ert
     - name: Test with pytest
       run: |
-        pip install -r test_requirements.txt
+        pip install -r test_requirements.txt --upgrade
         pytest
 
     - name: Run black
