@@ -52,15 +52,19 @@ class DataLoader:
 
     baseurl: str
     token: Optional[str]
+    cert: Optional[str]
     _graphql_cache: MutableMapping[str, MutableMapping[dict, Any]]
 
-    def __new__(cls, baseurl: str, token: Optional[str] = None) -> "DataLoader":
+    def __new__(
+        cls, baseurl: str, token: Optional[str] = None, cert: Optional[str] = None
+    ) -> "DataLoader":
         if (baseurl, token) in cls._instances:
             return cls._instances[(baseurl, token)]
 
         loader = super().__new__(cls)
         loader.baseurl = baseurl
         loader.token = token
+        loader.cert = cert
         loader._graphql_cache = defaultdict(dict)
         cls._instances[(baseurl, token)] = loader
         return loader
@@ -74,6 +78,7 @@ class DataLoader:
         resp = _requests_get(
             f"{self.baseurl}/{url}",
             headers={**headers, "Token": self.token},
+            verify=self.cert,
             params=params,
         )
         if resp.status_code != 200:
