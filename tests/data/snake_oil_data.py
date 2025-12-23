@@ -1,4 +1,5 @@
 import io
+
 import pandas as pd
 
 from webviz_ert.data_loader import escape
@@ -43,20 +44,26 @@ _experiment_1_metadata = {
         },
     },
     "parameters": {
-        "SNAKE_OIL_PARAM": [
-            {
-                "key": "SNAKE_OIL_PARAM:OP1_DIVERGENCE_SCALE",
-                "transformation": "UNIFORM",
-                "dimensionality": 1,
-                "userdata": {"data_origin": "GEN_KW"},
-            },
-            {
-                "key": "SNAKE_OIL_PARAM:BPR_138_PERSISTENCE",
-                "transformation": "UNIFORM",
-                "dimensionality": 1,
-                "userdata": {"data_origin": "GEN_KW"},
-            },
-        ]
+        "OP1_DIVERGENCE_SCALE": {
+            "type": "gen_kw",
+            "name": "OP1_DIVERGENCE_SCALE",
+            "dimensionality": 1,
+            "forward_init": False,
+            "update": True,
+            "distribution": {"name": "uniform", "min": 0.0, "max": 1.0},
+            "group": "SNAKE_OIL_PARAM",
+            "input_source": "sampled",
+        },
+        "BPR_138_PERSISTENCE": {
+            "type": "gen_kw",
+            "name": "BPR_138_PERSISTENCE",
+            "dimensionality": 1,
+            "forward_init": False,
+            "update": True,
+            "distribution": {"name": "uniform", "min": 0.0, "max": 1.0},
+            "group": "SNAKE_OIL_PARAM",
+            "input_source": "sampled",
+        },
     },
     "responses": {
         "summary": [
@@ -351,7 +358,7 @@ ensembles_response.update(
 
 
 ensembles_response[
-    f"http://127.0.0.1:5000/ensembles/42/parameters/{escape('SNAKE_OIL_PARAM:OP1_DIVERGENCE_SCALE')}?"
+    f"http://127.0.0.1:5000/ensembles/42/parameters/OP1_DIVERGENCE_SCALE?"
 ] = to_parquet_helper(
     pd.DataFrame(
         [0.1, 1.1, 2.1],
@@ -360,7 +367,7 @@ ensembles_response[
     ).transpose()
 )
 ensembles_response[
-    f"http://127.0.0.1:5000/ensembles/42/parameters/{escape('SNAKE_OIL_PARAM:BPR_138_PERSISTENCE')}?"
+    f"http://127.0.0.1:5000/ensembles/42/parameters/BPR_138_PERSISTENCE?"
 ] = to_parquet_helper(
     pd.DataFrame(
         [0.01, 1.01, 2.01],

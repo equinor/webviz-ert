@@ -3,8 +3,8 @@ import json
 import logging
 import operator
 from collections import defaultdict
-from urllib.parse import quote
 from typing import Any, Callable, List, Mapping, MutableMapping, Optional, Tuple
+from urllib.parse import quote
 from uuid import UUID
 
 import pandas as pd
@@ -190,23 +190,22 @@ class DataLoader:
             parameters = experiment_info["parameters"]
 
             param_list = []
-            for param_group, metadatas in parameters.items():
-                for metadata in metadatas:
-                    parameter_key = metadata["key"]
-                    userdata = metadata["userdata"]
-                    is_log = metadata["transformation"] in {"LOGNORMAL", "LOGUNIF"}
-                    param_list.append(
-                        {
-                            "userdata": userdata,
-                            "dimensionality": metadata["dimensionality"],
-                            "name": (
-                                f"LOG10_{parameter_key}"
-                                if is_log
-                                else f"{parameter_key}"
-                            ),
-                            "labels": [],
-                        }
-                    )
+            for param_name, metadata in parameters.items():
+                userdata = {"data_origin": metadata["type"]}
+                is_log = False
+                if distribution := metadata.get("distribution"):
+                    is_log = distribution["name"] in {
+                        "lognormal",
+                        "logunif",
+                    }
+                param_list.append(
+                    {
+                        "userdata": userdata,
+                        "dimensionality": metadata["dimensionality"],
+                        "name": (f"LOG10_{param_name}" if is_log else f"{param_name}"),
+                        "labels": [],
+                    }
+                )
 
             return param_list
         except DataLoaderException as e:
