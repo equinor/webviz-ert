@@ -1,16 +1,13 @@
-import pytest
-from webviz_ert.plugins import (
-    ResponseComparison,
-    WebvizErtPluginABC,
-)
 import dash
+import pytest
 
 from tests.conftest import (
-    setup_plugin,
     select_ensemble,
     select_parameter,
     select_response,
+    setup_plugin,
 )
+from webviz_ert.plugins import ResponseComparison, WebvizErtPluginABC
 
 
 @pytest.mark.browser_test
@@ -22,7 +19,7 @@ def test_state_saved(mock_data, dash_duo, tmpdir):
 
     ens_name = "default"
     resp_name = "SNAKE_OIL_GPR_DIFF@199"
-    param_name = "SNAKE_OIL_PARAM:BPR_138_PERSISTENCE"
+    param_name = "BPR_138_PERSISTENCE"
 
     select_ensemble(dash_duo, plugin, ens_name)
     select_response(dash_duo, plugin, resp_name)

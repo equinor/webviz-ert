@@ -1,13 +1,13 @@
 import pytest
-from webviz_ert.plugins._response_comparison import ResponseComparison
+
 from tests.conftest import (
-    setup_plugin,
     select_ensemble,
     select_parameter,
     select_response,
+    setup_plugin,
     wait_a_bit,
 )
-from urllib.parse import quote
+from webviz_ert.plugins._response_comparison import ResponseComparison
 
 
 @pytest.mark.browser_test
@@ -24,7 +24,7 @@ def test_plot_view(
 
     select_response(dash_duo, plugin, "SNAKE_OIL_GPR_DIFF@199")
 
-    select_parameter(dash_duo, plugin, "SNAKE_OIL_PARAM:BPR_138_PERSISTENCE")
+    select_parameter(dash_duo, plugin, "BPR_138_PERSISTENCE")
 
     # assert dash_duo.get_logs() == [], "browser console should contain no error"
 
@@ -49,8 +49,8 @@ def test_clearing_parameters_view(
     select_response(dash_duo, plugin, response_name)
 
     # click some parameters
-    select_parameter(dash_duo, plugin, "SNAKE_OIL_PARAM:BPR_138_PERSISTENCE")
-    select_parameter(dash_duo, plugin, "SNAKE_OIL_PARAM:OP1_DIVERGENCE_SCALE")
+    select_parameter(dash_duo, plugin, "BPR_138_PERSISTENCE")
+    select_parameter(dash_duo, plugin, "OP1_DIVERGENCE_SCALE")
 
     # clear parameter selection
     clear_all = dash_duo.find_element(
@@ -82,8 +82,8 @@ def test_clearing_ensembles_view(
     select_response(dash_duo, plugin, "SNAKE_OIL_GPR_DIFF@199")
 
     # click some parameters
-    select_parameter(dash_duo, plugin, "SNAKE_OIL_PARAM:BPR_138_PERSISTENCE")
-    select_parameter(dash_duo, plugin, "SNAKE_OIL_PARAM:OP1_DIVERGENCE_SCALE")
+    select_parameter(dash_duo, plugin, "BPR_138_PERSISTENCE")
+    select_parameter(dash_duo, plugin, "OP1_DIVERGENCE_SCALE")
 
     # clear ensemble selection
     clear_all = dash_duo.find_element(

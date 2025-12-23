@@ -1,12 +1,13 @@
 import pytest
-from webviz_ert.plugins._response_correlation import ResponseCorrelation
+
 from tests.conftest import (
-    setup_plugin,
     select_by_name,
     select_ensemble,
-    select_response,
     select_parameter,
+    select_response,
+    setup_plugin,
 )
+from webviz_ert.plugins._response_correlation import ResponseCorrelation
 
 
 @pytest.mark.browser_test
@@ -80,7 +81,7 @@ def test_info_text_appears_as_expected(
 ):
     ensemble = "default3"
     response = "FOPR"
-    parameter = "SNAKE_OIL_PARAM:BPR_138_PERSISTENCE"
+    parameter = "BPR_138_PERSISTENCE"
     index = "2010-01-10"
     plugin = setup_plugin(dash_duo, __name__, ResponseCorrelation)
     select_ensemble(dash_duo, plugin, ensemble)

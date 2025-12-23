@@ -1,8 +1,7 @@
-from webviz_ert.models import EnsembleModel
 import dash
-from webviz_ert.plugins import ParameterComparison
-from webviz_ert.plugins import ObservationAnalyzer
-from webviz_ert.models import load_ensemble
+
+from webviz_ert.models import EnsembleModel, load_ensemble
+from webviz_ert.plugins import ObservationAnalyzer, ParameterComparison
 
 
 def test_ensemble_model(mock_data):
@@ -17,14 +16,16 @@ def test_ensemble_model_parameter_data(mock_data):
     ens_model = EnsembleModel(ensemble_id=ens_id, project_id=None)
     parameters = ens_model.parameters
     assert len(parameters) == 2
-
-    data = parameters["SNAKE_OIL_PARAM:OP1_DIVERGENCE_SCALE"].data_df().values
-    assert data.flatten().tolist() == [0.1, 1.1, 2.1]
-
-    data = (
-        parameters["SNAKE_OIL_PARAM:BPR_138_PERSISTENCE"].data_df()["a"].values.tolist()
-    )
-    assert data == [0.01, 1.01, 2.01]
+    assert parameters["OP1_DIVERGENCE_SCALE"].data_df().values.flatten().tolist() == [
+        0.1,
+        1.1,
+        2.1,
+    ]
+    assert parameters["BPR_138_PERSISTENCE"].data_df().values.flatten().tolist() == [
+        0.01,
+        1.01,
+        2.01,
+    ]
 
 
 def test_ensemble_caching(mock_data):
