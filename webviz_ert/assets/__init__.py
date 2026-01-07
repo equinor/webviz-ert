@@ -1,4 +1,12 @@
-import pkg_resources
+import warnings
+
+with warnings.catch_warnings():
+    warnings.filterwarnings(
+        "ignore",
+        message=r".*pkg_resources is deprecated as an API.*",
+        category=UserWarning,
+    )
+    import pkg_resources
 import json
 from pathlib import Path
 from webviz_config.webviz_assets import WEBVIZ_ASSETS
