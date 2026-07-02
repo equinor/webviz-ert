@@ -5,6 +5,9 @@
 
 # Web based visualization for ERT
 
+> :warning: **This project is deprecated and no longer maintained, all functionality
+> has moved into the ert package: https://github.com/equinor/ert**
+
 ## What is Webviz-ert
 Webviz-ert is a visualization tool for ERT based on [dash](https://github.com/plotly/dash) 
 and [webviz-config](https://github.com/equinor/webviz-config).
